@@ -75,20 +75,6 @@ def logout_admin(token):
         print(e)
         return False
 
-def email_notification(subject='',header='',data='',footer='',mail_to=''):
-    s=header
-    s+=data
-    s+=footer
-
-    try:
-        send_mail(subject,
-                    str(s),
-                    list(admin_models.SMTP_setting.objects.filter(id=1))[0].sendgrid_sender_email,
-                    [mail_to])
-    except Exception as e:
-        print("ERROR while sending email ",e)
-        pass
-
 class login_admin_api(APIView):
     @login_not_required()
     def get(self,request):
@@ -155,7 +141,128 @@ class logout_api(APIView):
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
+class get_email(APIView):
+    def get(self,request):
+        # f0=serializers.password()
+        f1=serializers.send_otp_to_email()
 
+        return Response({**f1.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    def post(self,request):
+        f1=serializers.send_otp_to_email(data=request.POST)
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':tools.beautify_errors({**dict(f1.errors)}),
+                                'errors':{**dict(f1.errors)},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        uzr=list(accounts_models.Admins.objects.filter(email=request.POST['email']))
+        if uzr==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid id',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        uzr=uzr[0]
+        uzr.otp=random.randint(1000,9999)
+        uzr.save()
+        try:
+            send_mail("Resetting your Mayani Admin password",
+                        """you otp for resetting the password is """+str(uzr.otp),
+                        list(admin_models.SMTP_setting.objects.filter(id=1))[0].sendgrid_sender_email,
+                        [request.POST['email']])
+        except Exception as e:
+             return Response({'success':'false',
+                                 'error_msg':'please try again later'+str(list(admin_models.SMTP_setting.objects.filter(id=1))[0].sendgrid_sender_email),
+                                 'errors':'',
+                                 'response':str(e),
+                                 },status=status.HTTP_400_BAD_REQUEST)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':serializers.admin_data(uzr).data,
+                            },status=status.HTTP_202_ACCEPTED)
+class check_admin_otp(APIView):
+    def get(self,request):
+        # f0=serializers.password()
+        f1=serializers.check_user_otp()
+
+        return Response({**f1.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    def post(self,request):
+        f1=serializers.check_otp(data=request.POST)
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':tools.beautify_errors({**dict(f1.errors)}),
+                                'errors':{**dict(f1.errors)},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        uzr=list(accounts_models.Users.objects.filter(email=request.POST['email']))
+        if uzr==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid email',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        uzr=uzr[0]
+        if uzr.otp==request.POST["otp"]:
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':serializers.admin_data(uzr).data,
+                                },status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({'success':'false',
+                                'error_msg':'invalid OTP',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+class change_password_admin(APIView):
+    def get(self,request):
+        # f0=serializers.password()
+        f1=serializers.create_admin_password()
+        return Response({**f1.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    def post(self,request):
+        f1=serializers.create_admin_password(data=request.POST)
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':tools.beautify_errors({**dict(f1.errors)}),
+                                'errors':{**dict(f1.errors)},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        if request.POST["password"]!=request.POST["confirm_password"]:
+            return Response({'success':'false',
+                                'error_msg':'password and confirm_password dose not match',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        uzr=list(accounts_models.Admins.objects.filter(email=request.POST['email']))
+        if uzr==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid id',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        uzr=uzr[0]
+        if uzr.otp!=request.POST["otp"]:
+            return Response({'success':'false',
+                                'error_msg':'invalid OTP',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        password=request.POST['password'].encode('utf-8')
+        uzr.password=bcrypt.hashpw(password,bcrypt.gensalt())
+        print('----',uzr.password)
+        uzr.password=uzr.password.decode("utf-8")
+        print(uzr.password)
+        uzr.is_varified=True
+        uzr.save()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':serializers.admin_data(uzr).data,
+                            },status=status.HTTP_202_ACCEPTED)
 # class admin_forget_password(APIView):
 #     def
 

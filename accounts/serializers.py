@@ -107,14 +107,24 @@ def is_all_number(val):
                 params={'val': val},
             )
 #https://www.django-rest-framework.org/api-guide/validators/#function-based
+class admin_data(serializers.ModelSerializer):
+    class Meta:
+        model=models.Admins
+        exclude=('password','token','otp')
 class userlogin(serializers.Serializer):
     email=serializers.CharField(max_length=200)
     password=serializers.CharField(max_length=155,required=False)
-class  send_otp_to_email(serializers.Serializer):
+class send_otp_to_email(serializers.Serializer):
     email=serializers.EmailField()
 class check_otp(serializers.Serializer):
     otp=serializers.IntegerField()
     email=serializers.EmailField()
+class create_admin_password(serializers.Serializer):
+    otp=serializers.IntegerField()
+    email=serializers.CharField()
+    password=serializers.CharField(validators=[validate])
+    confirm_password=serializers.CharField()
+
 class password(serializers.Serializer):
     password=serializers.CharField(required=False,validators=[validate])
     confirm_password=serializers.CharField(required=False)
