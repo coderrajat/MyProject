@@ -1,0 +1,11 @@
+django
+djangorestframework
+django-ckeditor==6.0.0
+dnspython==2.0.0
+bcrypt==3.2.0
+stripe
+django-cors-headers
+django-storages
+boto3
+timezonefinder
+google-api-python-client
