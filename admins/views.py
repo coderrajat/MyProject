@@ -61,7 +61,7 @@ class cms(APIView):
                                     'error_msg':'',
                                     'errors':{},
                                     'response':{'data':serializers.csm_about_us_api(cms).data},
-                                    },status=status.HTTP_200_ACCEPTED)
+                                    },status=status.HTTP_200_OK)
             else:
                 return Response({'success':'false',
                                     'error_msg':name+' is a invalid term or policy',
@@ -73,7 +73,7 @@ class cms(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{'data':serializers.csm_about_us_api(content).data},
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     def post(self,request,name):
         f1=serializers.csm_about_us_api(data=request.POST,instance=content)
         if f1.is_valid():
@@ -88,7 +88,7 @@ class cms(APIView):
                                         'error_msg':'',
                                         'errors':{},
                                         'response':{'data':serialize('json', [cms])},
-                                        },status=status.HTTP_200_ACCEPTED)
+                                        },status=status.HTTP_200_OK)
                 else:
                     return Response({'success':'false',
                                         'error_msg':name+' is a invalid term or policy',
@@ -102,7 +102,7 @@ class cms(APIView):
                                 'error_msg':'',
                                 'errors':{},
                                 'response':{'data':serialize('json', [content])},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         else:
             return Response({'success':'false',
                                 'error_msg':'CMS_content not valid',
@@ -123,7 +123,7 @@ class image_settings(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{'result':f1.data},
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
 
 
 
@@ -146,7 +146,7 @@ class image_settings(APIView):
                     'error_msg':'in',
                     'errors':{},
                     'response':{},
-                    },status=status.HTTP_200_ACCEPTED)
+                    },status=status.HTTP_200_OK)
 
 class smtp_settings_api(APIView):
     # @is_authenticate(
@@ -158,7 +158,7 @@ class smtp_settings_api(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{**f1.data},
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
 
 
     # @is_authenticate(
@@ -174,7 +174,7 @@ class smtp_settings_api(APIView):
                                     'error_msg':'',
                                     'errors':{},
                                     'response':{},
-                                    },status=status.HTTP_200_ACCEPTED)
+                                    },status=status.HTTP_200_OK)
             else:
                 return Response({'success':'false',
                                     'error_msg':'',
@@ -198,7 +198,7 @@ class social_media_settings(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{'result':serializers.social_media_settings(sms).data},
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
 
     # @is_authenticate(
     # change_company_details =True,
@@ -217,7 +217,7 @@ class social_media_settings(APIView):
                                 'error_msg':'',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         else:
             return Response({'success':'false',
                                     'error_msg':'',
@@ -230,7 +230,7 @@ class general_settings_api(APIView):
     def get(self, request):
         g_s = admin_models.general_settings.objects.get(id = 1)
         return Response({'data':serializers.general_settings_serializer(g_s).data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     # @is_authenticate(change_company_details =True,)
     def post(self, request):
         f1=serializers.general_settings_serializer(data=request.POST)
@@ -242,7 +242,7 @@ class general_settings_api(APIView):
                                 'error_msg':'',
                                 'errors':{},
                                 'response':'Successfull updated',
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
 
         else:
             f1.is_valid()
@@ -262,7 +262,7 @@ class admin_profile(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':f1.data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     @is_authenticate()
     def post(self,request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
@@ -286,7 +286,7 @@ class admin_profile(APIView):
                             'errors':{},
                             'response':{},
 
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
 class change_admin_password(APIView):
     @is_authenticate()
     def get(self,request):
@@ -296,7 +296,7 @@ class change_admin_password(APIView):
                             'errors':{},
                             'response':f1.data,
 
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     @is_authenticate()
     def post(self,request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
@@ -325,7 +325,7 @@ class change_admin_password(APIView):
                                         'error_msg':'',
                                         'errors':{},
                                         'response':{},
-                                        },status=status.HTTP_200_ACCEPTED)
+                                        },status=status.HTTP_200_OK)
                 else:
                     return Response({'success':'false',
                                         'error_msg':'',

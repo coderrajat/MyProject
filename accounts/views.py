@@ -79,7 +79,7 @@ class login_admin_api(APIView):
     @login_not_required()
     def get(self,request):
         f1=serializers.userlogin()
-        return Response(f1.data,status=status.HTTP_200_ACCEPTED)
+        return Response(f1.data,status=status.HTTP_200_OK)
     @login_not_required()
     def post(self,request):
         f1=serializers.userlogin(data=request.data)
@@ -111,7 +111,7 @@ class login_admin_api(APIView):
                                     'errors':{},
                                     'response':{'user':[serializers.admins_forms(user).data],},
                                     'token':re,
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
             return Response({'success':'false',
                                 'error_msg':'user_not_authenticated',
                                 'response':{},
@@ -133,7 +133,7 @@ class logout_api(APIView):
             'error_msg':'',
             'response':{},
 
-            },status=status.HTTP_200_ACCEPTED)
+            },status=status.HTTP_200_OK)
         else:
             print(val)
             return Response({'success':'false',
@@ -147,7 +147,7 @@ class get_email(APIView):
         f1=serializers.send_otp_to_email()
 
         return Response({**f1.data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     def post(self,request):
         f1=serializers.send_otp_to_email(data=request.POST)
         if not(f1.is_valid()):
@@ -159,7 +159,7 @@ class get_email(APIView):
         uzr=list(accounts_models.Admins.objects.filter(email=request.POST['email']))
         if uzr==[]:
             return Response({'success':'false',
-                                'error_msg':'invalid id',
+                                'error_msg':'User does not exist',
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
@@ -181,14 +181,14 @@ class get_email(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':serializers.admin_data(uzr).data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
 class check_admin_otp(APIView):
     def get(self,request):
         # f0=serializers.password()
         f1=serializers.check_otp()
 
         return Response({**f1.data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     def post(self,request):
         f1=serializers.check_otp(data=request.POST)
         if not(f1.is_valid()):
@@ -210,7 +210,7 @@ class check_admin_otp(APIView):
                                 'error_msg':'',
                                 'errors':{},
                                 'response':serializers.admin_data(uzr).data,
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         else:
             return Response({'success':'false',
                                 'error_msg':'invalid OTP',
@@ -222,7 +222,7 @@ class change_password_admin(APIView):
         # f0=serializers.password()
         f1=serializers.create_admin_password()
         return Response({**f1.data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     def post(self,request):
         f1=serializers.create_admin_password(data=request.POST)
         if not(f1.is_valid()):
@@ -240,7 +240,7 @@ class change_password_admin(APIView):
         uzr=list(accounts_models.Admins.objects.filter(email=request.POST['email']))
         if uzr==[]:
             return Response({'success':'false',
-                                'error_msg':'invalid id',
+                                'error_msg':'invalid email',
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
@@ -262,7 +262,7 @@ class change_password_admin(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':serializers.admin_data(uzr).data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
 # class admin_forget_password(APIView):
 #     def
 class signup_user(APIView):
@@ -271,7 +271,7 @@ class signup_user(APIView):
         f1=serializers.signup_user()
 
         return Response({**f1.data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     def post(self,request):
         f1=serializers.signup_user(data=request.POST)
         if not ( f1.is_valid()):
@@ -279,7 +279,7 @@ class signup_user(APIView):
                                 'error_msg':tools.beautify_errors({**dict(f1.errors)}),
                                 'errors':{**dict(f1.errors)},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         uzr=list(accounts_models.Users.objects.filter(Q(country_code=request.POST['country_code'])&Q(phone_number=request.POST['phone_number'])))
         if uzr!=[]:
             uzr=uzr[0]
@@ -288,7 +288,7 @@ class signup_user(APIView):
                                     'error_msg':'user alrady exist',
                                     'errors':{},
                                     'response':{},
-                                    },status=status.HTTP_200_ACCEPTED)
+                                    },status=status.HTTP_200_OK)
             else:
                 uzr.delete()
         uzr=accounts_models.Users()
@@ -304,19 +304,19 @@ class signup_user(APIView):
                                  'error_msg':'please try again later',
                                  'errors':'',
                                  'response':{},
-                                 },status=status.HTTP_200_ACCEPTED)
+                                 },status=status.HTTP_200_OK)
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
                             'response':serializers.user_data(uzr).data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
 class check_user_otp(APIView):
     def get(self,request):
         # f0=serializers.password()
         f1=serializers.check_user_otp()
 
         return Response({**f1.data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     def post(self,request):
         f1=serializers.check_user_otp(data=request.POST)
         if not(f1.is_valid()):
@@ -324,33 +324,33 @@ class check_user_otp(APIView):
                                 'error_msg':tools.beautify_errors({**dict(f1.errors)}),
                                 'errors':{**dict(f1.errors)},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         uzr=list(accounts_models.Users.objects.filter(id=request.POST['id']))
         if uzr==[]:
             return Response({'success':'false',
                                 'error_msg':'invalid id',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         uzr=uzr[0]
         if uzr.otp==request.POST["otp"]:
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
                                 'response':serializers.user_data(uzr).data,
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         else:
             return Response({'success':'false',
                                 'error_msg':'invalid OTP',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
 class create_password(APIView):
     def get(self,request):
         # f0=serializers.password()
         f1=serializers.create_password()
         return Response({**f1.data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
     def post(self,request):
         f1=serializers.create_password(data=request.POST)
         if not(f1.is_valid()):
@@ -358,27 +358,27 @@ class create_password(APIView):
                                 'error_msg':tools.beautify_errors({**dict(f1.errors)}),
                                 'errors':{**dict(f1.errors)},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         if request.POST["password"]!=request.POST["confirm_password"]:
             return Response({'success':'false',
                                 'error_msg':'password and confirm_password dose not match',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         uzr=list(accounts_models.Users.objects.filter(id=request.POST['id']))
         if uzr==[]:
             return Response({'success':'false',
                                 'error_msg':'invalid id',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         uzr=uzr[0]
         if uzr.otp!=request.POST["otp"]:
             return Response({'success':'false',
                                 'error_msg':'invalid OTP',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         password=request.POST['password'].encode('utf-8')
         uzr.password=bcrypt.hashpw(password,bcrypt.gensalt())
         print('----',uzr.password)
@@ -390,12 +390,12 @@ class create_password(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':serializers.user_data(uzr).data,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
 class signin_user(APIView):
     @login_not_required()
     def get(self,request):
         f1=serializers.signin_user()
-        return Response(f1.data,status=status.HTTP_200_ACCEPTED)
+        return Response(f1.data,status=status.HTTP_200_OK)
     @login_not_required()
     def post(self,request):
         f1=serializers.signin_user(data=request.data)
@@ -404,14 +404,14 @@ class signin_user(APIView):
                                 'error_msg':tools.beautify_errors({**dict(f1.errors)}),
                                 'errors':{**dict(f1.errors)},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         uzr=list(accounts_models.Users.objects.filter(Q(country_code=request.POST['country_code'])&Q(phone_number=request.POST['phone_number'])))
         if uzr==[]:
             return Response({'success':'false',
                                 'error_msg':'invalid credentials',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_200_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         uzr=uzr[0]
         password=str(request.POST['password']).encode('utf-8')
         hash_pass=uzr.password.encode('utf-8')
@@ -431,12 +431,12 @@ class signin_user(APIView):
                                 'errors':{},
                                 'response':{'user':[serializers.user_data(uzr).data],},
                                 'token':re,
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
         return Response({'success':'false',
                             'error_msg':'invalid credentials',
                             'response':{},
                             'errors':'',
-                            },status=status.HTTP_200_ACCEPTED)
+                            },status=status.HTTP_200_OK)
 
 
 
