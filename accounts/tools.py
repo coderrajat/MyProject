@@ -77,10 +77,10 @@ def decodetoken(data):
 
 def get_user(usertype,id,time,token):
     if usertype=='admin':
-        user=list(models.Admin.objects.filter(id=id))
+        user=list(models.Admins.objects.filter(id=id))
         if user!=[]:
             user=user[0]
-            if user.token.token==token:
+            if user.token==token:
                 return user
             else:
                 return []
@@ -90,7 +90,7 @@ def get_user(usertype,id,time,token):
         user=list(models.Users.objects.filter(id=id))
         if user!=[]:
             user=user[0]
-            if user.token.token==token:
+            if user.token==token:
                 return user
             else:
                 return []

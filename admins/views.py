@@ -7,6 +7,7 @@ from admins import models as admin_models
 # Create your views here.
 import bcrypt
 from accounts import tools
+import datetime
 from . import serializers
 # from . import tools
 def is_authenticate(*Dargs,**Dkwargs):
@@ -18,7 +19,8 @@ def is_authenticate(*Dargs,**Dkwargs):
                     data=tools.decodetoken(args[1].META['HTTP_AUTHORIZATION'])
 
                     time=datetime.datetime.strptime(data[2].split('.')[0],'%Y-%m-%d %H:%M:%S')
-                except:
+                except Exception as e:
+                    # print(e)
                     return Response({'success':'false','error_msg':'invalid token','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
 
                 if len(data)==4 and time>datetime.datetime.now():
@@ -59,7 +61,7 @@ class cms(APIView):
                                     'error_msg':'',
                                     'errors':{},
                                     'response':{'data':serializers.csm_about_us_api(cms).data},
-                                    },status=status.HTTP_202_ACCEPTED)
+                                    },status=status.HTTP_200_ACCEPTED)
             else:
                 return Response({'success':'false',
                                     'error_msg':name+' is a invalid term or policy',
@@ -71,7 +73,7 @@ class cms(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{'data':serializers.csm_about_us_api(content).data},
-                            },status=status.HTTP_202_ACCEPTED)
+                            },status=status.HTTP_200_ACCEPTED)
     def post(self,request,name):
         f1=serializers.csm_about_us_api(data=request.POST,instance=content)
         if f1.is_valid():
@@ -86,7 +88,7 @@ class cms(APIView):
                                         'error_msg':'',
                                         'errors':{},
                                         'response':{'data':serialize('json', [cms])},
-                                        },status=status.HTTP_202_ACCEPTED)
+                                        },status=status.HTTP_200_ACCEPTED)
                 else:
                     return Response({'success':'false',
                                         'error_msg':name+' is a invalid term or policy',
@@ -100,7 +102,7 @@ class cms(APIView):
                                 'error_msg':'',
                                 'errors':{},
                                 'response':{'data':serialize('json', [content])},
-                                },status=status.HTTP_202_ACCEPTED)
+                                },status=status.HTTP_200_ACCEPTED)
         else:
             return Response({'success':'false',
                                 'error_msg':'CMS_content not valid',
@@ -121,7 +123,7 @@ class image_settings(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{'result':f1.data},
-                            },status=status.HTTP_202_ACCEPTED)
+                            },status=status.HTTP_200_ACCEPTED)
 
 
 
@@ -144,7 +146,7 @@ class image_settings(APIView):
                     'error_msg':'in',
                     'errors':{},
                     'response':{},
-                    },status=status.HTTP_202_ACCEPTED)
+                    },status=status.HTTP_200_ACCEPTED)
 
 class smtp_settings_api(APIView):
     # @is_authenticate(
@@ -156,7 +158,7 @@ class smtp_settings_api(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{**f1.data},
-                            },status=status.HTTP_202_ACCEPTED)
+                            },status=status.HTTP_200_ACCEPTED)
 
 
     # @is_authenticate(
@@ -172,10 +174,10 @@ class smtp_settings_api(APIView):
                                     'error_msg':'',
                                     'errors':{},
                                     'response':{},
-                                    },status=status.HTTP_202_ACCEPTED)
+                                    },status=status.HTTP_200_ACCEPTED)
             else:
                 return Response({'success':'false',
-                                    'error_msg':beautify_errors({**dict(f1.errors)}),
+                                    'error_msg':'',
                                     'errors':{**dict(f1.errors)},
                                     'response':{},
                                     },status=status.HTTP_400_BAD_REQUEST)
@@ -196,7 +198,7 @@ class social_media_settings(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{'result':serializers.social_media_settings(sms).data},
-                            },status=status.HTTP_202_ACCEPTED)
+                            },status=status.HTTP_200_ACCEPTED)
 
     # @is_authenticate(
     # change_company_details =True,
@@ -215,10 +217,10 @@ class social_media_settings(APIView):
                                 'error_msg':'',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_202_ACCEPTED)
+                                },status=status.HTTP_200_ACCEPTED)
         else:
             return Response({'success':'false',
-                                    'error_msg':beautify_errors({**dict(f1.errors)}),
+                                    'error_msg':'',
                                     'errors':{**dict(f1.errors)},
                                     'response':{},
                                     },status=status.HTTP_400_BAD_REQUEST)
@@ -228,7 +230,7 @@ class general_settings_api(APIView):
     def get(self, request):
         g_s = admin_models.general_settings.objects.get(id = 1)
         return Response({'data':serializers.general_settings_serializer(g_s).data,
-                            },status=status.HTTP_202_ACCEPTED)
+                            },status=status.HTTP_200_ACCEPTED)
     # @is_authenticate(change_company_details =True,)
     def post(self, request):
         f1=serializers.general_settings_serializer(data=request.POST)
@@ -240,7 +242,7 @@ class general_settings_api(APIView):
                                 'error_msg':'',
                                 'errors':{},
                                 'response':'Successfull updated',
-                                },status=status.HTTP_202_ACCEPTED)
+                                },status=status.HTTP_200_ACCEPTED)
 
         else:
             f1.is_valid()
@@ -248,4 +250,97 @@ class general_settings_api(APIView):
                                 'error_msg':'invalid_input',
                                 'errors':{},
                                 'response':{**dict(f1.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+
+class admin_profile(APIView):
+    @is_authenticate()
+    def get(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        f1=serializers.admin_data(requstuser)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':f1.data,
+                            },status=status.HTTP_200_ACCEPTED)
+    @is_authenticate()
+    def post(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        f1=serializers.admin_form(instance=requstuser,data=request.POST)
+        f1.is_valid()
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        uzr=f1.save()
+        if  'profile_pic' in request.FILES:
+            if requstuser.profile_pic != 'deafult_profile_pic.jpeg':
+                requstuser.profile_pic.delete()
+            uzr.profile_pic=request.FILES['profile_pic']
+        uzr.save()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+
+                            },status=status.HTTP_200_ACCEPTED)
+class change_admin_password(APIView):
+    @is_authenticate()
+    def get(self,request):
+        f1=serializers.change_password()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':f1.data,
+
+                            },status=status.HTTP_200_ACCEPTED)
+    @is_authenticate()
+    def post(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        f1=serializers.change_password(data=request.POST)
+        if f1.is_valid():
+
+            if request.POST['password']=='':
+
+                return Response({'success':'false',
+                                    'error_msg':'',
+                                    'errors':{'password':["Passwords should not empty"]},
+                                    'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+            password=str(request.POST['oldpassword']).encode('utf-8')
+            hash_pass=requstuser.password.encode('utf-8')
+
+            if bcrypt.checkpw(password,hash_pass):
+                if request.POST['password']==request.POST['confirm_password']:
+                    user=requstuser
+                    password=request.POST['password'].encode('utf-8')
+                    user.password=bcrypt.hashpw(password,bcrypt.gensalt())
+                    user.password=user.password.decode("utf-8")
+                    user.save()
+                    return Response({'success':'true',
+                                        'error_msg':'',
+                                        'errors':{},
+                                        'response':{},
+                                        },status=status.HTTP_200_ACCEPTED)
+                else:
+                    return Response({'success':'false',
+                                        'error_msg':'',
+                                        'errors':{**dict(f1.errors),**{'confirm_password':["Confirm Password does not match"]}},
+                                        'response':{},
+                                    },status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'success':'false',
+                                    'error_msg':'',
+                                    'errors':{'oldpassword':["Old Password is incorrect"]},
+                                    'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'success':'false',
+                                'error_msg':'',
+                                'errors':{**dict(f1.errors)},
+                                'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)

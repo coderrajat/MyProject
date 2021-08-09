@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from . import models as admin_models
+from accounts import models as account_models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 def is_small(data):
@@ -142,16 +143,29 @@ def is_in_word_limit(val):
 #     class Meta:
 #         model=admin_models.authorizations
 #         fields=('__all__')
+class admin_form(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Admins
+        exclude=('id',
+                'profile_pic',
+                'token',
+                'otp',
+                'is_user_blocked',
+                'date_joined',
+                'last_login',
+                'password')
+class admin_data(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Admins()
+        exclude=('token','otp')
+
 class password(serializers.Serializer):
     password=serializers.CharField(required=False,validators=[validate])
     confirm_password=serializers.CharField(required=False)
-
 class change_password(serializers.Serializer):
     oldpassword=serializers.CharField(required=False,validators=[validate])
     password=serializers.CharField(required=False,validators=[validate])
     confirm_password=serializers.CharField(required=False)
-
-
 class csm_about_us_api(serializers.ModelSerializer):
     class Meta:
         model=admin_models.CMS
