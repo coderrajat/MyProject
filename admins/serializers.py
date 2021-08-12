@@ -231,3 +231,15 @@ class general_settings_serializer(serializers.ModelSerializer):
     class Meta():
         model = admin_models.general_settings
         fields = ('__all__')
+class pagination(serializers.Serializer):
+    result_limit = serializers.IntegerField(max_value=20, min_value=1, required=True)
+    page=serializers.CharField(required=False)
+    order_by=serializers.CharField(required=False)
+    order_by_type=serializers.CharField(required=False)
+class search_user(serializers.Serializer):
+    search=serializers.CharField(required=False)
+    subscription_plan=serializers.CharField(required=False)
+class search_consumer_form(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        exclude=('password','token','otp')

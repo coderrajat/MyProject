@@ -11,3 +11,4 @@ timezonefinder
 google-api-python-client
 sendgrid==6.4.7
 twilio==6.48.0
+psycopg2

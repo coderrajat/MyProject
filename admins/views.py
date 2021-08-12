@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.core.paginator import Paginator
 from rest_framework import status
 from django.db.models import Q
 from admins import models as admin_models
+from accounts import models as account_models
 # Create your views here.
 import bcrypt
 from accounts import tools
@@ -50,10 +52,11 @@ def is_authenticate(*Dargs,**Dkwargs):
     return inner
 
 class cms(APIView):
+    @is_authenticate()
     def get(self,request,name):
         content=list(admin_models.CMS.objects.filter(name=name))
         if content==[]:
-            if name in []:
+            if name in ['about_us','legal_disclamer','t&s','privacy_policy','how_to_pay_via_mobile']:
                 cms=admin_models.CMS()
                 cms.name=name
                 cms.save()
@@ -74,34 +77,36 @@ class cms(APIView):
                             'errors':{},
                             'response':{'data':serializers.csm_about_us_api(content).data},
                             },status=status.HTTP_200_OK)
+    @is_authenticate()
     def post(self,request,name):
+        content=list(admin_models.CMS.objects.filter(name=name))
+        if content==[]:
+            if name in []:
+                cms=admin_models.CMS()
+                cms.name=name
+                cms.content=request.POST['content']
+                cms.save()
+                return Response({'success':'true',
+                                    'error_msg':'',
+                                    'errors':{},
+                                    'response':{'data':serializers.csm_about_us_api(cms).data},
+                                    },status=status.HTTP_200_OK)
+            else:
+                return Response({'success':'false',
+                                    'error_msg':name+' is a invalid term or policy',
+                                    'errors':{},
+                                    'response':{},
+                                    },status=status.HTTP_400_BAD_REQUEST)
+        content=content[0]
         f1=serializers.csm_about_us_api(data=request.POST,instance=content)
         if f1.is_valid():
-            content=list(admin_models.CMS.objects.filter(name=name))
-            if content==[]:
-                if name in []:
-                    cms=admin_models.CMS()
-                    cms.name=name
-                    cms.content=request.POST['content']
-                    cms.save()
-                    return Response({'success':'true',
-                                        'error_msg':'',
-                                        'errors':{},
-                                        'response':{'data':serialize('json', [cms])},
-                                        },status=status.HTTP_200_OK)
-                else:
-                    return Response({'success':'false',
-                                        'error_msg':name+' is a invalid term or policy',
-                                        'errors':{},
-                                        'response':{},
-                                        },status=status.HTTP_400_BAD_REQUEST)
-            content=content[0]
+
             content.content=request.POST['content']
             content.save()
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'data':serialize('json', [content])},
+                                'response':{'data':serializers.csm_about_us_api(content).data},
                                 },status=status.HTTP_200_OK)
         else:
             return Response({'success':'false',
@@ -113,9 +118,7 @@ class cms(APIView):
 class image_settings(APIView):
 
 
-    # @is_authenticate(
-    # change_company_details =True,
-    # )
+    @is_authenticate()
     def get(self,request):
         ims=admin_models.image_settings.objects.get_or_create(id='1',defaults={'deafult_profile_pic': 'deafult_profile_pic.jpeg','default_parking_spot_pic': 'default_parking_spot_pic.jpeg'})[0]
         f1=serializers.image_settings(ims)
@@ -127,9 +130,7 @@ class image_settings(APIView):
 
 
 
-    # @is_authenticate(
-    # change_company_details =True,
-    # )
+    @is_authenticate()
     def post(self,request):
 
         ims=admin_models.image_settings.objects.get_or_create(id='1',defaults={'deafult_profile_pic': 'deafult_profile_pic.jpeg','default_parking_spot_pic': 'default_parking_spot_pic.jpeg'})[0]
@@ -149,9 +150,7 @@ class image_settings(APIView):
                     },status=status.HTTP_200_OK)
 
 class smtp_settings_api(APIView):
-    # @is_authenticate(
-    # change_company_details =True,
-    # )
+    @is_authenticate()
     def get(self,request):
         f1=serializers.smtp_settings_api(list(admin_models.SMTP_setting.objects.filter(id=1))[0])
         return Response({'success':'true',
@@ -161,9 +160,7 @@ class smtp_settings_api(APIView):
                             },status=status.HTTP_200_OK)
 
 
-    # @is_authenticate(
-    # change_company_details =True,
-    # )
+    @is_authenticate()
     def post(self,request):
         if request.method=='POST':
             smtp=list(admin_models.SMTP_setting.objects.filter(id=1))[0]
@@ -184,9 +181,7 @@ class smtp_settings_api(APIView):
 class social_media_settings(APIView):
 
 
-    # @is_authenticate(
-    # change_company_details =True,
-    # )
+    @is_authenticate()
     def get(self,request):
         sms=list(admin_models.social_media_settings.objects.filter(id=1))
         if sms==[]:
@@ -200,9 +195,7 @@ class social_media_settings(APIView):
                             'response':{'result':serializers.social_media_settings(sms).data},
                             },status=status.HTTP_200_OK)
 
-    # @is_authenticate(
-    # change_company_details =True,
-    # )
+    @is_authenticate()
     def post(self,request):
         sms=list(admin_models.social_media_settings.objects.filter(id=1))
         if sms==[]:
@@ -226,12 +219,12 @@ class social_media_settings(APIView):
                                     },status=status.HTTP_400_BAD_REQUEST)
 
 class general_settings_api(APIView):
-    # @is_authenticate()
+    @is_authenticate()
     def get(self, request):
         g_s = admin_models.general_settings.objects.get(id = 1)
         return Response({'data':serializers.general_settings_serializer(g_s).data,
                             },status=status.HTTP_200_OK)
-    # @is_authenticate(change_company_details =True,)
+    @is_authenticate()
     def post(self, request):
         f1=serializers.general_settings_serializer(data=request.POST)
         if f1.is_valid():
@@ -344,3 +337,279 @@ class change_admin_password(APIView):
                                 'errors':{**dict(f1.errors)},
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
+
+class search_consumer_api(APIView):
+    @is_authenticate()
+    def get(self,request):
+        f1=serializers.search_user()
+        f2=serializers.pagination()
+        return Response({**f1.data,**f2.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    @is_authenticate()
+    def post(self,request):
+        f1=serializers.search_user(data=request.POST)
+        f2=serializers.pagination(data=request.POST)
+        if not(f1.is_valid() and f2.is_valid()):
+            f1.is_valid()
+            f2.is_valid()
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors),**dict(f2.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        result_flg=True
+        s=request.POST['search']
+        search_query=Q()
+        second_search_query=Q()
+        if request.POST['subscription_plan']!='':
+            second_search_query.add(Q(subscription_plan__icontains=request.POST['subscription_plan']),Q.AND)
+            # result_flg=False
+        if s!='':
+            search_query.add(Q(email__icontains=s),Q.OR)
+            search_query.add(Q(first_name__icontains=s),Q.OR)
+            search_query.add(Q(last_name__icontains=s),Q.OR)
+            search_query.add(Q(phone_number__icontains=s),Q.OR)
+            search_query.add(Q(country__icontains=s),Q.OR)
+            search_query.add(Q(state__icontains=s),Q.OR)
+            search_query.add(Q(full_name__icontains=s),Q.OR)
+            search_query.add(Q(bio__icontains=s),Q.OR)
+            # result_flg=False
+        if result_flg:
+            result=account_models.Users.objects.filter(second_search_query&search_query)
+        else:
+            result=account_models.Users.objects.all()
+        if request.POST['order_by']!=None and request.POST['order_by']!='':
+            if request.POST['order_by_type']=='dec':
+                order='-'+request.POST['order_by']
+            else:
+                order=request.POST['order_by']
+            result=result.order_by(order)
+        paginate_result=Paginator(result, request.POST['result_limit'])
+        p_r=paginate_result.get_page(request.POST['page'])
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':serializers.search_consumer_form(p_r,many=True).data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                                },
+                            },status=status.HTTP_202_ACCEPTED)
+class edit_user_api(APIView):
+    @is_authenticate()
+    def get(self,request,id):
+        user=list(account_models.Users.objects.filter(id=id))
+        if user==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        user=user[0]
+        f1=serializers.search_consumer_form(user)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':f1.data,
+                            },status=status.HTTP_200_OK)
+    @is_authenticate()
+    def post(self,request,id):
+        user=list(account_models.Users.objects.filter(id=id))
+        if user==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        user=user[0]
+        f1=serializers.search_consumer_form(instance=user,data=request.POST)
+        f1.is_valid()
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        uzr=f1.save()
+        if  'profile_pic' in request.FILES:
+            if user.profile_pic != 'deafult_profile_pic.jpeg':
+                user.profile_pic.delete()
+            uzr.profile_pic=request.FILES['profile_pic']
+        uzr.save()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+
+                            },status=status.HTTP_200_OK)
+class delete_user(APIView):
+    @is_authenticate()
+    def get(self,request,id):
+        user=list(account_models.Users.objects.filter(id=id))
+        if user==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        user=user[0]
+        try:
+            user.delete()
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK)
+        except:
+            return Response({'success':'false',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK)
+class block_user(APIView):
+    @is_authenticate()
+    def get(self,request,id):
+        user=list(account_models.Users.objects.filter(id=id))
+        if user==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        user=user[0]
+
+        user.is_user_blocked=not user.is_user_blocked
+        user.save()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
+
+
+class subadmin_list(APIView):
+    def get(self,request):
+        f1=serializers.pagination(data=request.POST)
+        if not(f1.is_valid() ):
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        result=list(account_models.Admins.objects.filter(~Q(id=requstuser.id)))
+
+        if request.POST['order_by']!=None and request.POST['order_by']!='':
+            if request.POST['order_by_type']=='dec':
+                order='-'+request.POST['order_by']
+            else:
+                order=request.POST['order_by']
+            result=result.order_by(order)
+        paginate_result=Paginator(result, request.POST['result_limit'])
+        p_r=paginate_result.get_page(request.POST['page'])
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':serializers.admin_data(p_r,many=True).data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                                },
+                            },status=status.HTTP_202_ACCEPTED)
+class edit_subadmin(APIView):
+    @is_authenticate()
+    def get(self,request,id):
+        user=list(account_models.Admins.objects.filter(id=id))
+        if user==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        user=user[0]
+        f1=serializers.admin_data(user)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':f1.data,
+                            },status=status.HTTP_200_OK)
+    @is_authenticate()
+    def post(self,request,id):
+        user=list(account_models.Admins.objects.filter(id=id))
+        if user==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        user=user[0]
+        f1=serializers.admin_form(instance=user,data=request.POST)
+        f1.is_valid()
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        uzr=f1.save()
+        if  'profile_pic' in request.FILES:
+            if requstuser.profile_pic != 'deafult_profile_pic.jpeg':
+                requstuser.profile_pic.delete()
+            uzr.profile_pic=request.FILES['profile_pic']
+        uzr.save()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+
+                            },status=status.HTTP_200_OK)
+class delete_subadmin(APIView):
+    @is_authenticate()
+    def get(self,request,id):
+        user=list(account_models.Admins.objects.filter(id=id))
+        if user==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        user=user[0]
+        try:
+            user.delete()
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK)
+        except:
+            return Response({'success':'false',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK)
+class block_subadmin(APIView):
+    @is_authenticate()
+    def get(self,request,id):
+        user=list(account_models.Admins.objects.filter(id=id))
+        if user==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        user=user[0]
+
+        user.is_user_blocked=not user.is_user_blocked
+        user.save()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
