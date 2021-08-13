@@ -8,7 +8,7 @@ class Admins(models.Model):
     password=models.TextField(default="")
     address_line_1=models.CharField(max_length=200,default='')
     address_line_2=models.CharField(max_length=200,default='')
-    profile_pic=models.ImageField(upload_to='admin/image/profile_image',default='deafult_profile_pic.jpeg')
+    profile_pic=models.ImageField(upload_to='images/profile',default='deafult_profile_pic.jpeg')
     otp=models.CharField(max_length=200,default='')
     country_code=models.CharField(max_length=10)
     phone_number=models.CharField(max_length=15)
@@ -35,7 +35,7 @@ class Users(models.Model):
     facebook=models.CharField(max_length=2000)
     instagram=models.CharField(max_length=2000)
     bio=models.CharField(max_length=500)
-    profile_pic=models.ImageField(upload_to='admin/image/profile_image',default='deafult_profile_pic.jpeg')
+    profile_pic=models.ImageField(upload_to='images/profile',default='deafult_profile_pic.jpeg')
     otp=models.CharField(max_length=200,default='')
 
 

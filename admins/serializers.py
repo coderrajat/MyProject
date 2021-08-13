@@ -243,3 +243,9 @@ class search_consumer_form(serializers.ModelSerializer):
     class Meta:
         model=account_models.Users
         exclude=('password','token','otp')
+class song_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=('__all__','album_name')
+class search_song(serializers.Serializer):
+    search=serializers.CharField(required=False)

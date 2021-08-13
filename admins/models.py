@@ -1,4 +1,5 @@
 from django.db import models
+from accounts import models as accounts_models
 class CMS(models.Model):
     name=models.CharField(max_length=200,unique=True)
     content = models.TextField(null=True,blank=True)
@@ -30,3 +31,29 @@ class general_settings(models.Model):
 class SMTP_setting(models.Model):
     twilio_phone_number=models.CharField(max_length=100,blank=True,default='')
     sendgrid_sender_email=models.EmailField()
+class artist(models.Model):
+    name=models.CharField(max_length=400)
+    artist_origin=models.TextField()
+    photo=models.ImageField(upload_to='images/artist',default='deafult_profile_pic.jpeg')
+class album(models.Model):
+    name=models.CharField(max_length=400)
+    artist=models.ForeignKey(artist,on_delete=models.DO_NOTHING,related_name='albums_artist')
+    year=models.DateTimeField()
+    cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
+class playlist_admin(models.Model):
+    name=models.CharField(max_length=400)
+    cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
+    gener=models.CharField(max_length=400)
+
+class songs(models.Model):
+    name=models.CharField(max_length=400,blank=True,default='')
+    song_mp3=models.FileField()
+    cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
+    album=models.ForeignKey(album,on_delete=models.DO_NOTHING,related_name='album')
+    artist=models.ForeignKey(artist,on_delete=models.DO_NOTHING,related_name='artist')
+    number_of_likes=models.IntegerField()
+    likes=models.TextField()#the user id will be here who like the song eg: 1,2
+    lyrics=models.CharField(max_length=4000,blank=True,default='')
+    genres=models.CharField(max_length=400,blank=True,default='')
+    charts=models.CharField(max_length=400,blank=True,default='')
+    year=models.DateTimeField()
