@@ -10,6 +10,7 @@ from . import models
 from admins import models as admin_models
 from twilio.rest import Client
 from django.conf import settings
+from django.core.files.base import ContentFile
 def code(data):
     def code_(num):
         key=[
@@ -143,3 +144,9 @@ def send_sms(to,data):
 
     print(message.sid,message)
     return message.sid
+
+def get_base64_to_img(image_data):
+    formats, imgstr = image_data.split(';base64,')
+    ext = formats.split('/')[-1]
+    data = ContentFile(base64.b64decode(imgstr))
+    return( data,ext)

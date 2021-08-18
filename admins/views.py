@@ -139,7 +139,7 @@ class image_settings(APIView):
         for i in request.POST.keys():
 
             if ';base64,'in request.POST[i]:
-                dt=get_base64_to_img(request.POST[i])
+                dt=tools.get_base64_to_img(request.POST[i])
                 getattr(ims, i).delete()
                 getattr(ims, i).save(i+'.jpeg',dt[0],save=True)
 
