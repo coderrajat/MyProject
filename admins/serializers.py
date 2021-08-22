@@ -256,6 +256,7 @@ class playlist_admin_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.playlist_admin
         fields=('__all__')
+        depth=2
 class playlist_admin_form(serializers.ModelSerializer):
     # search=serializers.CharField(required=False)
     class Meta:

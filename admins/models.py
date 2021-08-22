@@ -40,14 +40,9 @@ class album(models.Model):
     artist=models.ForeignKey(artist,on_delete=models.DO_NOTHING,related_name='albums_artist')
     year=models.DateTimeField()
     cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
-class playlist_admin(models.Model):
-    name=models.CharField(max_length=400)
-    cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
-    gener=models.CharField(max_length=400)
-
 class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
-    song_mp3=models.FileField(upload_to='songs')
+    song_mp3=models.FileField(upload_to='images/songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
     album=models.ForeignKey(album,on_delete=models.DO_NOTHING,related_name='album')
     artist=models.ForeignKey(artist,on_delete=models.DO_NOTHING,related_name='artist')
@@ -57,3 +52,8 @@ class songs(models.Model):
     genres=models.CharField(max_length=400,blank=True,default='')
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateTimeField()
+class playlist_admin(models.Model):
+    name=models.CharField(max_length=400)
+    cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
+    gener=models.CharField(max_length=400)
+    songs=models.ManyToManyField(songs,related_name='admin_playlist')

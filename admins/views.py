@@ -717,7 +717,7 @@ class get_playlist_admin(APIView):
                             },status=status.HTTP_202_ACCEPTED)
 class playlist_admin(APIView):
     def get(self,request,id):
-        playlist=list(admin_models.playlist_admin.objects.filter(id=id))
+        playlist=list(admin_models.playlist_admin.objects.prefetch_related().filter(id=id))
         if playlist==[]:
             return Response({'success':'false',
                                 'error_msg':'invalid ID',
@@ -726,10 +726,11 @@ class playlist_admin(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
         playlist=playlist[0]
         f1=serializers.playlist_admin_data(playlist)
+
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':f1.data,
+                            'response':{"playlist_data":f1.data},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
                             },status=status.HTTP_200_OK)
     def put(self,request,id):
         playlist=list(admin_models.playlist_admin.objects.filter(id=id))
@@ -740,11 +741,33 @@ class playlist_admin(APIView):
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
         playlist=playlist[0]
-
-
-
-
-
+        f1=serializers.playlist_admin_form(data=request.POST,instance=playlist)
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+        f1.save()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
+    def post(self,request,id):
+        f1=serializers.playlist_admin_form(data=request.POST)
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+        f1.save()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
 
 
 
