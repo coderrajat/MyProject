@@ -641,23 +641,23 @@ class song_search_list(APIView):
             search_query.add(Q(artist__name__icontains=s),Q.OR)
             search_query.add(Q(charts__icontains=s),Q.OR)
         if flg:
-            result=admin_models.songs.objects.all()
+            result=admin_models.songs.objects.select_related()
         else:
-            result=admin_models.songs.objects.filter(search_query)
-        print(result)
+            result=admin_models.songs.objects.select_related().filter(search_query)
+        print('\n\n#result=',result[0].album.__dict__,result[0].album.year,'\n\n')
         if request.POST['order_by']!=None and request.POST['order_by']!='':
             if request.POST['order_by_type']=='dec':
                 order='-'+request.POST['order_by']
             else:
                 order=request.POST['order_by']
             result=result.order_by(order)
-        paginate_result=Paginator(result, request.POST['result_limit'])
+        paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
-        print(p_r)
+        # print(p_r)
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{'result':serializers.search_song(p_r,many=True).data},
+                            'response':{'result':serializers.song_data(p_r,many=True).data},
                             'pagination':{'count':len(list(p_r)),
                                         'previous':'true' if p_r.has_previous() else 'false',
                                         'next':'true' if p_r.has_next() else 'false',
@@ -666,3 +666,90 @@ class song_search_list(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
+class get_playlist_admin(APIView):
+    def get(self,request):
+        f1=serializers.search_song()
+        f2=serializers.pagination()
+        return Response({**f1.data,**f2.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    def post(self,request):
+        f1=serializers.search_song(data=request.POST)
+        f2=serializers.pagination(data=request.POST)
+        if not(f1.is_valid() and f2.is_valid()):
+            f1.is_valid()
+            f2.is_valid()
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors),**dict(f2.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        s=request.POST['search']
+        flg=True
+        if s!='':
+            flg=False
+            search_query=Q()
+            search_query.add(Q(name__icontains=s),Q.OR)
+            search_query.add(Q(gener__icontains=s),Q.OR)
+        if flg:
+            result=admin_models.playlist_admin.objects.select_related()
+        else:
+            result=admin_models.playlist_admin.objects.select_related().filter(search_query)
+        if request.POST['order_by']!=None and request.POST['order_by']!='':
+            if request.POST['order_by_type']=='dec':
+                order='-'+request.POST['order_by']
+            else:
+                order=request.POST['order_by']
+            result=result.order_by(order)
+        paginate_result=Paginator(result, int(request.POST['result_limit']))
+        p_r=paginate_result.get_page(request.POST['page'])
+        # print(p_r)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':serializers.playlist_admin_data(p_r,many=True).data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                                },
+                            },status=status.HTTP_202_ACCEPTED)
+class playlist_admin(APIView):
+    def get(self,request,id):
+        playlist=list(admin_models.playlist_admin.objects.filter(id=id))
+        if playlist==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        playlist=playlist[0]
+        f1=serializers.playlist_admin_data(playlist)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':f1.data,
+                            },status=status.HTTP_200_OK)
+    def put(self,request,id):
+        playlist=list(admin_models.playlist_admin.objects.filter(id=id))
+        if playlist==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        playlist=playlist[0]
+
+
+
+
+
+
+
+
+
+
+
+
+#

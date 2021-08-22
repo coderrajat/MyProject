@@ -47,7 +47,7 @@ class playlist_admin(models.Model):
 
 class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
-    song_mp3=models.FileField()
+    song_mp3=models.FileField(upload_to='songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
     album=models.ForeignKey(album,on_delete=models.DO_NOTHING,related_name='album')
     artist=models.ForeignKey(artist,on_delete=models.DO_NOTHING,related_name='artist')

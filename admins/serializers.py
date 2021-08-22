@@ -244,8 +244,20 @@ class search_consumer_form(serializers.ModelSerializer):
         model=account_models.Users
         exclude=('password','token','otp')
 class song_data(serializers.ModelSerializer):
+    # playlist_admin=
     class Meta:
         model=admin_models.songs
-        fields=('__all__','album_name')
+        fields=('__all__')
+        depth=2
 class search_song(serializers.Serializer):
     search=serializers.CharField(required=False)
+class playlist_admin_data(serializers.ModelSerializer):
+    # search=serializers.CharField(required=False)
+    class Meta:
+        model=admin_models.playlist_admin
+        fields=('__all__')
+class playlist_admin_form(serializers.ModelSerializer):
+    # search=serializers.CharField(required=False)
+    class Meta:
+        model=admin_models.playlist_admin
+        fields=('name','gener')
