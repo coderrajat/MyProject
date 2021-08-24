@@ -65,7 +65,7 @@ class recomended_playlist(APIView):
                                 'errors':{},
                                 'response':{},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
                                 },status=status.HTTP_200_OK)
-        if len(playlist)<1:
+        if len(playlist)<2:
             playlist=playlist[0]
         else:
             playlist=playlist[random.randint(0,len(playlist))]
