@@ -502,7 +502,6 @@ class subadmin_list(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         result=list(account_models.Admins.objects.filter(~Q(id=requstuser.id)))
-
         if request.POST['order_by']!=None and request.POST['order_by']!='':
             if request.POST['order_by_type']=='dec':
                 order='-'+request.POST['order_by']

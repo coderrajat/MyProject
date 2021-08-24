@@ -100,7 +100,7 @@ class login_admin_api(APIView):
             if bcrypt.checkpw(password,hash_pass):
                 sec=''
                 for i in range(10):
-                    sec+=secrets.choice(secrets.choice([chr(ii) for ii in range(33,123)]))
+                    sec+=secrets.choice(secrets.choice([chr(ii) for ii in range(45,123)]))
 
                 user.token=sec
                 user.last_login=datetime.datetime.now()
@@ -420,7 +420,7 @@ class signin_user(APIView):
         if bcrypt.checkpw(password,hash_pass):
             sec=''
             for i in range(10):
-                sec+=secrets.choice(secrets.choice([chr(ii) for ii in range(33,123)]))
+                sec+=secrets.choice(secrets.choice([chr(ii) for ii in range(45,123)]))
 
             uzr.token=sec
             uzr.last_login=datetime.datetime.now()
