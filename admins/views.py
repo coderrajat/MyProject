@@ -268,6 +268,7 @@ class admin_profile(APIView):
                             },status=status.HTTP_200_OK)
     @is_authenticate()
     def post(self,request):
+        
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         f1=serializers.admin_form(instance=requstuser,data=request.POST)
@@ -725,10 +726,20 @@ class get_playlist_admin(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
-'''           
+      
 class playlist_admin(APIView):
+    @is_authenticate()
     def get(self,request,id):
+        if id.isnumeric() !=  True:
+            return Response({'success':'false',
+                            'error_msg':'ID IS NOT AN INTEGER',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_404_NOT_FOUND)
+
         playlist=list(admin_models.playlist_admin.objects.prefetch_related().filter(id=id))
+
+
         print(playlist)
         if playlist==[]:
             return Response({'success':'false',
@@ -744,7 +755,16 @@ class playlist_admin(APIView):
                             'errors':{},
                             'response':{"playlist_data":f1.data},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
                             },status=status.HTTP_200_OK)
+    @is_authenticate()
     def put(self,request,id):
+        f=request.data
+        print(f)
+        if id.isnumeric() !=  True:
+            return Response({'success':'false',
+                            'error_msg':'ID IS NOT AN INTEGER',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_404_NOT_FOUND)
         playlist=list(admin_models.playlist_admin.objects.filter(id=id))
         if playlist==[]:
             return Response({'success':'false',
@@ -753,7 +773,10 @@ class playlist_admin(APIView):
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
         playlist=playlist[0]
-        f1=serializers.playlist_admin_form(data=request.POST,instance=playlist)
+                        
+
+        
+        f1=serializers.playlist_admin_form(data=request.data,instance=playlist)
         if not(f1.is_valid()):
             return Response({'success':'false',
                                 'error_msg':'invalid_input',
@@ -766,171 +789,75 @@ class playlist_admin(APIView):
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_200_OK)
-    def post(self,request,id):
-        f1=serializers.playlist_admin_form(data=request.POST)
-        if not(f1.is_valid()):
+    
+
+    @is_authenticate()
+    def delete(self, request, id):
+        if id.isnumeric() !=  True:
             return Response({'success':'false',
-                                'error_msg':'invalid_input',
-                                'errors':{},
-                                'response':{**dict(f1.errors)}
-                                },status=status.HTTP_400_BAD_REQUEST)
-        f1.save()
-        return Response({'success':'true',
-                            'error_msg':'',
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_200_OK)
-
- '''                           
-
-
-
-class playlist_adminn(APIView): 
-    def get(self,request,id):
-        try:
-            temp=playlist_admin.objects.get(id=id)
-            f1=playlist_admin_form(temp)
-            return Response({'success':'true',
-                            'error_msg':'No Error',
-                            'errors':{},
-                            'response':{**dict(f1.data)},
-                            },status=status.HTTP_200_OK)
-        except:
-            return Response({'success':'false',
-                            'error_msg':'ID NOT FOUND',
+                            'error_msg':'ID IS NOT AN INTEGER',
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_404_NOT_FOUND)
 
         
-        #return Response({**f1.data,
-         #                   },status=status.HTTP_202_ACCEPTED)
-       # snippets = playlist_admin.objects.get(pk=id)
-       # serializer=playlist_admin_form(snippets)                
-       # return Response(serializer.data,status=status.HTTP_302_FOUND)
-        #playlist=list(admin_models.playlist_admin.objects.prefetch_related().filter(id=id))
-                    
-        
-        #playlist=list(admin_models.playlist_admin.objects.prefetch_related().filter(id=id))
-        #print(playlist)
-
-        #f1=serializers.playlist_admin_form(data=request.POST)
-        #f1.is_valid(raise_exception=status.HTTP_204_NO_CONTENT)
-
-        #if playlist==[]:
-        #    return Response({'success':'false',
-         #                       'error_msg':'invalid ID',
-                              #  'errors':{f1.is_valid(raise_exception=status.HTTP_204_NO_CONTENT)
-#},
-         #                       'response':{},
-         #                       },status=status.HTTP_400_BAD_REQUEST)
-        #else:
-            #return Response({"Data":"ok"},status=status.HTTP_200_OK)   
-#Adding a playlist
-    
-            
-
-    def delete(self, request, id):
-        a=id
-        print(type(a))
-        try:
-            snippet = playlist_admin.objects.get(id=id)
-            f1=playlist_admin_form(snippet)
-            print(f1.data)
-            snippet.delete()
-            return Response({'success':'true',
-                                'error_msg':'',
-                                'errors':{},
-                                'response':{"deleted":{**dict(f1.data)}},
-                                },status=status.HTTP_200_OK)
-        except (playlist_admin.DoesNotExist) :
+        snippet = admin_models.playlist_admin.objects.filter(id=id)
+        if len(snippet)==0:
             return Response({'success':'false',
                                 'error_msg':'ID NOT FOUND',
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_204_NO_CONTENT)
-
-
-
+            
+            
+        f1=playlist_admin_form(snippet[0])
+        print(f1.data)
+        snippet[0].delete()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"deleted":{**dict(f1.data)}},
+                            },status=status.HTTP_200_OK)
     
-
-
-    def put(self,request,id):
-        data=request.data
-        try:
-            temp=int(id)
-        except ValueError:
-            return Response({'success':'false',
-                            'error_msg':'ID NOT FOUND',
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_404_NOT_FOUND)
-        snippets = playlist_admin.objects.get(id=id)
-        f1=playlist_admin_form(snippets,data=request.data)
-        print(snippets)
-      
-        if f1.is_valid():
-            f1.save()
-            return Response({'success':'true',
-                                'error_msg':'',
-                                'errors':{},
-                                'response':{},
-                                },status=status.HTTP_202_ACCEPTED)
-        else:
-            return Response({'success':'false',
-                            'error_msg':'ID NOT FOUND',
-                            'errors':{},
-                            'response':{**dict(f1.errors)},
-                            },status=status.HTTP_404_NOT_FOUND)
-
-
-
-
 class playlist_admin_get(APIView): 
+    @is_authenticate()
     def get(self,request):
-        temp=playlist_admin.objects.all()
+        temp=admin_models.playlist_admin.objects.all()
         f1=playlist_admin_form(temp,many=True)
         return Response(f1.data
                             ,status=status.HTTP_202_ACCEPTED)
-    
+
+
+    @is_authenticate()
     def post(self,request):
-        data=request.data
-        print(data)
-        '''
-        if len(data['songs'])==0:
-            for song in data["songs"]:
-                song_obj=songs.objects.filter(id=song)
-        except Exception as e:
-                return Response({'success':'false',
-                                'error_msg':'SONG ID INVALID',
-                                'errors':{},
-                                'response':{},
-                            
-                                },status=status.HTTP_400_BAD_REQUEST)
-                                '''
-                                
-        f1=playlist_admin_form(data=data)
-        if f1.is_valid():
-            f1.save()
-            return Response({'success':'true',
-                                'error_msg':'',
-                                'errors':{},
-                                'response':{**dict(f1.data),},
-                                },status=status.HTTP_201_CREATED)
-        else:
+        f1=serializers.playlist_admin_form(data=request.data)
+        if not(f1.is_valid()):
             return Response({'success':'false',
-                                'error_msg':'SONG ID INVALID',
+                                'error_msg':'invalid_input',
                                 'errors':{},
-                                'response':{**dict(f1.errors)},
-                            
+                                'response':{**dict(f1.errors)}
                                 },status=status.HTTP_400_BAD_REQUEST)
+        f1.save()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
+    
+
+
+
+
+                        
+
+
 
 '''
+
+
 def error_404_view(request, exception):
     a={"status":"page not found"}
     return render(request,'404.html',a)
 '''            
-
-
             
             #success only boolean

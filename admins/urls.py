@@ -23,7 +23,7 @@ urlpatterns=[
     #path("playlist_admin/<int:id>",views.playlist_admin_by_id.as_view(),name='playlist_admin'),
     #path("playlist_admin",views.playlist_adminn.as_view(),name='playlist_admin'),
     path("playlist_admin",views.playlist_admin_get.as_view(),name='playlist_admin_get'),
-    path("playlist_admin/<id>",views.playlist_adminn.as_view(),name='playlist_admin'),
+    path("playlist_admin/<id>",views.playlist_admin.as_view(),name='playlist_admin'),
 
 
     #path("playlist_all",views.playlist_by_id.as_view(),name='playlist_admin'),
