@@ -35,6 +35,7 @@ def login_required(*ag,**kg):
         def wrapper(*args,**kwargs):
             # print(args[1].META['HTTP_AUTHORIZATION'])
             if 'HTTP_AUTHORIZATION'in args[1].META :
+                print(args[1])
                 try:
                     data=tools.decodetoken(args[1].META['HTTP_AUTHORIZATION'])
                     print(data)

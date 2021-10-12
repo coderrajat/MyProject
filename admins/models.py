@@ -37,15 +37,15 @@ class artist(models.Model):
     photo=models.ImageField(upload_to='images/artist',default='deafult_profile_pic.jpeg')
 class album(models.Model):
     name=models.CharField(max_length=400)
-    artist=models.ForeignKey(artist,on_delete=models.DO_NOTHING,related_name='albums_artist')
+    artist=models.ManyToManyField(artist,related_name='albums_artist')
     year=models.DateTimeField()
     cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
 class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
     song_mp3=models.FileField(upload_to='images/songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
-    album=models.ForeignKey(album,on_delete=models.DO_NOTHING,related_name='album')
-    artist=models.ForeignKey(artist,on_delete=models.DO_NOTHING,related_name='artist')
+    album=models.ForeignKey(album,on_delete=models.DO_NOTHING,related_name='album',blank=True,null=True)
+    artist=models.ManyToManyField(artist,related_name='artist')
     number_of_likes=models.IntegerField()
     likes=models.TextField()#the user id will be here who like the song eg: 1,2
     lyrics=models.CharField(max_length=4000,blank=True,default='')
@@ -57,3 +57,10 @@ class playlist_admin(models.Model):
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
     gener=models.CharField(max_length=400)
     songs=models.ManyToManyField(songs,related_name='admin_playlist')
+    
+
+  
+    
+
+   
+

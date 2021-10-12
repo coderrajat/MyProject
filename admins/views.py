@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.core.paginator import Paginator
 from rest_framework import status
 from django.db.models import Q
-from admins import models as admin_models
+from admins import admin, models as admin_models
 from accounts import models as account_models
 # Create your views here.
 import bcrypt
@@ -767,6 +767,199 @@ class playlist_admin(APIView):
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_200_OK)
+
+class Artist_api(APIView):
+    @ is_authenticate()
+    def get(self, request,pk=None):
+        try:
+            if pk is not None:
+                id=pk
+                artist=list(admin_models.artist.objects.filter(pk=id))
+                if artist==[]:
+                    return Response({'success':'false',
+                            'error_msg':"Data not exists in database",
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_400_BAD_REQUEST) 
+                f1=serializers.Artist_data(artist[0])
+                return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"artist_data":f1.data}
+                            },status=status.HTTP_200_OK)
+            artist=admin_models.artist.objects.all()
+            f2=serializers.Artist_data(artist,many=True)
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{"artist_data":f2.data}
+                                },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()
+    def post(self, request):
+        f2=serializers.Artist_data(data=request.data)
+        if f2.is_valid():
+            f2.save()
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_200_OK)
+        return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f2.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()    
+    def put(self,request,pk):
+        try:
+            id=pk
+            artist=list(admin_models.artist.objects.filter(pk=id))
+            if artist==[]:
+                return Response({'success':'false',
+                                'error_msg':"Data not exists in database",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+            f1=serializers.Artist_data(artist[0],data=request.data)
+            if f1.is_valid():
+                f1.save()
+                return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_200_OK)
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter the integer value for id",
+                                'errors':{},
+                                'response':{}
+                                    },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()                         
+    def delete(self,request,pk):
+        try:
+            id=pk
+            artist=list(admin_models.artist.objects.filter(pk=id))
+          
+            
+            if artist==[]:
+                return Response({'success':'false',
+                            'error_msg':"Data not exixts in database",
+                            'errors':{},
+                            'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+            song=admin_models.songs.objects.filter(artist__pk=id)
+            for sg in song:
+                sg.artist.remove(id)
+                sg.save()
+            album=admin_models.album.objects.filter(album__pk=id)
+            for alb in album:
+                alb.artist.remove(id)
+                alb.save()
+            artist[0].delete()
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter the integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+          
+         
+                
+               
+               
+          
+
+            
+              
+    
+                
+        
+    
+       
+                
+     
+
+        
+         
+        
+            
+         
+
+            
+
+    
+   
+   
+ 
+
+
+
+
+
+
+
+                    
+
+
+            
+
+
+            
+    
+
+
+
+              
+                
+                
+    
+   
+    
+
+
+       
+                             
+                                        
+            
+
+           
+            
+
+
+            
+           
+              
+
+        
+                
+       
+           
+
+            
+
+
+                            
+            
+
+      
+
+
 
 
 

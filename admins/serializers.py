@@ -262,3 +262,8 @@ class playlist_admin_form(serializers.ModelSerializer):
     class Meta:
         model=admin_models.playlist_admin
         fields=('name','gener')
+class Artist_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.artist
+        fields=["id","name","artist_origin","photo"]
+
