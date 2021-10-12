@@ -11,6 +11,7 @@ from admins import models as admin_models
 from twilio.rest import Client
 from django.conf import settings
 from django.core.files.base import ContentFile
+import json
 def code(data):
     def code_(num):
         key=[
@@ -151,3 +152,15 @@ def get_base64_to_img(image_data):
     ext = formats.split('/')[-1]
     data = ContentFile(base64.b64decode(imgstr))
     return( data,ext)
+
+def convert_str_to_json_array(str):
+   # x= []
+   # for i in str.split(','):
+    #  x.append(json.dumps(int(i)))
+    
+    #return json.loads(json.dumps(x))
+    #print("helllo",x)
+    #return x
+
+    return json.loads(json.dumps(str.split(',')))
+        

@@ -1,9 +1,13 @@
+#from Mayani_Backend.admins.models import album
 from django.shortcuts import render
+from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.paginator import Paginator
 from rest_framework import status
 from django.db.models import Q
+
+#from Mayani_Backend.admins.models import album
 from admins import models as admin_models
 from accounts import models as account_models
 # Create your views here.
@@ -11,6 +15,8 @@ import bcrypt
 from accounts import tools
 import datetime
 from . import serializers
+
+
 # from . import tools
 def is_authenticate(*Dargs,**Dkwargs):
     def inner(func):
@@ -753,6 +759,8 @@ class playlist_admin(APIView):
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_200_OK)
+
+
     def post(self,request,id):
         f1=serializers.playlist_admin_form(data=request.POST)
         if not(f1.is_valid()):
@@ -768,10 +776,124 @@ class playlist_admin(APIView):
                             'response':{},
                             },status=status.HTTP_200_OK)
 
+# ALBUM API
 
 
+class albumAPI(APIView):
+    @is_authenticate()
+    def get(self,request, id=None):
+        try:
+            if id is not None:
+                stu = list(admin_models.album.objects.filter(id=id))
+                if len(stu)==0:
+                    return Response ({'success':'false',
+                                        'error_msg':'Album does not Exist',
+                                        'errors':{},
+                                        'response':{}
+                                        },status=status.HTTP_400_BAD_REQUEST)
+                serializer = serializers.all_album(stu[0])
+                return Response({'success':'true',
+                                        'error_msg':'',
+                                        'errors':{''},
+                                        'response':{"album_data":serializer.data},
+                                        },status=status.HTTP_200_OK)
 
+            stu = admin_models.album.objects.all()
+            serializer = serializers.all_album(stu,many =True)
+            return Response({'success':'true',
+                                        'error_msg':'',
+                                        'errors':{''},
+                                        'response':{"album_data":serializer.data},
+                                        },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response ({'success':'false',
+                                        'error_msg':'Please enter a integer value as ID',
+                                        'errors':{},
+                                        'response':{}
+                                        },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()
+    def post(self,request,id=None):
+        try:
+            data = request.POST
+            
+            serializer =  serializers.all_album(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'Success':'true',
+                                        'error_msg':'',
+                                        'errors':{},
+                                        'response':{""},
+                                        },status=status.HTTP_200_OK) 
 
+            return Response({'success':'false',
+                                        'error_msg':'invalid_input',
+                                        'errors':{},
+                                        'response':{**dict(serializer.errors)}
+                                        },status=status.HTTP_406_NOT_ACCEPTABLE)
+        except ValueError as ex:
+            return Response ({'success':'false',
+                                        'error_msg':'Please enter a integer value as ID',
+                                        'errors':{},
+                                        'response':{}
+                                        },status=status.HTTP_406_NOT_ACCEPTABLE)
+    @is_authenticate()
+    def put(self,request,id):
+        try:
+            id = id
+            stu = list(admin_models.album.objects.filter(id=id))
+            if len(stu)==0:
+                    return Response ({'success':'false',
+                                        'error_msg':'Album does not Exist',
+                                        'errors':{},
+                                        'response':{}
+                                        },status=status.HTTP_400_BAD_REQUEST)
+            data = request.data
+            serializer = serializers.all_album(stu[0] , data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'success':'true',
+                                        'error_msg':'',
+                                        'errors':{},
+                                        'response':{"album_data":serializer.data},
+                                        },status=status.HTTP_200_OK)
 
+            return Response({'success':'false',
+                                        'error_msg':'invalid_input',
+                                        'errors':{},
+                                        'response':{**dict(serializer.errors)}
+                                        },status=status.HTTP_406_NOT_ACCEPTABLE)
+        except ValueError as ex:
+            print(ex)
+            return Response ({'success':'false',
+                                        'error_msg':'Please Enter a Integer Value As ID',
+                                        'errors':{},
+                                        'response':{}
+                                        },status=status.HTTP_406_NOT_ACCEPTABLE)
+    @is_authenticate()
+    def delete(self,request,id=None):
+        try:
+            stu = list(admin_models.album.objects.filter(id=id))
+            songs =admin_models.songs.objects.filter(album =id)
+            for song in songs:
+                print(song)
+                song.album.remove(id)
+                song.save()
+            if len(stu)>0:
+                stu[0].delete()
+                return Response({'success':'True',
+                                        'error_msg':'',
+                                        'errors':{},
+                                        'response':{''},
+                                        },status=status.HTTP_200_OK)
 
-#
+            return Response({'success':'false',
+                                        'error_msg':'Album does not exist',
+                                        'errors':{},
+                                        'response':{},
+                                        },status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as ex:
+           return Response ({'success':'false',
+                                        'error_msg':'ID IS NOT AN INTEGER',
+                                        'errors':{},
+                                        'response':{},
+                                        },status=status.HTTP_400_BAD_REQUEST)

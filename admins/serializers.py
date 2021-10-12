@@ -1,3 +1,4 @@
+from django.db.models import fields
 from rest_framework import serializers
 from . import models as admin_models
 from accounts import models as account_models
@@ -262,3 +263,8 @@ class playlist_admin_form(serializers.ModelSerializer):
     class Meta:
         model=admin_models.playlist_admin
         fields=('name','gener')
+# sonu code album serializers
+class all_album(serializers.ModelSerializer):
+    class Meta:
+        model = admin_models.album
+        fields = ['id','name','artist','year','cover']

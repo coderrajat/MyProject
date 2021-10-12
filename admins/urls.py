@@ -18,6 +18,11 @@ urlpatterns=[
     path("song_search_list",views.song_search_list.as_view(),name='song_search_list'),
     path("get_playlist_admin",views.get_playlist_admin.as_view(),name='get_playlist_admin'),
     path("playlist_admin<id>",views.playlist_admin.as_view(),name='playlist_admin'),
+    # sonu album path
+    #path("album",views.album.as_view(),name='album'),
+    #path('album/<id>', views.album.as_view()),
+    path('albumapi', views.albumAPI.as_view()),
+    path('albumapi/<id>', views.albumAPI.as_view()),
     # path("cms",views.cms.as_view(),name='cms'),
     # path("cms",views.cms.as_view(),name='cms'),
     # path("cms",views.cms.as_view(),name='cms'),
