@@ -1,3 +1,4 @@
+from os import name
 from django.db import models
 from accounts import models as accounts_models
 class CMS(models.Model):
@@ -44,7 +45,8 @@ class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
     song_mp3=models.FileField(upload_to='images/songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
-    album=models.ForeignKey(album,on_delete=models.DO_NOTHING,related_name='album',blank=True,null=True)
+    album=models.ManyToManyField(album,related_name='album')
+    #album=models.ForeignKey(album,on_delete=models.DO_NOTHING,null=True,related_name='album')
     artist=models.ManyToManyField(artist,related_name='artist')
     number_of_likes=models.IntegerField()
     likes=models.TextField()#the user id will be here who like the song eg: 1,2
@@ -52,8 +54,10 @@ class songs(models.Model):
     genres=models.CharField(max_length=400,blank=True,default='')
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateTimeField()
+
 class playlist_admin(models.Model):
-    name=models.CharField(max_length=400)
+    name=models.CharField(max_length=400) 
+    #title
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
     gener=models.CharField(max_length=400)
     songs=models.ManyToManyField(songs,related_name='admin_playlist')

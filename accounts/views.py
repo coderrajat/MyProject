@@ -295,11 +295,21 @@ class signup_user(APIView):
         uzr=accounts_models.Users()
         uzr.country_code=request.POST["country_code"]
         uzr.phone_number=request.POST["phone_number"]
+        ##
+        print(uzr.country_code)
+        print(uzr.phone_number)
+        ##
         uzr.otp=random.randint(1000,9999)
         uzr.save()
+        tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
+           )
+         
         try:
+            
             tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
-             )
+           )
+        
+         
         except Exception as e:
              return Response({'success':'false',
                                  'error_msg':'please try again later',

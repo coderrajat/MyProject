@@ -1,5 +1,8 @@
 from django.urls import path
 from . import views
+
+
+
 urlpatterns=[
     path("cms<name>",views.cms.as_view(),name='cms'),
     path("image_settings",views.image_settings.as_view(),name='image_settings'),
@@ -17,7 +20,26 @@ urlpatterns=[
     path("block_subadmin<id>",views.block_subadmin.as_view(),name='block_subadmin'),
     path("song_search_list",views.song_search_list.as_view(),name='song_search_list'),
     path("get_playlist_admin",views.get_playlist_admin.as_view(),name='get_playlist_admin'),
-    path("playlist_admin<id>",views.playlist_admin.as_view(),name='playlist_admin'),
+    
+    # sonu album path
+    #path("album",views.album.as_view(),name='album'),
+    #path('album/<id>', views.album.as_view()),
+    path('albumapi', views.albumAPI.as_view()),
+    path('albumapi/<id>', views.albumAPI.as_view()),
+    #path("playlist_admin/<int:id>",views.playlist_admin_by_id.as_view(),name='playlist_admin'),
+    #path("playlist_admin",views.playlist_adminn.as_view(),name='playlist_admin'),
+    path("playlist_admin",views.playlist_admin_get.as_view(),name='playlist_admin_get'),
+    path("playlist_admin/<id>",views.playlist_admin.as_view(),name='playlist_admin'),
+
+
+    #path("playlist_all",views.playlist_by_id.as_view(),name='playlist_admin'),
+    
+
+  #  path("playlist_admin/all",views.playlist_adminget.as_view(),name='playlist_admin'), #getting all playlist
+
+    
+
+
     # path("cms",views.cms.as_view(),name='cms'),
     # path("cms",views.cms.as_view(),name='cms'),
     # path("cms",views.cms.as_view(),name='cms'),
@@ -30,3 +52,4 @@ urlpatterns=[
 
     
     ]
+#handler404 = 'admins.views.error_404_view'
