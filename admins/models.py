@@ -1,3 +1,4 @@
+from os import name
 from django.db import models
 from accounts import models as accounts_models
 class CMS(models.Model):
@@ -53,8 +54,11 @@ class songs(models.Model):
     genres=models.CharField(max_length=400,blank=True,default='')
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateTimeField()
+
 class playlist_admin(models.Model):
-    name=models.CharField(max_length=400)
+    name=models.CharField(max_length=400) 
+    #title
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
     gener=models.CharField(max_length=400)
     songs=models.ManyToManyField(songs,related_name='admin_playlist')
+#

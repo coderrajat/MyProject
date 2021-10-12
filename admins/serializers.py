@@ -252,19 +252,23 @@ class song_data(serializers.ModelSerializer):
         depth=2
 class search_song(serializers.Serializer):
     search=serializers.CharField(required=False)
+
 class playlist_admin_data(serializers.ModelSerializer):
     # search=serializers.CharField(required=False)
     class Meta:
         model=admin_models.playlist_admin
         fields=('__all__')
         depth=2
+
+
 class playlist_admin_form(serializers.ModelSerializer):
     # search=serializers.CharField(required=False)
     class Meta:
         model=admin_models.playlist_admin
-        fields=('name','gener')
+        fields=('id','name','gener','songs')
 # sonu code album serializers
 class all_album(serializers.ModelSerializer):
     class Meta:
         model = admin_models.album
         fields = ['id','name','artist','year','cover']
+        
