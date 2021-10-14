@@ -70,7 +70,7 @@ class playlist_admin(models.Model):
     #title
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
     gener=models.CharField(max_length=400,default='POP', choices=gener_choices)
-    songs=models.ManyToManyField(songs,related_name='admin_playlist')
+    songs=models.ManyToManyField(songs,blank=True,related_name='admin_playlist')
     
 
   
