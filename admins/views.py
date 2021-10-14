@@ -829,7 +829,7 @@ class playlist_admin_get(APIView):
         return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'all playlist':f1.data}
+                                'response':{'all_playlist':f1.data}
                                 },status=status.HTTP_200_OK)
 
 
