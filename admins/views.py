@@ -826,8 +826,11 @@ class playlist_admin_get(APIView):
     def get(self,request):
         temp=admin_models.playlist_admin.objects.all()
         f1=playlist_admin_form(temp,many=True)
-        return Response(f1.data
-                            ,status=status.HTTP_202_ACCEPTED)
+        return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{'all playlist':f1.data}
+                                },status=status.HTTP_200_OK)
 
 
     @is_authenticate()
