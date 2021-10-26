@@ -24,6 +24,7 @@ from rest_framework import status
 
 
 
+
 def is_authenticate(*Dargs,**Dkwargs):
     def inner(func):
         def wrapper(*args,**kwargs):
@@ -573,7 +574,7 @@ class edit_subadmin(APIView):
         uzr=f1.save()
         if  'profile_pic' in request.FILES:
             if requstuser.profile_pic != 'deafult_profile_pic.jpeg':
-                requstuser.profile_pic.delete()
+               requstuser.profile_pic.delete()
             uzr.profile_pic=request.FILES['profile_pic']
         uzr.save()
         return Response({'success':'true',
@@ -634,6 +635,7 @@ class song_search_list(APIView):
     def post(self,request):
         f1=serializers.search_song(data=request.POST)
         f2=serializers.pagination(data=request.POST)
+        print("serializer",f1,f2)
         if not(f1.is_valid() and f2.is_valid()):
             f1.is_valid()
             f2.is_valid()
@@ -643,20 +645,22 @@ class song_search_list(APIView):
                                 'response':{**dict(f1.errors),**dict(f2.errors)},
                                 },status=status.HTTP_400_BAD_REQUEST)
         s=request.POST['search']
+       
         flg=True
         if s!='':
             flg=False
             search_query=Q()
+           
             search_query.add(Q(name__icontains=s),Q.OR)
             search_query.add(Q(album__name__icontains=s),Q.OR)
             search_query.add(Q(artist__name__icontains=s),Q.OR)
-            search_query.add(Q(artist__name__icontains=s),Q.OR)
-            search_query.add(Q(charts__icontains=s),Q.OR)
+          
+            #search_query.add(Q(charts__icontains=s),Q.OR)
         if flg:
             result=admin_models.songs.objects.select_related()
         else:
             result=admin_models.songs.objects.select_related().filter(search_query)
-        print('\n\n#result=',result[0].album.__dict__,result[0].album.year,'\n\n')
+        #print('\n\n#result=',result[0].album.__dict__,result[0].album.year,'\n\n')
         if request.POST['order_by']!=None and request.POST['order_by']!='':
             if request.POST['order_by_type']=='dec':
                 order='-'+request.POST['order_by']
@@ -861,6 +865,7 @@ class Artist_api(APIView):
                             'response':{}
                             },status=status.HTTP_400_BAD_REQUEST) 
                 f1=serializers.Artist_data(artist[0])
+               
                 return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
@@ -868,10 +873,11 @@ class Artist_api(APIView):
                             },status=status.HTTP_200_OK)
             artist=admin_models.artist.objects.all()
             f2=serializers.Artist_data(artist,many=True)
+            f3=serializers.pagination()
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{"artist_data":f2.data}
+                                'response':{"artist_data":f2.data,"pagi":f3.data}
                                 },status=status.HTTP_200_OK)
         except ValueError as ex:
             return Response({'success':'false',
@@ -957,6 +963,60 @@ class Artist_api(APIView):
                                 'errors':{},
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
+class Artist_search_list(APIView):
+    def get(self, request):
+        f1=serializers.Search_Artist()
+        f2=serializers.pagination()
+        return Response({**f1.data,**f2.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    def post(self, request):
+        f1=serializers.Search_Artist(data=request.POST)
+        f2=serializers.pagination(data=request.POST)
+        if not(f1.is_valid() and f2.is_valid()):
+            f1.is_valid()
+            f2.is_valid()
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors),**dict(f2.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        s=request.POST['search']
+       
+        flg=True
+        if s!='':
+            flg=False
+            search_query=Q()
+           
+            search_query.add(Q(name__icontains=s),Q.OR)
+            search_query.add(Q(artist_origin__icontains=s),Q.OR) 
+        if flg:
+            result=admin_models.artist.objects.select_related()
+        else:
+            result=admin_models.artist.objects.select_related().filter(search_query)
+        
+        if request.POST['order_by']!=None and request.POST['order_by']!='':
+            if request.POST['order_by_type']=='dec':
+                order='-'+request.POST['order_by']
+            else:
+                order=request.POST['order_by']
+            result=result.order_by(order)
+        paginate_result=Paginator(result, int(request.POST['result_limit']))
+        p_r=paginate_result.get_page(request.POST['page'])
+      
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':serializers.Artist_data(p_r,many=True).data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                                },
+                            },status=status.HTTP_202_ACCEPTED)
+
+
           
          
                 
@@ -1142,8 +1202,7 @@ class albumAPI(APIView):
             stu = list(admin_models.album.objects.filter(id=id))
             songs =admin_models.songs.objects.filter(album =id)
             for song in songs:
-                print(song)
-                song.album.remove(id)
+                song.album=None
                 song.save()
             if len(stu)>0:
                 stu[0].delete()
@@ -1171,3 +1230,147 @@ def error_404_view(request, exception):
 '''            
             
 #success only boolean
+
+class SubscriptionPlan_api(APIView):
+    @ is_authenticate()
+    def get(self, request,pk=None):
+        try:
+            if pk is not None:
+                id=pk
+                plan=list(admin_models.SubscriptionPlan.objects.filter(pk=id))
+                if plan==[]:
+                    return Response({'success':'false',
+                            'error_msg':"Data not exists in database",
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_400_BAD_REQUEST) 
+                f1=serializers.SubscriptionPlan_data(plan[0])
+                return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"plan_data":f1.data}
+                            },status=status.HTTP_200_OK)
+            plan=admin_models.SubscriptionPlan.objects.all()
+            f2=serializers.SubscriptionPlan_data(plan,many=True)
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{"plan_data":f2.data}
+                                },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()
+    def post(self, request):
+        f2=serializers.SubscriptionPlan_data(data=request.data)
+        if f2.is_valid():
+            f2.save()
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_200_OK)
+        return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f2.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+                                
+    @is_authenticate()    
+    def put(self,request,pk):
+        try:
+            id=pk
+            plan=list(admin_models.SubscriptionPlan.objects.filter(pk=id))
+            if plan==[]:
+                return Response({'success':'false',
+                                'error_msg':"Data not exists in database",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+            f1=serializers.SubscriptionPlan_data(plan[0],data=request.data)
+            if f1.is_valid():
+                f1.save()
+                return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_200_OK)
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter the integer value for id",
+                                'errors':{},
+                                'response':{}
+                                    },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()                         
+    def delete(self,request,pk):
+        try:
+            id=pk
+            plan=list(admin_models.SubscriptionPlan.objects.filter(pk=id))
+            if plan==[]:
+                return Response({'success':'false',
+                            'error_msg':"Data not exixts in database",
+                            'errors':{},
+                            'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+           
+            
+           
+            plan[0].delete()
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter the integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+          
+    
+class Notification_api(APIView):
+    @ is_authenticate()
+    def get(self, request,pk=None):
+        try:
+            if pk is not None:
+                id=pk
+                notification=list(admin_models.Notification_admin.objects.filter(pk=id))
+                if notification==[]:
+                    return Response({'success':'false',
+                            'error_msg':"Data not exists in database",
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_400_BAD_REQUEST) 
+                f1=serializers.Notification_data(notification[0])
+                
+                return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"notification_data":f1.data}
+                            },status=status.HTTP_200_OK)
+            notification=admin_models.Notification_admin.objects.all()
+            f2=serializers.Notification_data(notification,many=True)
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{"notification_data":f2.data}
+                                },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+                
+
+
+

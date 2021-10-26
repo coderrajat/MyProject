@@ -277,4 +277,16 @@ class all_album(serializers.ModelSerializer):
     class Meta:
         model = admin_models.album
         fields = ['id','name','artist','year','cover']
-        
+
+class SubscriptionPlan_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.SubscriptionPlan
+        fields = ["id","plan_name","descriptions","date_created","is_pause"]
+
+class Notification_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.Notification_admin
+        fields=["id","title","type","message","created_at"]
+class Search_Artist(serializers.Serializer):
+    search=serializers.CharField(required=False)
+

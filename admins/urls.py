@@ -46,7 +46,12 @@ urlpatterns=[
     # path("cms",views.cms.as_view(),name='cms'),
     #
     path("artist_data",views.Artist_api.as_view(),name="artist_data"),
-    path("artist_data<pk>",views.Artist_api.as_view(),name="artist_data1")
+    path("artist_data<pk>",views.Artist_api.as_view(),name="artist_data1"),
+    path("subscription_data",views.SubscriptionPlan_api.as_view(),name="subscription_data"),
+    path("subscription_data<pk>",views.SubscriptionPlan_api.as_view(),name="subscription_data1"),
+    path("notification_data",views.Notification_api.as_view(),name="notification_data"),
+    path("notification_data<pk>",views.Notification_api.as_view(),name="notification_data1"),
+    path("artist_search_list",views.Artist_search_list.as_view(),name="artist_search_list")
  
  
 

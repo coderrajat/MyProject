@@ -45,8 +45,8 @@ class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
     song_mp3=models.FileField(upload_to='images/songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
-    album=models.ManyToManyField(album,related_name='album')
-    #album=models.ForeignKey(album,on_delete=models.DO_NOTHING,null=True,related_name='album')
+    album=models.ForeignKey(album,on_delete=models.SET_NULL,null=True,related_name='album')
+  
     artist=models.ManyToManyField(artist,related_name='artist')
     number_of_likes=models.IntegerField()
     likes=models.TextField()#the user id will be here who like the song eg: 1,2
@@ -61,6 +61,25 @@ class playlist_admin(models.Model):
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
     gener=models.CharField(max_length=400)
     songs=models.ManyToManyField(songs,related_name='admin_playlist')
+
+class SubscriptionPlan(models.Model):
+
+    plan_name=models.CharField(max_length=200)
+    descriptions=models.CharField(max_length=500,default="",null=True)
+    date_created=models.DateTimeField(null=True,blank=True)
+    cost=models.CharField(max_length=100,default="",null=True,blank=True)
+    status=models.CharField(max_length=100,default="",null=True)
+    is_pause=models.BooleanField(default=False)
+
+class Notification_admin(models.Model):
+    title=models.CharField(max_length=100)
+    type=models.CharField(max_length=100)
+    message=models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+
+
+
+
     
 
   
