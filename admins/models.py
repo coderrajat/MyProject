@@ -41,6 +41,16 @@ class album(models.Model):
     artist=models.ManyToManyField(artist,related_name='albums_artist')
     year=models.DateTimeField()
     cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
+gener_choices=(  #gener choices
+        ('POP','POP'),
+        ('ROCK','ROCK'),
+        ('ELECTRONICS','ELECTRONICS'),
+        ('CLASSIC','CLASSIC'),
+        ('pop','POP'),
+        ('rock','ROCK'),
+        ('electronic','ELECTRONICS'),
+        ('classic','CLASSIC')
+    )
 class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
     song_mp3=models.FileField(upload_to='images/songs')
@@ -51,7 +61,7 @@ class songs(models.Model):
     number_of_likes=models.IntegerField()
     likes=models.TextField()#the user id will be here who like the song eg: 1,2
     lyrics=models.CharField(max_length=4000,blank=True,default='')
-    genres=models.CharField(max_length=400,blank=True,default='')
+    genres = models.CharField(max_length=400, blank=True, default='POP', choices=gener_choices)
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateTimeField()
 
@@ -59,8 +69,9 @@ class playlist_admin(models.Model):
     name=models.CharField(max_length=400) 
     #title
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
-    gener=models.CharField(max_length=400)
-    songs=models.ManyToManyField(songs,related_name='admin_playlist')
+    gener=models.CharField(max_length=400,default='POP', choices=gener_choices)
+    songs=models.ManyToManyField(songs,blank=True,related_name='admin_playlist')
+  
 
 class SubscriptionPlan(models.Model):
 
@@ -80,6 +91,7 @@ class Notification_admin(models.Model):
 
 
 
+    
     
 
   
