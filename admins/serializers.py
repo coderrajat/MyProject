@@ -1,9 +1,15 @@
+#from django.db.models import fields
 from django.db.models import fields
 from rest_framework import serializers
+
+#from Mayani_Backend.accounts import models
+
+#from accounts import models
 from . import models as admin_models
 from accounts import models as account_models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+
 def is_small(data):
     for i in data:
         if ord(i)>=97 and ord(i)<=122:
@@ -250,6 +256,7 @@ class song_data(serializers.ModelSerializer):
         model=admin_models.songs
         fields=('__all__')
         depth=2
+
 class search_song(serializers.Serializer):
     search=serializers.CharField(required=False)
 
@@ -269,12 +276,23 @@ class playlist_admin_form(serializers.ModelSerializer):
 class Artist_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
-        fields=["id","name","artist_origin","photo"]
-
-        
-# sonu code album serializers
+        #fields=["id","name","artist_origin","photo"]
+        fields=('__all__')    
+#  album serializers
 class all_album(serializers.ModelSerializer):
     class Meta:
         model = admin_models.album
         fields = ['id','name','artist','year','cover']
+
+class search_album(serializers.Serializer):
+    search=serializers.CharField(required=False)
+
+class songs_da_ta(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        exclude=('song_mp3',)
+
+class albums_songs_search(serializers.Serializer):
+    search=serializers.CharField(required=False)
+
         

@@ -1,6 +1,5 @@
-from os import name
 from django.db import models
-from accounts import models as accounts_models
+from datetime import datetime  
 class CMS(models.Model):
     name=models.CharField(max_length=200,unique=True)
     content = models.TextField(null=True,blank=True)
@@ -36,20 +35,21 @@ class artist(models.Model):
     name=models.CharField(max_length=400)
     artist_origin=models.TextField()
     photo=models.ImageField(upload_to='images/artist',default='deafult_profile_pic.jpeg')
+    most_played_artists=models.IntegerField()
 class album(models.Model):
     name=models.CharField(max_length=400)
     artist=models.ManyToManyField(artist,related_name='albums_artist')
-    year=models.DateTimeField()
+    year=models.DateTimeField(default=datetime.now(), blank=True)
     cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
+    
 class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
     song_mp3=models.FileField(upload_to='images/songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
-    album=models.ManyToManyField(album,related_name='album')
-    #album=models.ForeignKey(album,on_delete=models.DO_NOTHING,null=True,related_name='album')
+    album=models.ForeignKey(album,on_delete=models.SET_NULL,null=True,related_name='album')
     artist=models.ManyToManyField(artist,related_name='artist')
-    number_of_likes=models.IntegerField()
-    likes=models.TextField()#the user id will be here who like the song eg: 1,2
+    number_of_likes=models.IntegerField(default=0)
+    likes=models.TextField(blank=True)#the user id will be here who like the song eg: 1,2
     lyrics=models.CharField(max_length=4000,blank=True,default='')
     genres=models.CharField(max_length=400,blank=True,default='')
     charts=models.CharField(max_length=400,blank=True,default='')
@@ -61,10 +61,5 @@ class playlist_admin(models.Model):
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
     gener=models.CharField(max_length=400)
     songs=models.ManyToManyField(songs,related_name='admin_playlist')
-    
 
-  
-    
-
-   
 

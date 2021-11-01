@@ -15,6 +15,8 @@ admin.site.register(models.album)
 admin.site.register(models.songs)
 admin.site.register(models.playlist_admin)
 
+
+
 # admin.site.register(models.CMS)
 
 
