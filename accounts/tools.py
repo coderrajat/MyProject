@@ -168,4 +168,10 @@ def convert_str_to_json_array(str):
     #return x
 
     return json.loads(json.dumps(str.split(',')))
+
+def send_admin_notification(title,type,message):
+    notification=admin_models.Notification_admin.objects.create(title=title,type=type,message=message)
+    notification.save()
+    
+
         
