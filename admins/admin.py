@@ -14,6 +14,10 @@ admin.site.register(models.artist)
 admin.site.register(models.album)
 admin.site.register(models.songs)
 admin.site.register(models.playlist_admin)
+admin.site.register(models.SubscriptionPlan)
+admin.site.register(models.Notification_admin)
+
+
 
 # admin.site.register(models.CMS)
 

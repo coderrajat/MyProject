@@ -154,3 +154,9 @@ class signin_user(serializers.ModelSerializer):
     class Meta():
         model=models.Admins
         fields=('country_code',"phone_number","password")
+
+#sk users data
+class user_data(serializers.ModelSerializer):
+    class Meta():
+        model=models.Users
+        fields=('__all__')
