@@ -1,8 +1,6 @@
+from os import name
 from django.urls import path
 from . import views
-
-
-
 urlpatterns=[
     path("cms<name>",views.cms.as_view(),name='cms'),
     path("image_settings",views.image_settings.as_view(),name='image_settings'),
@@ -20,25 +18,42 @@ urlpatterns=[
     path("block_subadmin<id>",views.block_subadmin.as_view(),name='block_subadmin'),
     path("song_search_list",views.song_search_list.as_view(),name='song_search_list'),
     path("get_playlist_admin",views.get_playlist_admin.as_view(),name='get_playlist_admin'),
+    path("get_songs_admin_playlist/<id>",views.get_song_admin_playlist.as_view(),name='get_playlist_admin'),
     
     # sonu album path
     #path("album",views.album.as_view(),name='album'),
     #path('album/<id>', views.album.as_view()),
-    path('albumapi', views.albumAPI.as_view()),
-    path('albumapi/<id>', views.albumAPI.as_view()),
+  
+    #album api
+    path('album_api', views.albumAPI.as_view(),name='album_api'),
+    path('album_api/<id>', views.albumAPI.as_view(),name='album_api'),
+    #Dashboard api
+    path('dash_board', views.dash_board.as_view(),name='dash_board'),
+    #Album_search api
+    path("album_search",views.album_search.as_view(),name='album_search'),
+    #Albums_song api
+    path('albums_song',views.song_album.as_view(),name='albums_song'),
+    path('albums_song/<pk>',views.song_album.as_view(),name='albums_song'),
+    #albums_song search api
+    path('albums_song_search/<pk>',views.albums_song_search_list.as_view(),name='albums_song_search'),
+    #path('albums_song_search',views.albums_song_search_list.as_view(),name='albums_song_search'),
+
+    #path('get_songs',views.get_songs.as_view(),name='get_songs'),
+    #path('get_songs/<pk>',views.get_songs.as_view(),name='get_songs'),
+
     #path("playlist_admin/<int:id>",views.playlist_admin_by_id.as_view(),name='playlist_admin'),
     #path("playlist_admin",views.playlist_adminn.as_view(),name='playlist_admin'),
     path("playlist_admin",views.playlist_admin_get.as_view(),name='playlist_admin_get'),
     path("playlist_admin/<id>",views.playlist_admin.as_view(),name='playlist_admin'),
+    #path("playlist_admin/<id>",views.get_song_admin_playlist.as_view(),name='playlist_admin'),
 
+#   path("playlist_admin/remove/id",views.playlist_admin.as_view(), name='playlist_admin)
 
+    path("playlist_all/<id>/remove/",views.playlist_admin_removesong.as_view(),name='playlist_admin'),
+    
     #path("playlist_all",views.playlist_by_id.as_view(),name='playlist_admin'),
     
-
-  #  path("playlist_admin/all",views.playlist_adminget.as_view(),name='playlist_admin'), #getting all playlist
-
-    
-
+    #path("playlist_admin/all",views.playlist_adminget.as_view(),name='playlist_admin'), #getting all playlist
 
     # path("cms",views.cms.as_view(),name='cms'),
     # path("cms",views.cms.as_view(),name='cms'),
@@ -70,10 +85,7 @@ urlpatterns=[
     
     
  
-
-
- 
-
+    
     
     ]
 #handler404 = 'admins.views.error_404_view'

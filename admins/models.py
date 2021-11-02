@@ -1,6 +1,5 @@
-from os import name
 from django.db import models
-from accounts import models as accounts_models
+from datetime import datetime  
 class CMS(models.Model):
     name=models.CharField(max_length=200,unique=True)
     content = models.TextField(null=True,blank=True)
@@ -39,10 +38,11 @@ class artist(models.Model):
     followers=models.CharField(max_length=400,null=True,blank=True)
 
     photo=models.ImageField(upload_to='images/artist',default='deafult_profile_pic.jpeg')
+    most_played_artists=models.IntegerField(default=0)
 class album(models.Model):
     name=models.CharField(max_length=400)
     artist=models.ManyToManyField(artist,related_name='albums_artist')
-    year=models.DateTimeField()
+    year=models.DateTimeField(default=datetime.now(), blank=True)
     cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
     likes=models.CharField(max_length=400,null=True,blank=True)
     downloads=models.CharField(max_length=400,null=True,blank=True)
@@ -62,15 +62,14 @@ class songs(models.Model):
     song_mp3=models.FileField(upload_to='images/songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
     album=models.ForeignKey(album,on_delete=models.SET_NULL,null=True,related_name='album')
-  
     artist=models.ManyToManyField(artist,related_name='artist')
-    number_of_likes=models.IntegerField()
-    likes=models.TextField(null=True, blank=True)#the user id will be here who like the song eg: 1,2
+    downloads=models.CharField(max_length=400,null=True,blank=True)
+    number_of_likes=models.IntegerField(default=0)
+    likes=models.TextField(null=True,blank=True)#the user id will be here who like the song eg: 1,2
     lyrics=models.CharField(max_length=4000,blank=True,default='')
     genres = models.CharField(max_length=400, blank=True, default='POP', choices=gener_choices)
     charts=models.CharField(max_length=400,blank=True,default='')
-    year=models.DateTimeField()
-    downloads=models.CharField(max_length=400,null=True,blank=True)
+    year=models.DateTimeField(default=datetime.now())
 
 class playlist_admin(models.Model):
     name=models.CharField(max_length=400) 
@@ -78,6 +77,7 @@ class playlist_admin(models.Model):
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
     gener=models.CharField(max_length=400,default='POP', choices=gener_choices)
     songs=models.ManyToManyField(songs,blank=True,related_name='admin_playlist')
+    downloads=models.IntegerField( default=0)
   
 
 class SubscriptionPlan(models.Model):
@@ -104,5 +104,4 @@ class Notification_admin(models.Model):
   
     
 
-   
 
