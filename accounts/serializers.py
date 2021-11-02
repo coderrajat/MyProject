@@ -106,6 +106,7 @@ def is_all_number(val):
                 _('Phone Number should only contain numbers'),
                 params={'val': val},
             )
+
 #https://www.django-rest-framework.org/api-guide/validators/#function-based
 class admin_data(serializers.ModelSerializer):
     class Meta:

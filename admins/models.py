@@ -35,12 +35,18 @@ class SMTP_setting(models.Model):
 class artist(models.Model):
     name=models.CharField(max_length=400)
     artist_origin=models.TextField()
+    likes=models.CharField(max_length=400,null=True,blank=True)
+    followers=models.CharField(max_length=400,null=True,blank=True)
+
     photo=models.ImageField(upload_to='images/artist',default='deafult_profile_pic.jpeg')
 class album(models.Model):
     name=models.CharField(max_length=400)
     artist=models.ManyToManyField(artist,related_name='albums_artist')
     year=models.DateTimeField()
     cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
+    likes=models.CharField(max_length=400,null=True,blank=True)
+    downloads=models.CharField(max_length=400,null=True,blank=True)
+    
 gener_choices=(  #gener choices
         ('POP','POP'),
         ('ROCK','ROCK'),
@@ -59,11 +65,12 @@ class songs(models.Model):
   
     artist=models.ManyToManyField(artist,related_name='artist')
     number_of_likes=models.IntegerField()
-    likes=models.TextField()#the user id will be here who like the song eg: 1,2
+    likes=models.TextField(null=True, blank=True)#the user id will be here who like the song eg: 1,2
     lyrics=models.CharField(max_length=4000,blank=True,default='')
     genres = models.CharField(max_length=400, blank=True, default='POP', choices=gener_choices)
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateTimeField()
+    downloads=models.CharField(max_length=400,null=True,blank=True)
 
 class playlist_admin(models.Model):
     name=models.CharField(max_length=400) 

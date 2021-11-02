@@ -104,6 +104,7 @@ def is_in_word_limit(val):
             _('must me less then 200 words'),
             params={'val': val},
         )
+
 # class admin_info(serializers.ModelSerializer):
 #     class Meta:
 #         model=account_models.User
@@ -245,6 +246,12 @@ class search_consumer_form(serializers.ModelSerializer):
         model=account_models.Users
         exclude=('password','token','otp')
 class song_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        field="__all__"
+
+
+
     # playlist_admin=
     class Meta:
         model=admin_models.songs
@@ -269,7 +276,7 @@ class playlist_admin_form(serializers.ModelSerializer):
 class Artist_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
-        fields=["id","name","artist_origin","photo"]
+        fields=["id","name","artist_origin","photo","likes","followers","artist"]
 
         
 # sonu code album serializers
@@ -289,4 +296,34 @@ class Notification_data(serializers.ModelSerializer):
         fields=["id","title","type","message","created_at"]
 class Search_Artist(serializers.Serializer):
     search=serializers.CharField(required=False)
+class Song_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=["id","name","song_mp3","album","artist","number_of_likes","likes","year","genres"]
+class Artist_album_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.album
+        fields=["name","likes","downloads","cover"]
+
+class Artist_song_data(serializers.ModelSerializer):#for a particular artist
+    class Meta:
+        model=admin_models.songs
+        fields=["name","song_mp3","album","genres","likes","downloads"]
+class Search_Artist_album(serializers.Serializer):
+    search=serializers.CharField(required=False)
+class Search_album_song(serializers.Serializer):
+    search=serializers.CharField(required=False)
+class Create_artist_album(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.album
+        fields=["name","year"]
+class Album_song_data(serializers.ModelSerializer):#for a particular artist
+    class Meta:
+        model=admin_models.songs
+        fields=["name","song_mp3","genres","likes","downloads"]
+#to add song in album from database
+class Song_album_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        exclude=["song_mp3"]
 

@@ -51,8 +51,27 @@ urlpatterns=[
     path("subscription_data<pk>",views.SubscriptionPlan_api.as_view(),name="subscription_data1"),
     path("notification_data",views.Notification_api.as_view(),name="notification_data"),
     path("notification_data<pk>",views.Notification_api.as_view(),name="notification_data1"),
-    path("artist_search_list",views.Artist_search_list.as_view(),name="artist_search_list")
+    path("artist_search_list",views.Artist_search_list.as_view(),name="artist_search_list"),
+    path("artist_search_list<pk>",views.Artist_search_list.as_view(),name="artist_search_list"),
+    path("artist_album<pk>",views.Artist_album_data.as_view(),name="artist_album"),
+    path("artist_album",views.Artist_album_data.as_view(),name="artist_album1"),
+    path("song_data<pk>",views.Song_api.as_view(),name="song_data"),
+    path("song_data",views.Song_api.as_view(),name="song_data1"),
+    path("artist_song<pk>",views.Artist_song_data.as_view(),name="artist_album"),
+    path("artist_song",views.Artist_song_data.as_view(),name="artist_album1"),
+    path("artist_search_album<pk>",views.Artist_album_search_list.as_view(),name="artist"),
+    path("artist_search_album",views.Artist_album_search_list.as_view(),name="artist"),
+    path("artist_Song_search",views.Artist_song_search_list.as_view(),name="artist"),
+    path("artist_Song_search<pk>",views.Artist_song_search_list.as_view(),name="artist"),
+   # path("artistalbum_search_song<pk>",views.Artist_album_song_search_list.as_view(),name="artist"),
+    path("artistalbum_search_song",views.Artist_album_song_search_list.as_view(),name="artist"),
+    #sonu
+   
+    
+    
  
+
+
  
 
     
