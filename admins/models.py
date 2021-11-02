@@ -71,6 +71,7 @@ class playlist_admin(models.Model):
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
     gener=models.CharField(max_length=400,default='POP', choices=gener_choices)
     songs=models.ManyToManyField(songs,blank=True,related_name='admin_playlist')
+    downloads=models.IntegerField( default=0)
     
 
   

@@ -265,7 +265,7 @@ class playlist_admin_form(serializers.ModelSerializer):
     # search=serializers.CharField(required=False)
     class Meta:
         model=admin_models.playlist_admin
-        fields=('id','name','gener','songs')
+        fields=('id','name','gener','songs','downloads')
 class Artist_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist

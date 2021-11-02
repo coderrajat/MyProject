@@ -728,7 +728,77 @@ class get_playlist_admin(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
-      
+
+
+class get_song_admin_playlist(APIView):
+    def get(self,request,id):
+        f1=serializers.search_song()
+        f2=serializers.pagination()
+        return Response({**f1.data,**f2.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    def post(self,request,id):
+        if not id.is_numeric():
+            return Response({'success':'false',
+                                'error_msg':'playlist id does not exist',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+
+        playlist_check=list(admin_models.playlist_admin.objects.filter(id=id))
+        if len(playlist_check)==0:
+            return Response({'success':'false',
+                                'error_msg':'playlist id does not exist',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        
+                        
+
+        f1=serializers.search_song(data=request.POST)
+        f2=serializers.pagination(data=request.POST)
+        if not(f1.is_valid() and f2.is_valid()):
+            f1.is_valid()
+            f2.is_valid()
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors),**dict(f2.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        s=request.POST['search']
+        flg=True
+        if s!='':
+            flg=False
+            search_query=Q()
+            search_query.add(Q(name__icontains=s),Q.OR)
+            search_query.add(Q(genres__icontains=s),Q.OR)
+        if flg:
+            result=admin_models.songs.objects.filter(admin_playlist=playlist_check[0].id)
+        else:
+            result=admin_models.songs.objects.filter(search_query,admin_playlist=playlist_check[0].id)
+        if request.POST['order_by']!=None and request.POST['order_by']!='':
+            if request.POST['order_by_type']=='dec':
+                order='-'+request.POST['order_by']
+            else:
+                order=request.POST['order_by']
+            result=result.order_by(order)
+        paginate_result=Paginator(result, int(request.POST['result_limit']))
+        p_r=paginate_result.get_page(request.POST['page'])
+        #print(p_r)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':serializers.song_data(p_r,many=True).data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                                },
+                            },status=status.HTTP_202_ACCEPTED)
+
+
+
 class playlist_admin(APIView):
     @is_authenticate()
     def get(self,request,id):
@@ -740,9 +810,8 @@ class playlist_admin(APIView):
                             },status=status.HTTP_404_NOT_FOUND)
 
         playlist=list(admin_models.playlist_admin.objects.prefetch_related().filter(id=id))
-
-
         print(playlist)
+
         if playlist==[]:
             return Response({'success':'false',
                                 'error_msg':'invalid ID',
@@ -820,6 +889,43 @@ class playlist_admin(APIView):
                             'errors':{},
                             'response':{"deleted":{**dict(f1.data)}},
                             },status=status.HTTP_200_OK)
+#
+
+class playlist_admin_removesong(APIView):
+
+    def post(self,request,id):
+        try:
+            temp=list(admin_models.playlist_admin.objects.filter(id=id))
+            
+            delete_id=request.data['delete_id']
+            #print(delete_id)
+
+            
+            for i in temp:
+                pass
+            print(i)
+            j=i.songs.all()
+           
+            j_id=j.get(id=delete_id)
+            i.songs.remove(j_id)
+            i.save()
+            
+        except Exception as e:
+            return Response({'success':'false',
+                                'error_msg':'ID error',
+                                'errors':{},
+                                'response':{'all_playlist':''}
+                                },status=status.HTTP_200_OK)
+        
+        return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{'all_playlist':playlist_admin_form(i).data}
+                                },status=status.HTTP_200_OK)
+    
+
+
+#
     
 class playlist_admin_get(APIView): 
     @is_authenticate()
