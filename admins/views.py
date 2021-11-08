@@ -746,7 +746,7 @@ class get_song_admin_playlist(APIView):
 
     @is_authenticate()                          
     def post(self,request,id):
-        if not id.is_numeric():
+        if not id.isnumeric():
             return Response({'success':'false',
                                 'error_msg':'playlist id does not exist',
                                 'errors':{},
