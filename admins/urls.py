@@ -53,6 +53,8 @@ urlpatterns=[
     
     #path("playlist_all",views.playlist_by_id.as_view(),name='playlist_admin'),
     
+
+    
     #path("playlist_admin/all",views.playlist_adminget.as_view(),name='playlist_admin'), #getting all playlist
 
     # path("cms",views.cms.as_view(),name='cms'),
