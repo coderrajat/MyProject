@@ -50,6 +50,7 @@ urlpatterns=[
 #   path("playlist_admin/remove/id",views.playlist_admin.as_view(), name='playlist_admin)
 
     path("playlist_all/<id>/remove/",views.playlist_admin_removesong.as_view(),name='playlist_admin'),
+    path("playlist_all/<id>/add/",views.playlist_admin_addsong.as_view(),name='playlist_admin'),
     
     #path("playlist_all",views.playlist_by_id.as_view(),name='playlist_admin'),
     

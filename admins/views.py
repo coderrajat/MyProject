@@ -908,7 +908,7 @@ class playlist_admin_removesong(APIView):
             
             for i in temp:
                 pass
-            print(i)
+            #print(i)
             j=i.songs.all()
            
             j_id=j.get(id=delete_id)
@@ -928,24 +928,31 @@ class playlist_admin_removesong(APIView):
                                 'response':{'all_playlist':playlist_admin_form(i).data}
                                 },status=status.HTTP_200_OK)
 
-#experimenting
-    
 class playlist_admin_addsong(APIView):
     @is_authenticate()
     def post(self,request,id):
+        
         try:
             temp=list(admin_models.playlist_admin.objects.filter(id=id))
-            add_songs=request.data['add_song']
-            song_list=list(admin_models.song.objects.filter(add_songs))
-            print(song_list[0])
+            
+          
+            
+            song_id=request.data['add_song']
+            temp2=list(admin_models.songs.objects.filter(id=song_id))
+            add_song_id=temp2[0]
+            #print(temp2[0])
+            #print(song_id)
             #print(delete_id)
-            #for i in temp:
-                #pass
-            #print(i)
-           # j=i.songs.all() 
-            #j_id=j.get(id=song_list)
-           # i.songs.set(j_id)
-           # i.save()
+
+            
+            for i in temp:
+                pass
+            j=i.songs.all()
+           
+           
+            #j_id=j.get(id=song_id)
+            i.songs.add(add_song_id)
+            i.save()
             
         except Exception as e:
             return Response({'success':'false',
@@ -959,7 +966,9 @@ class playlist_admin_addsong(APIView):
                                 'errors':{},
                                 'response':{'all_playlist':playlist_admin_form(i).data}
                                 },status=status.HTTP_200_OK)
-    
+
+#experimenting
+
 
 
 
