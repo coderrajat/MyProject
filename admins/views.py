@@ -648,8 +648,7 @@ class song_search_list(APIView):
         flg=True
         if s!='':
             flg=False
-            search_query=Q()
-           
+            search_query=Q()  
             search_query.add(Q(name__icontains=s),Q.OR)
             search_query.add(Q(album__name__icontains=s),Q.OR)
             search_query.add(Q(artist__name__icontains=s),Q.OR)
@@ -746,7 +745,7 @@ class get_song_admin_playlist(APIView):
 
     @is_authenticate()                          
     def post(self,request,id):
-        if not id.is_numeric():
+        if not id.isnumeric():
             return Response({'success':'false',
                                 'error_msg':'playlist id does not exist',
                                 'errors':{},
@@ -759,10 +758,7 @@ class get_song_admin_playlist(APIView):
                                 'error_msg':'playlist id does not exist',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_400_BAD_REQUEST)
-        
-                        
-
+                                },status=status.HTTP_400_BAD_REQUEST)                  
         f1=serializers.search_song(data=request.POST)
         f2=serializers.pagination(data=request.POST)
         if not(f1.is_valid() and f2.is_valid()):
@@ -931,7 +927,40 @@ class playlist_admin_removesong(APIView):
                                 'errors':{},
                                 'response':{'all_playlist':playlist_admin_form(i).data}
                                 },status=status.HTTP_200_OK)
+
+#experimenting
     
+class playlist_admin_addsong(APIView):
+    @is_authenticate()
+    def post(self,request,id):
+        try:
+            temp=list(admin_models.playlist_admin.objects.filter(id=id))
+            add_songs=request.data['add_song']
+            song_list=list(admin_models.song.objects.filter(add_songs))
+            print(song_list[0])
+            #print(delete_id)
+            #for i in temp:
+                #pass
+            #print(i)
+           # j=i.songs.all() 
+            #j_id=j.get(id=song_list)
+           # i.songs.set(j_id)
+           # i.save()
+            
+        except Exception as e:
+            return Response({'success':'false',
+                                'error_msg':'ID error',
+                                'errors':{},
+                                'response':{'all_playlist':''}
+                                },status=status.HTTP_200_OK)
+        
+        return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{'all_playlist':playlist_admin_form(i).data}
+                                },status=status.HTTP_200_OK)
+    
+
 
 
 #
@@ -1110,7 +1139,6 @@ class Artist_search_list(APIView):
         if s!='':
             flg=False
             search_query=Q()
-           
             search_query.add(Q(name__icontains=s),Q.OR)
             search_query.add(Q(artist_origin__icontains=s),Q.OR) 
         if flg:

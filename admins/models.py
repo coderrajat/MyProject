@@ -48,14 +48,22 @@ class album(models.Model):
     downloads=models.CharField(max_length=400,null=True,blank=True)
     
 gener_choices=(  #gener choices
-        ('POP','POP'),
-        ('ROCK','ROCK'),
-        ('ELECTRONICS','ELECTRONICS'),
-        ('CLASSIC','CLASSIC'),
-        ('pop','POP'),
-        ('rock','ROCK'),
-        ('electronic','ELECTRONICS'),
-        ('classic','CLASSIC')
+        ('Pop','Pop'),
+        ('Electronics','Electronics'),
+        ('Classic','Classic'),
+        ('Rock','Rock'),
+        ('Acoustic','Acoustic'),
+        ('Heavy Metal','Heavy Metal'),
+        ('EDM','EDM'),
+        ('Latin','Latin'),
+        ('Spanish','Spanish'),
+        ('Karaoke','Karaoke'),
+        ('Funk','Funk'),
+        ('Folk','Folk'),
+        ('Reggae','Reggae'),
+        ('Rap','Rap'),
+        ('Trance','Trance'),
+
     )
 class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
