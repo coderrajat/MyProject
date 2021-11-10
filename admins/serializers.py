@@ -240,7 +240,7 @@ class general_settings_serializer(serializers.ModelSerializer):
         model = admin_models.general_settings
         fields = ('__all__')
 class pagination(serializers.Serializer):
-    result_limit = serializers.IntegerField(max_value=20, min_value=1, required=True)
+    result_limit = serializers.IntegerField(max_value=5000, min_value=1, required=True)
     page=serializers.CharField(required=False)
     order_by=serializers.CharField(required=False)
     order_by_type=serializers.CharField(required=False)
@@ -273,7 +273,7 @@ class playlist_admin_form(serializers.ModelSerializer):
     # search=serializers.CharField(required=False)
     class Meta:
         model=admin_models.playlist_admin
-        fields=('id','name','gener','songs','downloads')
+        fields=('id','name','gener','songs','downloads','cover')
 class Artist_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
