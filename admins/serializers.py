@@ -154,6 +154,7 @@ def is_in_word_limit(val):
 class admin_form(serializers.ModelSerializer):
     class Meta:
         model=account_models.Admins
+        validators=[validate]
         exclude=('id',
                 'profile_pic',
                 'token',
@@ -164,7 +165,8 @@ class admin_form(serializers.ModelSerializer):
                 'password')
 class admin_data(serializers.ModelSerializer):
     class Meta:
-        model=account_models.Admins()
+        #model=account_models.Admins()
+        model=account_models.Admins
         exclude=('token','otp')
 
 class password(serializers.Serializer):
@@ -312,16 +314,19 @@ class Search_Artist(serializers.Serializer):
 class Song_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
-        fields=["id","name","song_mp3","album","artist","number_of_likes","likes","year","genres"]
+        fields=["id","name","song_mp3","album","artist","year","genres","admin_playlist"]
+        #fields=["id","name","song_mp3","album","artist","number_of_likes","likes","year","genres"]
 class Artist_album_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.album
-        fields=["name","likes","downloads","cover"]
+        fields=["id","name","likes","downloads","artist","cover"]
+        depth=1
 
 class Artist_song_data(serializers.ModelSerializer):#for a particular artist
     class Meta:
         model=admin_models.songs
-        fields=["name","song_mp3","album","genres","likes","downloads"]
+        fields=["id","name","song_mp3","album","genres","likes","downloads","cover","artist"]
+        depth=2
 class Search_Artist_album(serializers.Serializer):
     search=serializers.CharField(required=False)
 class Search_album_song(serializers.Serializer):
@@ -333,7 +338,8 @@ class Create_artist_album(serializers.ModelSerializer):
 class Album_song_data(serializers.ModelSerializer):#for a particular artist
     class Meta:
         model=admin_models.songs
-        fields=["name","song_mp3","genres","likes","downloads"]
+        fields=["id","name","song_mp3","genres","likes","downloads","album","artist"]
+        depth=2
 #to add song in album from database
 class Song_album_data(serializers.ModelSerializer):
     class Meta:

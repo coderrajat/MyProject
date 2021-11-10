@@ -15,6 +15,7 @@ urlpatterns=[
     path("subadmin_list",views.subadmin_list.as_view(),name='subadmin_list'),
     path("edit_subadmin<id>",views.edit_subadmin.as_view(),name='edit_subadmin'),
     path("delete_subadmin<id>",views.delete_subadmin.as_view(),name='delete_subadmin'),
+    #path("add_subadmin",views.Add_subadmin.as_view(),name='add_subadmin'),
     path("block_subadmin<id>",views.block_subadmin.as_view(),name='block_subadmin'),
     path("song_search_list",views.song_search_list.as_view(),name='song_search_list'),
     path("get_playlist_admin",views.get_playlist_admin.as_view(),name='get_playlist_admin'),
@@ -29,7 +30,7 @@ urlpatterns=[
     path('album_api/<id>', views.albumAPI.as_view(),name='album_api'),
     #Dashboard api
     path('dash_board', views.dash_board.as_view(),name='dash_board'),
-    #Album_search api
+    #Album_search api 
     path("album_search",views.album_search.as_view(),name='album_search'),
     #Albums_song api
     path('albums_song',views.song_album.as_view(),name='albums_song'),
@@ -82,6 +83,8 @@ urlpatterns=[
     path("artist_Song_search<pk>",views.Artist_song_search_list.as_view(),name="artist"),
    # path("artistalbum_search_song<pk>",views.Artist_album_song_search_list.as_view(),name="artist"),
     path("artistalbum_search_song",views.Artist_album_song_search_list.as_view(),name="artist"),
+    path("artist_remove_song",views.Artist_remove_song.as_view(),name="artist_remove_song"),
+    path("artist_remove_album",views.Artist_remove_album.as_view(),name="artist_remove_album")
     #sonu
    
     

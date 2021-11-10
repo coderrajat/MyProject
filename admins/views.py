@@ -603,6 +603,7 @@ class delete_subadmin(APIView):
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_200_OK)
+    
 class block_subadmin(APIView):
     @is_authenticate()
     def get(self,request,id):
@@ -621,7 +622,25 @@ class block_subadmin(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{},
-                            },status=status.HTTP_200_OK)
+                           },status=status.HTTP_200_OK)
+    
+
+       
+         
+           
+    
+        
+
+
+
+
+
+
+
+
+
+ 
+         
 class song_search_list(APIView):
     @is_authenticate()
     def get(self,request):
@@ -1178,18 +1197,23 @@ class Song_api(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
     @is_authenticate()
     def post(self, request):
-        f2=serializers.Song_data(data=request.data)
+        f2=serializers.songs_da_ta(data=request.POST)
         if f2.is_valid():
             file=request.FILES["song_mp3"]
-            if file.content_type not in ["audio/mpeg"]:
+            print("file",file)
+            if  not file.content_type  in ["audio/mpeg"]:
                 return Response({'success':'false',
                                     'error_msg':'invalid file type,it should be mp3/mpeg',
                                     'errors':{},
                                     'response':{**dict(f2.errors)}
                                     },status=status.HTTP_400_BAD_REQUEST)
+            
+            song=f2.save()
+            song.song_mp3=request.FILES["song_mp3"]
+            song.save()
 
         
-            
+          
             return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
@@ -2141,6 +2165,87 @@ class Artist_album_song_search_list(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
+
+class Artist_remove_song(APIView):
+    @is_authenticate()
+    def put(self,request):
+        try:
+            song=admin_models.songs.objects.get(pk=int(request.POST["song_id"]))
+          
+            
+            
+            
+            artist=admin_models.artist.objects.get(pk=int(request.POST["artist_id"]))
+         
+            
+            artist_songs=admin_models.songs.objects.filter(artist=int(request.POST["artist_id"]))
+            
+          
+            
+            
+            if song in artist_songs:
+                print(song)
+                song.artist.remove(artist)
+                return Response({'success':'true',
+                                    'error_msg':'',
+                                    'errors':{},
+                                    'response':{}
+                                    },status=status.HTTP_200_OK)
+        except Exception as ex:
+         return Response({'success':'false',
+                                'error_msg':"artist or song does not exists",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+        
+class Artist_remove_album(APIView):
+    @is_authenticate()
+    def put(self,request):
+        try:
+            album=admin_models.album.objects.get(pk=int(request.POST["album_id"]))
+           
+            
+            
+            
+            artist=admin_models.artist.objects.get(pk=int(request.POST["artist_id"]))
+           
+            
+            artist_album=admin_models.album.objects.filter(artist=int(request.POST["artist_id"]))
+            
+        
+            
+            
+            if album in artist_album:
+               
+                album.artist.remove(artist)
+                return Response({'success':'true',
+                                        'error_msg':'',
+                                        'errors':{},
+                                        'response':{}
+                                        },status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'success':'false',
+                                'error_msg':"artist or album does not exists",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+
+
+
+              
+            
+             
+
+       
+       
+
+        
+
+
+
+ 
+
+                            
 
 
 

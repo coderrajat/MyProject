@@ -94,6 +94,9 @@ class Notification_admin(models.Model):
     type=models.CharField(max_length=100)
     message=models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+class PointActivity(models.Model):
+    signin=models.IntegerField()
+    
 
 
 
