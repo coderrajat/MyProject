@@ -61,7 +61,7 @@ class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
     song_mp3=models.FileField(upload_to='images/songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
-    album=models.ForeignKey(album,on_delete=models.SET_NULL,null=True,related_name='album')
+    album=models.ForeignKey(album,on_delete=models.SET_NULL,null=True,related_name='songs')
     artist=models.ManyToManyField(artist,related_name='artist')
     downloads=models.CharField(max_length=400,null=True,blank=True)
     number_of_likes=models.IntegerField(default=0)
