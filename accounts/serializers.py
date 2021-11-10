@@ -156,8 +156,8 @@ class signin_user(serializers.ModelSerializer):
         model=models.Admins
         fields=('country_code',"phone_number","password")
 
-#sk users data
-class user_data(serializers.ModelSerializer):
-    class Meta():
-        model=models.Users
-        fields=('__all__')
+class users_login(serializers.Serializer):
+    email=serializers.CharField(max_length=200)
+    password=serializers.CharField(max_length=155,required=False)
+
+

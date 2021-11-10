@@ -8,17 +8,23 @@ from rest_framework.response import Response
 from django.core.paginator import Paginator
 from rest_framework import status
 from django.db.models import Q, manager
+from accounts.views import login_admin
+#from Mayani_Backend.accounts.views import login_admin
+#from .accounts.serializers import user_data
 from admins import models as admin_models
 from accounts import models as account_models
 from .models import album, artist, playlist_admin, songs
+
 # Create your views here.
+
+import secrets
 import bcrypt
 from accounts import tools
 import datetime
 from . import serializers
 from .serializers import playlist_admin_form,song_data
 from django.http import Http404
-# from . import tools
+#from . import tools
 from rest_framework import status
 
 def is_authenticate(*Dargs,**Dkwargs):
@@ -408,9 +414,11 @@ class search_consumer_api(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
+
 class edit_user_api(APIView):
     @is_authenticate()
     def get(self,request,id):
+        
         user=list(account_models.Users.objects.filter(id=id))
         if user==[]:
             return Response({'success':'false',
@@ -425,8 +433,33 @@ class edit_user_api(APIView):
                             'errors':{},
                             'response':f1.data,
                             },status=status.HTTP_200_OK)
+    
+    def post(self,request,id=None):
+        try:
+            #data = request.POST
+            serializer =  serializers.user_forms(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'Success':'true',
+                                        'error_msg':'',
+                                        'errors':{},
+                                        'response':{""},
+                                        },status=status.HTTP_200_OK) 
+
+            return Response({'success':'false',
+                                        'error_msg':'invalid_input',
+                                        'errors':{},
+                                        'response':{**dict(serializer.errors)}
+                                        },status=status.HTTP_406_NOT_ACCEPTABLE)
+        except ValueError as ex:
+            return Response ({'success':'false',
+                                        'error_msg':'Please enter a integer value as ID',
+                                        'errors':{},
+                                        'response':{}
+                                        },status=status.HTTP_406_NOT_ACCEPTABLE) 
+    
     @is_authenticate()
-    def post(self,request,id):
+    def put(self,request,id):
         user=list(account_models.Users.objects.filter(id=id))
         if user==[]:
             return Response({'success':'false',
@@ -455,6 +488,7 @@ class edit_user_api(APIView):
                             'response':{},
 
                             },status=status.HTTP_200_OK)
+        
 class delete_user(APIView):
     @is_authenticate()
     def get(self,request,id):
@@ -479,6 +513,7 @@ class delete_user(APIView):
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_200_OK)
+                               
 class block_user(APIView):
     @is_authenticate()
     def get(self,request,id):
@@ -667,8 +702,7 @@ class song_search_list(APIView):
         flg=True
         if s!='':
             flg=False
-            search_query=Q()
-           
+            search_query=Q()  
             search_query.add(Q(name__icontains=s),Q.OR)
             search_query.add(Q(album__name__icontains=s),Q.OR)
             search_query.add(Q(artist__name__icontains=s),Q.OR)
@@ -778,10 +812,7 @@ class get_song_admin_playlist(APIView):
                                 'error_msg':'playlist id does not exist',
                                 'errors':{},
                                 'response':{},
-                                },status=status.HTTP_400_BAD_REQUEST)
-        
-                        
-
+                                },status=status.HTTP_400_BAD_REQUEST)                  
         f1=serializers.search_song(data=request.POST)
         f2=serializers.pagination(data=request.POST)
         if not(f1.is_valid() and f2.is_valid()):
@@ -931,7 +962,7 @@ class playlist_admin_removesong(APIView):
             
             for i in temp:
                 pass
-            print(i)
+            #print(i)
             j=i.songs.all()
            
             j_id=j.get(id=delete_id)
@@ -950,7 +981,49 @@ class playlist_admin_removesong(APIView):
                                 'errors':{},
                                 'response':{'all_playlist':playlist_admin_form(i).data}
                                 },status=status.HTTP_200_OK)
-    
+
+class playlist_admin_addsong(APIView):
+    @is_authenticate()
+    def post(self,request,id):
+        
+        try:
+            temp=list(admin_models.playlist_admin.objects.filter(id=id))
+            
+          
+            
+            song_id=request.data['add_song']
+            temp2=list(admin_models.songs.objects.filter(id=song_id))
+            add_song_id=temp2[0]
+            #print(temp2[0])
+            #print(song_id)
+            #print(delete_id)
+
+            
+            for i in temp:
+                pass
+            j=i.songs.all()
+           
+           
+            #j_id=j.get(id=song_id)
+            i.songs.add(add_song_id)
+            i.save()
+            
+        except Exception as e:
+            return Response({'success':'false',
+                                'error_msg':'ID error',
+                                'errors':{},
+                                'response':{'all_playlist':''}
+                                },status=status.HTTP_200_OK)
+        
+        return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{'all_playlist':playlist_admin_form(i).data}
+                                },status=status.HTTP_200_OK)
+
+#experimenting
+
+
 
 
 #
@@ -1129,7 +1202,6 @@ class Artist_search_list(APIView):
         if s!='':
             flg=False
             search_query=Q()
-           
             search_query.add(Q(name__icontains=s),Q.OR)
             search_query.add(Q(artist_origin__icontains=s),Q.OR) 
         if flg:
@@ -1195,7 +1267,7 @@ class Song_api(APIView):
                                 'errors':{},
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
-    @is_authenticate()
+    #@is_authenticate()
     def post(self, request):
         f2=serializers.songs_da_ta(data=request.POST)
         if f2.is_valid():
@@ -1207,13 +1279,9 @@ class Song_api(APIView):
                                     'errors':{},
                                     'response':{**dict(f2.errors)}
                                     },status=status.HTTP_400_BAD_REQUEST)
-            
             song=f2.save()
             song.song_mp3=request.FILES["song_mp3"]
             song.save()
-
-        
-          
             return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
@@ -1224,6 +1292,7 @@ class Song_api(APIView):
                                 'errors':{},
                                 'response':{**dict(f2.errors)}
                                 },status=status.HTTP_400_BAD_REQUEST)
+    
     @is_authenticate()    
     def put(self,request,pk):
         try:
@@ -1408,7 +1477,7 @@ class albumAPI(APIView):
                 return Response({'Success':'true',
                                         'error_msg':'',
                                         'errors':{},
-                                        'response':{""},
+                                        'response':{},
                                         },status=status.HTTP_200_OK) 
 
             return Response({'success':'false',
@@ -1450,7 +1519,7 @@ class albumAPI(APIView):
                                         'response':{**dict(serializer.errors)}
                                         },status=status.HTTP_406_NOT_ACCEPTABLE)
         except ValueError as ex:
-            print(ex)
+            
             return Response ({'success':'false',
                                         'error_msg':'Please Enter a Integer Value As ID',
                                         'errors':{},
@@ -1502,7 +1571,7 @@ class dash_board(APIView):
             return Response({'success':'true',
                                         'error_msg':'',
                                         'errors':{''},
-                                        'response':{'Exist total number of album  =':a,
+                                        'response':{'Exist total number of albums  =':a,
                                         'Exist total number of artist =':ar,
                                         'Exist total number of songs  =':s,'Exist total number of users  =':u,
                                         'Top most 50 played artist=':serializer.data},
@@ -1569,7 +1638,7 @@ class album_search(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
-#add song into exist album
+#album'songs api
 class song_album(APIView):
     @is_authenticate()
     def get(self,request, pk=None):
@@ -1614,9 +1683,9 @@ class song_album(APIView):
                 if not file.content_type in ["audio/mpeg"]:
                     print(file.content_type)
                     return Response ({'success':'false',
-                                        'error_msg':'Please Enter a Valid Mp3 file',
-                                        'errors':{},
-                                        'response':{}
+                                           'error_msg':'Please Enter a Valid Mp3 file',
+                                           'errors':{},
+                                           'response':{}
                                         },status=status.HTTP_406_NOT_ACCEPTABLE)
 
                 song = serializer.save()
@@ -1635,10 +1704,10 @@ class song_album(APIView):
                                             },status=status.HTTP_406_NOT_ACCEPTABLE)
         except ValueError as ex:
             return Response ({'success':'false',
-                                        'error_msg':'Please Enter a Integer Value As ID',
-                                        'errors':{},
-                                        'response':{}
-                                        },status=status.HTTP_406_NOT_ACCEPTABLE)
+                                            'error_msg':'Please Enter a Integer Value As ID',
+                                            'errors':{},
+                                            'response':{}
+                                            },status=status.HTTP_406_NOT_ACCEPTABLE)
     @is_authenticate()
     def put(self,request):
         try:
@@ -1648,15 +1717,15 @@ class song_album(APIView):
             album = admin_models.album.objects.filter(id = int(data['album_id']))
             if(len(song) == 0):
                 return Response({'success':'false',
-                                        'error_msg':'Song not found ',
-                                        'errors':{},
-                                        'response':{}
+                                         'error_msg':'Song not found ',
+                                         'errors':{},
+                                         'response':{}
                                         },status=status.HTTP_406_NOT_ACCEPTABLE)
             if(len(album) == 0):
                 return Response({'success':'false',
-                                        'error_msg':'Album not found ',
-                                        'errors':{},
-                                        'response':{}
+                                         'error_msg':'Album not found ',
+                                         'errors':{},
+                                         'response':{}
                                         },status=status.HTTP_406_NOT_ACCEPTABLE)
 
             if(song[0].album):
@@ -1756,7 +1825,7 @@ class albums_song_search_list(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{'result':serializers.song_data(p_r,many=True).data},
+                            'response':{'result':serializers.albums_Song_data(p_r,many=True).data},
                             'pagination':{'count':len(list(p_r)),
                                         'previous':'true' if p_r.has_previous() else 'false',
                                         'next':'true' if p_r.has_next() else 'false',
@@ -2000,13 +2069,8 @@ class Artist_song_data(APIView):
                                 'errors':{},
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
-   
-       
-
-        
-     
+    
 #saurabh song will be get of a particular artist
-
 class Artist_song_search_list(APIView):
     @is_authenticate()
     def get(self, request):

@@ -11,6 +11,7 @@ urlpatterns=[
     path("change_admin_password",views.change_admin_password.as_view(),name='change_admin_password'),
     path("search_consumer_api",views.search_consumer_api.as_view(),name='search_consumer_api'),
     path("edit_user_api<id>",views.edit_user_api.as_view(),name='edit_user_api'),
+    path("edit_user_api",views.edit_user_api.as_view(),name='edit_user_api'),
     path("delete_user<id>",views.delete_user.as_view(),name='delete_user'),
     path("subadmin_list",views.subadmin_list.as_view(),name='subadmin_list'),
     path("edit_subadmin<id>",views.edit_subadmin.as_view(),name='edit_subadmin'),
@@ -51,6 +52,7 @@ urlpatterns=[
 #   path("playlist_admin/remove/id",views.playlist_admin.as_view(), name='playlist_admin)
 
     path("playlist_all/<id>/remove/",views.playlist_admin_removesong.as_view(),name='playlist_admin'),
+    path("playlist_all/<id>/add/",views.playlist_admin_addsong.as_view(),name='playlist_admin'),
     
     #path("playlist_all",views.playlist_by_id.as_view(),name='playlist_admin'),
     

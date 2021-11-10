@@ -179,7 +179,7 @@ class change_password(serializers.Serializer):
 class csm_about_us_api(serializers.ModelSerializer):
     class Meta:
         model=admin_models.CMS
-        fields=('content',)
+        fields=('content')
 # class faq_category(serializers.ModelSerializer):
 #     class Meta:
 #         model=admin_models.faq_category
@@ -242,7 +242,7 @@ class general_settings_serializer(serializers.ModelSerializer):
         model = admin_models.general_settings
         fields = ('__all__')
 class pagination(serializers.Serializer):
-    result_limit = serializers.IntegerField(max_value=20, min_value=1, required=True)
+    result_limit = serializers.IntegerField(max_value=5000, min_value=1, required=True)
     page=serializers.CharField(required=False)
     order_by=serializers.CharField(required=False)
     order_by_type=serializers.CharField(required=False)
@@ -275,18 +275,19 @@ class playlist_admin_form(serializers.ModelSerializer):
     # search=serializers.CharField(required=False)
     class Meta:
         model=admin_models.playlist_admin
-        fields=('id','name','gener','songs','downloads')
+        fields=('id','name','gener','songs','downloads','cover')
 class Artist_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
         fields=["id","name","artist_origin","photo","likes","followers","artist"]
 
         
-# sonu code album serializers
+# album section serializers
 class all_album(serializers.ModelSerializer):
     class Meta:
         model = admin_models.album
-        fields = ['id','name','artist','year','cover','album']
+        fields = ['id','name','artist','year','cover','songs']
+        depth=1
 
 class search_album(serializers.Serializer):
     search=serializers.CharField(required=False)
@@ -298,6 +299,20 @@ class songs_da_ta(serializers.ModelSerializer):
 
 class albums_songs_search(serializers.Serializer):
     search=serializers.CharField(required=False)
+
+
+class user_forms(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        exclude=('password','token')
+        #fields=('__all__')
+
+class albums_Song_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=["id","cover","name","song_mp3","album","artist"]
+        depth=1
+
 
         
 class SubscriptionPlan_data(serializers.ModelSerializer):
@@ -314,8 +329,7 @@ class Search_Artist(serializers.Serializer):
 class Song_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
-        fields=["id","name","song_mp3","album","artist","year","genres","admin_playlist"]
-        #fields=["id","name","song_mp3","album","artist","number_of_likes","likes","year","genres"]
+        fields=["id","name","song_mp3","album","artist","number_of_likes","likes","year","genres","admin_playlist"]
 class Artist_album_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.album

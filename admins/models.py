@@ -48,20 +48,28 @@ class album(models.Model):
     downloads=models.CharField(max_length=400,null=True,blank=True)
     
 gener_choices=(  #gener choices
-        ('POP','POP'),
-        ('ROCK','ROCK'),
-        ('ELECTRONICS','ELECTRONICS'),
-        ('CLASSIC','CLASSIC'),
-        ('pop','POP'),
-        ('rock','ROCK'),
-        ('electronic','ELECTRONICS'),
-        ('classic','CLASSIC')
+        ('Pop','Pop'),
+        ('Electronics','Electronics'),
+        ('Classic','Classic'),
+        ('Rock','Rock'),
+        ('Acoustic','Acoustic'),
+        ('Heavy Metal','Heavy Metal'),
+        ('EDM','EDM'),
+        ('Latin','Latin'),
+        ('Spanish','Spanish'),
+        ('Karaoke','Karaoke'),
+        ('Funk','Funk'),
+        ('Folk','Folk'),
+        ('Reggae','Reggae'),
+        ('Rap','Rap'),
+        ('Trance','Trance'),
+
     )
 class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
     song_mp3=models.FileField(upload_to='images/songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
-    album=models.ForeignKey(album,on_delete=models.SET_NULL,null=True,related_name='album')
+    album=models.ForeignKey(album,on_delete=models.SET_NULL,null=True,related_name='songs')
     artist=models.ManyToManyField(artist,related_name='artist')
     downloads=models.CharField(max_length=400,null=True,blank=True)
     number_of_likes=models.IntegerField(default=0)
