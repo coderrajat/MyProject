@@ -35,6 +35,7 @@ def login_required(*ag,**kg):
         def wrapper(*args,**kwargs):
             # print(args[1].META['HTTP_AUTHORIZATION'])
             if 'HTTP_AUTHORIZATION'in args[1].META :
+                print(args[1])
                 try:
                     data=tools.decodetoken(args[1].META['HTTP_AUTHORIZATION'])
                     print(data)
@@ -294,11 +295,21 @@ class signup_user(APIView):
         uzr=accounts_models.Users()
         uzr.country_code=request.POST["country_code"]
         uzr.phone_number=request.POST["phone_number"]
+        ##
+        print(uzr.country_code)
+        print(uzr.phone_number)
+        ##
         uzr.otp=random.randint(1000,9999)
         uzr.save()
+        tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
+           )
+         
         try:
+            
             tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
-             )
+           )
+        
+         
         except Exception as e:
              return Response({'success':'false',
                                  'error_msg':'please try again later',
@@ -438,12 +449,3 @@ class signin_user(APIView):
                             'errors':'',
                             },status=status.HTTP_200_OK)
 
-
-
-
-
-
-
-
-
-#

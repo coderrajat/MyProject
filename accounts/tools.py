@@ -11,6 +11,7 @@ from admins import models as admin_models
 from twilio.rest import Client
 from django.conf import settings
 from django.core.files.base import ContentFile
+import json
 def code(data):
     def code_(num):
         key=[
@@ -134,15 +135,20 @@ def beautify_errors(*args):
 def send_sms(to,data):
     account_sid = settings.ACCOUNT_SID
     auth_token = settings.AUTH_TOKEN
+    #account_sid='ACd9f25f76012a61b20630ca4c4d39b440'
+    #auth_token='d0b8cb13d6bd7cf67bc1a2ea2b55193f'
     client = Client(account_sid, auth_token)
 
     message = client.messages \
                     .create(
                          body=data,#"Join Earth's mightiest heroes. Like Kevin Bacon.",
-                         from_=list(admin_models.SMTP_setting.objects.filter(id=1))[0].twilio_phone_number,
-                         to=to#'+15558675310'
+                         #from_=list(admin_models.SMTP_setting.objects.filter(id=1))[0].twilio_phone_number,
+                         #to=to#'+15558675310'
+                         #body='Hi',
+                         from_='+12069008228',
+                         to='+919958365127'
                      )
-
+    print("this works?")
     print(message.sid,message)
     return message.sid
 
@@ -151,3 +157,21 @@ def get_base64_to_img(image_data):
     ext = formats.split('/')[-1]
     data = ContentFile(base64.b64decode(imgstr))
     return( data,ext)
+
+def convert_str_to_json_array(str):
+   # x= []
+   # for i in str.split(','):
+    #  x.append(json.dumps(int(i)))
+    
+    #return json.loads(json.dumps(x))
+    #print("helllo",x)
+    #return x
+
+    return json.loads(json.dumps(str.split(',')))
+
+def send_admin_notification(title,type,message):
+    notification=admin_models.Notification_admin.objects.create(title=title,type=type,message=message)
+    notification.save()
+    
+
+        

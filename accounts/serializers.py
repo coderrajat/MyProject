@@ -106,6 +106,7 @@ def is_all_number(val):
                 _('Phone Number should only contain numbers'),
                 params={'val': val},
             )
+
 #https://www.django-rest-framework.org/api-guide/validators/#function-based
 class admin_data(serializers.ModelSerializer):
     class Meta:
@@ -154,3 +155,9 @@ class signin_user(serializers.ModelSerializer):
     class Meta():
         model=models.Admins
         fields=('country_code',"phone_number","password")
+
+class users_login(serializers.Serializer):
+    email=serializers.CharField(max_length=200)
+    password=serializers.CharField(max_length=155,required=False)
+
+

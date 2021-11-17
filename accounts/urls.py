@@ -21,5 +21,5 @@ urlpatterns=[
     # path("login_admin_api",views.login_admin_api.as_view(),name='login_admin_api'),
     # path("login_admin_api",views.login_admin_api.as_view(),name='login_admin_api'),
     # path("login_admin_api",views.login_admin_api.as_view(),name='login_admin_api'),
-
+    #path('all_users', views.userall_data.as_view()),
     ]
