@@ -279,15 +279,25 @@ class playlist_admin_form(serializers.ModelSerializer):
 class Artist_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
-        fields=["id","name","artist_origin","photo","likes","followers","artist"]
+        fields=["id","name","artist_origin","photo","likes","followers","songs"]
+        depth=1
 
+class Add_artist_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.artist
+        fields=['name', 'artist_origin', 'photo']
         
 # album section serializers
 class all_album(serializers.ModelSerializer):
     class Meta:
         model = admin_models.album
-        fields = ['id','name','artist','year','cover','songs']
+        fields = ['id','name','year','cover', 'likes', 'downloads', 'songs']
         depth=1
+
+class Add_album_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = admin_models.album
+        fields = ['name', 'year', 'cover']
 
 class search_album(serializers.Serializer):
     search=serializers.CharField(required=False)
@@ -329,7 +339,19 @@ class Search_Artist(serializers.Serializer):
 class Song_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
-        fields=["id","name","song_mp3","album","artist","number_of_likes","likes","year","genres","admin_playlist"]
+        fields=("__all__")
+        depth=1
+
+class Array_of_ids(serializers.Serializer):
+    ids = serializers.CharField(required=False)
+
+class Add_song_serializer(serializers.ModelSerializer):
+    #artist = serializers.CharField(required=False)
+    #admin_playlist = serializers.CharField(required=False)
+    class Meta:
+        model=admin_models.songs
+        fields=('name', 'cover', 'album', 'year', 'genres', 'charts', 'lyrics' )
+
 class Artist_album_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.album

@@ -27,8 +27,8 @@ urlpatterns=[
     #path('album/<id>', views.album.as_view()),
   
     #album api
-    path('album_api', views.albumAPI.as_view(),name='album_api'),
-    path('album_api/<id>', views.albumAPI.as_view(),name='album_api'),
+    path('album', views.albumAPI.as_view(),name='album_api'),
+    path('album/<pk>', views.albumAPI.as_view(),name='album_api'),
     #Dashboard api
     path('dash_board', views.dash_board.as_view(),name='dash_board'),
     #Album_search api 
@@ -65,8 +65,8 @@ urlpatterns=[
     # path("cms",views.cms.as_view(),name='cms'),
     # path("cms",views.cms.as_view(),name='cms'),
     #
-    path("artist_data",views.Artist_api.as_view(),name="artist_data"),
-    path("artist_data<pk>",views.Artist_api.as_view(),name="artist_data1"),
+    path("artist",views.Artist_api.as_view(),name="artist"),
+    path("artist/<pk>",views.Artist_api.as_view(),name="artist_data1"),
     path("subscription_data",views.SubscriptionPlan_api.as_view(),name="subscription_data"),
     path("subscription_data<pk>",views.SubscriptionPlan_api.as_view(),name="subscription_data1"),
     path("notification_data",views.Notification_api.as_view(),name="notification_data"),
@@ -75,8 +75,8 @@ urlpatterns=[
     path("artist_search_list<pk>",views.Artist_search_list.as_view(),name="artist_search_list"),
     path("artist_album<pk>",views.Artist_album_data.as_view(),name="artist_album"),
     path("artist_album",views.Artist_album_data.as_view(),name="artist_album1"),
-    path("song_data<pk>",views.Song_api.as_view(),name="song_data"),
-    path("song_data",views.Song_api.as_view(),name="song_data1"),
+    path("song/<pk>",views.Song_api.as_view(),name="song"),
+    path("song",views.Song_api.as_view(),name="song"),
     path("artist_song<pk>",views.Artist_song_data.as_view(),name="artist_album"),
     path("artist_song",views.Artist_song_data.as_view(),name="artist_album1"),
     path("artist_search_album<pk>",views.Artist_album_search_list.as_view(),name="artist"),
