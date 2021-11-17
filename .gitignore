@@ -1,0 +1,7 @@
+.env
+migrations/
+__pycache__/
+*.jpeg
+*.png
+*.jpg
+db.sqlite3
