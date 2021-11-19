@@ -18,7 +18,12 @@ urlpatterns=[
     path("delete_subadmin<id>",views.delete_subadmin.as_view(),name='delete_subadmin'),
     #path("add_subadmin",views.Add_subadmin.as_view(),name='add_subadmin'),
     path("block_subadmin<id>",views.block_subadmin.as_view(),name='block_subadmin'),
+    
     path("song_search_list",views.song_search_list.as_view(),name='song_search_list'),
+    path("song/<pk>",views.Song_api.as_view(),name="song"),
+    
+    
+    path("song",views.Song_api.as_view(),name="song"),
     path("get_playlist_admin",views.get_playlist_admin.as_view(),name='get_playlist_admin'),
     path("get_songs_admin_playlist/<id>",views.get_song_admin_playlist.as_view(),name='get_playlist_admin'),
     
@@ -71,20 +76,20 @@ urlpatterns=[
     path("subscription_data<pk>",views.SubscriptionPlan_api.as_view(),name="subscription_data1"),
     path("notification_data",views.Notification_api.as_view(),name="notification_data"),
     path("notification_data<pk>",views.Notification_api.as_view(),name="notification_data1"),
+    
+    
+    
+    
+    
     path("artist_search_list",views.Artist_search_list.as_view(),name="artist_search_list"),
-    path("artist_search_list<pk>",views.Artist_search_list.as_view(),name="artist_search_list"),
     path("artist_album<pk>",views.Artist_album_data.as_view(),name="artist_album"),
     path("artist_album",views.Artist_album_data.as_view(),name="artist_album1"),
-    path("song/<pk>",views.Song_api.as_view(),name="song"),
-    path("song",views.Song_api.as_view(),name="song"),
-    path("artist_song<pk>",views.Artist_song_data.as_view(),name="artist_album"),
     path("artist_song",views.Artist_song_data.as_view(),name="artist_album1"),
-    path("artist_search_album<pk>",views.Artist_album_search_list.as_view(),name="artist"),
-    path("artist_search_album",views.Artist_album_search_list.as_view(),name="artist"),
-    path("artist_Song_search",views.Artist_song_search_list.as_view(),name="artist"),
-    path("artist_Song_search<pk>",views.Artist_song_search_list.as_view(),name="artist"),
+    path("artist_search_album/<pk>",views.Artist_album_search_list.as_view(),name="artist_search_album"),
+    path("artist_search_album",views.Artist_album_search_list.as_view(),name="artist_search_album"),
+    path("artist_song_search/<pk>",views.Artist_song_search_list.as_view(),name="songs in artist"),
    # path("artistalbum_search_song<pk>",views.Artist_album_song_search_list.as_view(),name="artist"),
-    path("artistalbum_search_song",views.Artist_album_song_search_list.as_view(),name="artist"),
+    path("song_in_artist_album",views.Artist_album_song_search_list.as_view(),name="song_in_artist_album"),
     path("artist_remove_song",views.Artist_remove_song.as_view(),name="artist_remove_song"),
     path("artist_remove_album",views.Artist_remove_album.as_view(),name="artist_remove_album")
     #sonu

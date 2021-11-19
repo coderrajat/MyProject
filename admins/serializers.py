@@ -253,22 +253,38 @@ class search_consumer_form(serializers.ModelSerializer):
     class Meta:
         model=account_models.Users
         exclude=('password','token','otp')
+
+class artist_for_song_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.artist
+        fields=('id', 'name')
+
+class album_for_song_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.album
+        fields=('id', 'name')
+
 class song_data(serializers.ModelSerializer):
-    # playlist_admin=
+    artist = artist_for_song_serializer(many=True, read_only=True)
+    album = album_for_song_serializer(read_only=True)
+
     class Meta:
         model=admin_models.songs
-        fields=('__all__')
-        depth=2
+        fields=('id', 'cover', 'name', 'song_mp3', 'artist', 'album', 'genres')
+        depth=1
 
-class search_song(serializers.Serializer):
+class search(serializers.Serializer):
     search=serializers.CharField(required=False)
+
+class search_song_in_artist(serializers.Serializer):
+    search=serializers.CharField(required=False)
+    genres=serializers.ChoiceField(required=True, choices = admin_models.gener_choices)
 
 class playlist_admin_data(serializers.ModelSerializer):
     # search=serializers.CharField(required=False)
     class Meta:
         model=admin_models.playlist_admin
-        fields=('__all__')
-        depth=2
+        fields=('id', 'name', 'cover', 'gener', 'songs')
 
 
 class playlist_admin_form(serializers.ModelSerializer):
@@ -279,8 +295,7 @@ class playlist_admin_form(serializers.ModelSerializer):
 class Artist_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
-        fields=["id","name","artist_origin","photo","likes","followers","songs"]
-        depth=1
+        fields=["id","name","artist_origin","photo","followers","songs"]
 
 class Add_artist_serializer(serializers.ModelSerializer):
     class Meta:
@@ -334,8 +349,6 @@ class Notification_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.Notification_admin
         fields=["id","title","type","message","created_at"]
-class Search_Artist(serializers.Serializer):
-    search=serializers.CharField(required=False)
 class Song_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
@@ -352,11 +365,12 @@ class Add_song_serializer(serializers.ModelSerializer):
         model=admin_models.songs
         fields=('name', 'cover', 'album', 'year', 'genres', 'charts', 'lyrics' )
 
-class Artist_album_data(serializers.ModelSerializer):
+
+class Album_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.album
-        fields=["id","name","likes","downloads","artist","cover"]
-        depth=1
+        fields=["id","name", "cover", 'songs', 'year']
+        depth=2
 
 class Artist_song_data(serializers.ModelSerializer):#for a particular artist
     class Meta:
