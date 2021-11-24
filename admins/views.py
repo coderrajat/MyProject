@@ -817,6 +817,12 @@ class Song_api(APIView):
                             'errors':{},
                             'response':{}
                             },status=status.HTTP_200_OK)
+            
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
 
         else:
             return Response({'success':'false',
