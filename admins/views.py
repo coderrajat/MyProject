@@ -702,7 +702,7 @@ class Song_api(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
     @is_authenticate()
     def post(self, request):
-        f2=serializers.Add_song_serializer(data=request.POST)
+        f2=serializers.Add_song_serializer(data=request.data)
         if f2.is_valid():
             file=request.FILES.get('song_mp3', False)
             if  not file or not file.content_type  in ["audio/mpeg"]:
@@ -713,7 +713,6 @@ class Song_api(APIView):
                                     },status=status.HTTP_400_BAD_REQUEST)
             song=f2.save()
             song.song_mp3=file
-            song.save()
 
             try:
                 if(request.data['artist'] != ""):
@@ -721,13 +720,13 @@ class Song_api(APIView):
                         a = admin_models.artist.objects.get(pk=int(i))
                         song.artist.add(i)
 
-
+                """
                 if(request.data['admin_playlist'] != ""):
                     for i in request.data['admin_playlist'].split(","):
                         a = admin_models.playlist_admin.objects.get(pk=int(i))
                         song.admin_playlist.add(i)
-
-                song.save()
+                """
+                
             
             except Exception as e:
                 return Response({'success':'false',
@@ -735,7 +734,9 @@ class Song_api(APIView):
                                         'errors':{},
                                         'response':{}
                                         },status=status.HTTP_400_BAD_REQUEST)
-
+            
+            
+            song.save()
             return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
@@ -773,7 +774,7 @@ class Song_api(APIView):
                     else:
                         song.artist.clear()
 
-
+                    """
                     if(request.data['admin_playlist'] != ""):
                         song.admin_playlist.clear()
                         for i in request.data['admin_playlist'].split(","):
@@ -791,9 +792,7 @@ class Song_api(APIView):
                             if(str(j.id) not in request.data['admin_playlist'].split(",")):
                                 j.songs.remove(song.id)
                                 j.save()
-
-                    song.save()
-                    
+                    """
                     if  request.FILES.get('song_mp3', False) and (not request.FILES.get('song_mp3', False).content_type  in ["audio/mpeg"]):
                         return Response({'success':'false',
                                             'error_msg':'invalid file type,it should be mp3/mpeg',
@@ -802,7 +801,8 @@ class Song_api(APIView):
                                             },status=status.HTTP_400_BAD_REQUEST)
                     elif request.FILES.get('song_mp3', False):
                         song.song_mp3=request.FILES.get('song_mp3', False)
-                        song.save()
+                    
+                    song.save()
 
                 except Exception as e:
                     return Response({'success':'false',
@@ -1272,7 +1272,7 @@ class Artist_api(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
     @is_authenticate()
     def post(self, request):
-        f2=serializers.Add_artist_serializer(data=request.POST)
+        f2=serializers.Add_artist_serializer(data=request.data)
         if f2.is_valid():
             f2.save()
             return Response({'success':'true',
@@ -1775,7 +1775,7 @@ class albumAPI(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
     @is_authenticate()
     def post(self, request):
-        f2=serializers.Add_album_serializer(data=request.POST)
+        f2=serializers.Add_album_serializer(data=request.data)
         if f2.is_valid():
             f2.save()
             return Response({'success':'true',
