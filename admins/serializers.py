@@ -285,6 +285,7 @@ class playlist_admin_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.playlist_admin
         fields=('id', 'name', 'cover', 'gener', 'songs')
+        depth=1
 
 
 class playlist_admin_form(serializers.ModelSerializer):
