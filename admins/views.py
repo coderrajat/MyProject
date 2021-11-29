@@ -1033,7 +1033,7 @@ class get_song_admin_playlist(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{'result':serializers.song_data(p_r,many=True).data},
+                            'response':{'playlist_name':playlist_check[0].name, 'result':serializers.song_data(p_r,many=True).data},
                             'pagination':{'count':len(list(p_r)),
                                         'previous':'true' if p_r.has_previous() else 'false',
                                         'next':'true' if p_r.has_next() else 'false',
@@ -1459,7 +1459,7 @@ class Artist_album_search_list(APIView):
                 return Response({'success':'true',
                                     'error_msg':'',
                                     'errors':{},
-                                    'response':{'result':serializers.Album_data(p_r,many=True).data},
+                                    'response':{'artist_name':artist[0].name, 'result':serializers.Album_data(p_r,many=True).data},
                                     'pagination':{'count':len(list(p_r)),
                                                 'previous':'true' if p_r.has_previous() else 'false',
                                                 'next':'true' if p_r.has_next() else 'false',
@@ -1610,7 +1610,7 @@ class Artist_song_search_list(APIView):
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'result':serializers.song_data(p_r,many=True).data},
+                                'response':{"artist_name": artist.name, 'result':serializers.song_data(p_r,many=True).data},
                                 'pagination':{'count':len(list(p_r)),
                                             'previous':'true' if p_r.has_previous() else 'false',
                                             'next':'true' if p_r.has_next() else 'false',
@@ -1695,7 +1695,7 @@ class Artist_album_song_search_list(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{'result':serializers.song_data(p_r,many=True).data},
+                            'response':{'album_name': album[0].name, 'artist_name':artist[0].name, 'result':serializers.song_data(p_r,many=True).data},
                             'pagination':{'count':len(list(p_r)),
                                         'previous':'true' if p_r.has_previous() else 'false',
                                         'next':'true' if p_r.has_next() else 'false',
@@ -2015,6 +2015,13 @@ class albums_song_search_list(APIView):
         #songs=admin_models.songs.objects.all()
         f1=serializers.search(data=request.POST)
         f2=serializers.pagination(data=request.POST)
+        album = list(admin_models.album.objects.filter(id=id))
+        if(album == []):
+            return Response({'success':'false',
+                                'error_msg':'Album not found',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
         if not(f1.is_valid() and f2.is_valid()):
             f1.is_valid()
             f2.is_valid()
@@ -2046,7 +2053,7 @@ class albums_song_search_list(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{'result':serializers.song_data(p_r,many=True).data},
+                            'response':{'album_name': album[0].name, 'result':serializers.song_data(p_r,many=True).data},
                             'pagination':{'count':len(list(p_r)),
                                         'previous':'true' if p_r.has_previous() else 'false',
                                         'next':'true' if p_r.has_next() else 'false',
