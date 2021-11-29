@@ -278,7 +278,7 @@ class search(serializers.Serializer):
 
 class search_song_in_artist(serializers.Serializer):
     search=serializers.CharField(required=False)
-    genres=serializers.ChoiceField(required=True, choices = admin_models.gener_choices)
+    genres=serializers.ChoiceField(required=False, choices = admin_models.gener_choices)
 
 class playlist_admin_data(serializers.ModelSerializer):
     # search=serializers.CharField(required=False)

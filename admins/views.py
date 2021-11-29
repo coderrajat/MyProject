@@ -1585,7 +1585,8 @@ class Artist_song_search_list(APIView):
             s=request.POST['search']
             search_query=Q()
             
-            search_query.add(Q(genres=request.POST['genres']),Q.AND)
+            if('genres' in request.POST and request.POST['genres'] != ""):
+                search_query.add(Q(genres=request.POST['genres']),Q.AND)
             if s!='':
                 
                 search_query.add(Q(album__name__icontains=s) | Q(name__icontains=s),Q.AND)
