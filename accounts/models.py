@@ -45,5 +45,6 @@ class Users(models.Model):
     last_login=models.DateTimeField(verbose_name='last login', auto_now=True)
     token=models.CharField(max_length=10,default='')
     subscription_plan=models.CharField(max_length=100,default='free')
+    
     #USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ["country_code","phone_number"]

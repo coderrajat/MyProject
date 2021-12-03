@@ -1,5 +1,6 @@
 from os import name
 from django.urls import path
+
 from . import views
 urlpatterns=[
     path("cms<name>",views.cms.as_view(),name='cms'),
@@ -13,10 +14,11 @@ urlpatterns=[
     path("edit_user_api<id>",views.edit_user_api.as_view(),name='edit_user_api'),
     path("edit_user_api",views.edit_user_api.as_view(),name='edit_user_api'),
     path("delete_user<id>",views.delete_user.as_view(),name='delete_user'),
+    path('block_user<id>',views.block_user.as_view(),name='block_user'),
     path("subadmin_list",views.subadmin_list.as_view(),name='subadmin_list'),
     path("edit_subadmin<id>",views.edit_subadmin.as_view(),name='edit_subadmin'),
     path("delete_subadmin<id>",views.delete_subadmin.as_view(),name='delete_subadmin'),
-    #path("add_subadmin",views.Add_subadmin.as_view(),name='add_subadmin'),
+    path("add_subadmin",views.Add_Subadmin.as_view(),name='add_subadmin'),
     path("block_subadmin<id>",views.block_subadmin.as_view(),name='block_subadmin'),
     path("song_search_list",views.song_search_list.as_view(),name='song_search_list'),
     path("get_playlist_admin",views.get_playlist_admin.as_view(),name='get_playlist_admin'),
@@ -77,8 +79,7 @@ urlpatterns=[
     path("artist_album",views.Artist_album_data.as_view(),name="artist_album1"),
     path("song_data<pk>",views.Song_api.as_view(),name="song_data"),
     path("song_data",views.Song_api.as_view(),name="song_data1"),
-    path("artist_song<pk>",views.Artist_song_data.as_view(),name="artist_album"),
-    path("artist_song",views.Artist_song_data.as_view(),name="artist_album1"),
+    path("artist_song",views.Artist_song_add.as_view(),name="artist_album1"),
     path("artist_search_album<pk>",views.Artist_album_search_list.as_view(),name="artist"),
     path("artist_search_album",views.Artist_album_search_list.as_view(),name="artist"),
     path("artist_Song_search",views.Artist_song_search_list.as_view(),name="artist"),
@@ -86,8 +87,18 @@ urlpatterns=[
    # path("artistalbum_search_song<pk>",views.Artist_album_song_search_list.as_view(),name="artist"),
     path("artistalbum_search_song",views.Artist_album_song_search_list.as_view(),name="artist"),
     path("artist_remove_song",views.Artist_remove_song.as_view(),name="artist_remove_song"),
-    path("artist_remove_album",views.Artist_remove_album.as_view(),name="artist_remove_album")
-    #sonu
+    path("artist_remove_album",views.Artist_remove_album.as_view(),name="artist_remove_album"),
+    path("create_user_playlist_by_admin",views.Create_User_Playlist_For_Admin.as_view(),name="create_admin_user_playlist"),
+    path("user_liked_songs_for_admin<pk>",views.User_Liked_Songs_By_Admin.as_view(),name="admin_user_liked_songs"),
+    path("user_liked_songs_for_admin",views.User_Liked_Songs_By_Admin.as_view(),name="admin_user_liked_songs"),
+    path("user_subscription_plan",views.User_Subscription_Plan_History_For_Admin.as_view(),name="admin_user_subscription_plan"),
+    path("user_subscription_plan<pk>",views.User_Subscription_Plan_History_For_Admin.as_view(),name="admin_user_subscription_plan"),
+    path("Artist_album_remove_song",views.Artist_Album_Remove_Song.as_view(),name="artist_album_remove_song"),
+    path("user_current_subscription_plan<pk>",views.User_Current_Subscription_Plan.as_view(),name="current_subscription_plan")
+
+   
+    
+   
    
     
     

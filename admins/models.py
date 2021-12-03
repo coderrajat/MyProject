@@ -1,5 +1,6 @@
 from django.db import models
-from datetime import datetime  
+from datetime import datetime
+from accounts.models import Users  
 class CMS(models.Model):
     name=models.CharField(max_length=200,unique=True)
     content = models.TextField(null=True,blank=True)
@@ -41,7 +42,6 @@ class artist(models.Model):
     most_played_artists=models.IntegerField(default=0)
 class album(models.Model):
     name=models.CharField(max_length=400)
-    artist=models.ManyToManyField(artist,related_name='albums_artist')
     year=models.DateTimeField(default=datetime.now(), blank=True)
     cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
     likes=models.CharField(max_length=400,null=True,blank=True)
@@ -63,17 +63,18 @@ gener_choices=(  #gener choices
         ('Reggae','Reggae'),
         ('Rap','Rap'),
         ('Trance','Trance'),
+)
 
-    )
+    
 class songs(models.Model):
     name=models.CharField(max_length=400,blank=True,default='')
     song_mp3=models.FileField(upload_to='images/songs')
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
     album=models.ForeignKey(album,on_delete=models.SET_NULL,null=True,related_name='songs')
-    artist=models.ManyToManyField(artist,related_name='artist')
+    artist=models.ManyToManyField(artist,related_name="artist")
     downloads=models.CharField(max_length=400,null=True,blank=True)
     number_of_likes=models.IntegerField(default=0)
-    likes=models.TextField(null=True,blank=True)#the user id will be here who like the song eg: 1,2
+    likes=models.ManyToManyField(Users,related_name="liked_song")#the user id will be here who like the song eg: 1,2
     lyrics=models.CharField(max_length=4000,blank=True,default='')
     genres = models.CharField(max_length=400, blank=True, default='POP', choices=gener_choices)
     charts=models.CharField(max_length=400,blank=True,default='')
@@ -86,33 +87,46 @@ class playlist_admin(models.Model):
     gener=models.CharField(max_length=400,default='POP', choices=gener_choices)
     songs=models.ManyToManyField(songs,blank=True,related_name='admin_playlist')
     downloads=models.IntegerField( default=0)
+    user=models.ForeignKey(Users,on_delete=models.SET_NULL,related_name='admin_playlist',null=True,blank=True)
+    year=models.DateTimeField(auto_now_add=True)
+   
   
+Plan_Type=(
+           ("Monthlyplan","Monthlyplan"),
+           ("Weeklyplan","Weeklyplan"),
+           ("Yearlyplan","Yearlyplan"),
 
+)
 class SubscriptionPlan(models.Model):
 
     plan_name=models.CharField(max_length=200)
+    benefits=models.CharField(max_length=2000,null=True,blank=True)
+    plan_type=models.CharField(max_length=50,null=True,blank=True,choices=Plan_Type)
     descriptions=models.CharField(max_length=500,default="",null=True)
-    date_created=models.DateTimeField(null=True,blank=True)
+    date_created=models.DateTimeField(null=True,blank=True,auto_now_add=True)
     cost=models.CharField(max_length=100,default="",null=True,blank=True)
     status=models.CharField(max_length=100,default="",null=True)
     is_pause=models.BooleanField(default=False)
+   
 
+#get notification
 class Notification_admin(models.Model):
     title=models.CharField(max_length=100)
     type=models.CharField(max_length=100)
     message=models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
-class PointActivity(models.Model):
-    signin=models.IntegerField()
+
+
+#to show subscription history to user
+class Subscription_History(models.Model):
+    user=models.ForeignKey(Users,on_delete=models.CASCADE,null=True,blank=True,related_name="user")
+    subscription=models.ForeignKey(SubscriptionPlan,on_delete=models.CASCADE,null=True,blank=True,related_name="subscription_plan")
+    active=models.DateTimeField(default=datetime.now())
+    expire=models.DateTimeField(default=datetime.now())
+ 
+
+
     
 
-
-
-
-    
-    
-
-  
-    
 
 
