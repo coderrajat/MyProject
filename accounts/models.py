@@ -32,9 +32,9 @@ class Users(models.Model):
     password=models.TextField(default="")
 
     gender=models.CharField(max_length=15)#Male femail others
-    facebook=models.CharField(max_length=2000)
-    instagram=models.CharField(max_length=2000)
-    bio=models.CharField(max_length=500)
+    facebook=models.CharField(max_length=2000,default="")
+    instagram=models.CharField(max_length=2000,default="")
+    bio=models.CharField(max_length=500,default="")
     profile_pic=models.ImageField(upload_to='images/profile',default='deafult_profile_pic.jpeg')
     otp=models.CharField(max_length=200,default='')
 
