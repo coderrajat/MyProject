@@ -9,22 +9,18 @@ from django.core.paginator import Paginator
 from rest_framework import status
 from django.db.models import Q, manager
 from accounts.views import login_admin
-#from Mayani_Backend.accounts.views import login_admin
-#from .accounts.serializers import user_data
 from admins import models as admin_models
 from accounts import models as account_models
-from .models import album, artist, playlist_admin, songs
+from .models import album, artist, faq, playlist_admin, songs
 
 # Create your views here.
-
-import secrets
+import random
 import bcrypt
 from accounts import tools
 import datetime
 from . import serializers
 from .serializers import playlist_admin_form,song_data
 from django.http import Http404
-#from . import tools
 from rest_framework import status
 
 def is_authenticate(*Dargs,**Dkwargs):
@@ -130,9 +126,111 @@ class cms(APIView):
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
 
+class Faq_section(APIView):
+    @ is_authenticate()
+    def get(self,request,pk=None):
+        try:
+            if pk is not None:
+                
+                fq=list(admin_models.faq.objects.filter(pk=pk))
+                if fq==[]:
+                    return Response({'success':'false',
+                            'error_msg':"Data does not exist",
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_400_BAD_REQUEST) 
+                fq2=serializers.faq_category(fq[0])
+                
+                return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"FAQ_data":fq2}
+                            },status=status.HTTP_200_OK)
+            fq=admin_models.faq.objects.all()
+            fq2=serializers.faq_category(fq,many=True)
+            
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{"FAQ_data":fq2.data}
+                                },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()
+    def post(self, request):
+        fq=serializers.faq_category(data=request.data)
+        if fq.is_valid():
+            fq.save()
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_200_OK)
+        return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(fq.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+
+    @is_authenticate()    
+    def put(self,request,pk):
+        try:
+            
+            fq=list(admin_models.faq.objects.filter(pk=pk))
+            if fq==[]:
+                return Response({'success':'false',
+                                'error_msg':"Data does not exists ",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+            fq1=serializers.faq_category(fq[0],data=request.data)
+            if fq1.is_valid():
+                fq1.save()
+                return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_200_OK)
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(fq1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter the integer value for id",
+                                'errors':{},
+                                'response':{}
+                                    },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()                         
+    def delete(self,request,pk):
+        try:
+            fq=list(admin_models.faq.objects.filter(pk=pk))
+            if fq==[]:
+                return Response({'success':'false',
+                            'error_msg':"Data does not exixts",
+                            'errors':{},
+                            'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+            
+            fq[0].delete()
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter the integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+
 class image_settings(APIView):
-
-
     @is_authenticate()
     def get(self,request):
         ims=admin_models.image_settings.objects.get_or_create(id='1',defaults={'deafult_profile_pic': 'deafult_profile_pic.jpeg','default_parking_spot_pic': 'default_parking_spot_pic.jpeg'})[0]
@@ -142,8 +240,6 @@ class image_settings(APIView):
                             'errors':{},
                             'response':{'result':f1.data},
                             },status=status.HTTP_200_OK)
-
-
 
     @is_authenticate()
     def post(self,request):
@@ -173,8 +269,6 @@ class smtp_settings_api(APIView):
                             'errors':{},
                             'response':{**f1.data},
                             },status=status.HTTP_200_OK)
-
-
     @is_authenticate()
     def post(self,request):
         if request.method=='POST':
@@ -193,9 +287,8 @@ class smtp_settings_api(APIView):
                                     'errors':{**dict(f1.errors)},
                                     'response':{},
                                     },status=status.HTTP_400_BAD_REQUEST)
+
 class social_media_settings(APIView):
-
-
     @is_authenticate()
     def get(self,request):
         sms=list(admin_models.social_media_settings.objects.filter(id=1))
@@ -296,6 +389,7 @@ class admin_profile(APIView):
                             'response':{},
 
                             },status=status.HTTP_200_OK)
+
 class change_admin_password(APIView):
     @is_authenticate()
     def get(self,request):
@@ -382,12 +476,12 @@ class search_consumer_api(APIView):
             # result_flg=False
         if s!='':
             search_query.add(Q(email__icontains=s),Q.OR)
-            search_query.add(Q(first_name__icontains=s),Q.OR)
-            search_query.add(Q(last_name__icontains=s),Q.OR)
-            search_query.add(Q(phone_number__icontains=s),Q.OR)
-            search_query.add(Q(country__icontains=s),Q.OR)
-            search_query.add(Q(state__icontains=s),Q.OR)
             search_query.add(Q(full_name__icontains=s),Q.OR)
+           # search_query.add(Q(first_name__icontains=s),Q.OR)
+            #search_query.add(Q(last_name__icontains=s),Q.OR)
+            search_query.add(Q(phone_number__icontains=s),Q.OR)
+            search_query.add(Q(country_code__icontains=s),Q.OR)
+            #search_query.add(Q(state__icontains=s),Q.OR)
             search_query.add(Q(bio__icontains=s),Q.OR)
             # result_flg=False
         if result_flg:
@@ -405,7 +499,7 @@ class search_consumer_api(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{'result':serializers.search_consumer_form(p_r,many=True).data},
+                            'response':{'result':serializers.user_forms(p_r,many=True).data},
                             'pagination':{'count':len(list(p_r)),
                                         'previous':'true' if p_r.has_previous() else 'false',
                                         'next':'true' if p_r.has_next() else 'false',
@@ -418,7 +512,6 @@ class search_consumer_api(APIView):
 class edit_user_api(APIView):
     @is_authenticate()
     def get(self,request,id):
-        
         user=list(account_models.Users.objects.filter(id=id))
         if user==[]:
             return Response({'success':'false',
@@ -433,31 +526,51 @@ class edit_user_api(APIView):
                             'errors':{},
                             'response':f1.data,
                             },status=status.HTTP_200_OK)
-    
-    def post(self,request,id=None):
-        try:
-            #data = request.POST
-            serializer =  serializers.user_forms(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({'Success':'true',
-                                        'error_msg':'',
-                                        'errors':{},
-                                        'response':{""},
-                                        },status=status.HTTP_200_OK) 
-
+    '''
+    #@is_authenticate
+    def post(self,request):
+        f1=serializers.user_forms(data=request.data)
+        
+        if not ( f1.is_valid()):
             return Response({'success':'false',
-                                        'error_msg':'invalid_input',
-                                        'errors':{},
-                                        'response':{**dict(serializer.errors)}
-                                        },status=status.HTTP_406_NOT_ACCEPTABLE)
-        except ValueError as ex:
-            return Response ({'success':'false',
-                                        'error_msg':'Please enter a integer value as ID',
-                                        'errors':{},
-                                        'response':{}
-                                        },status=status.HTTP_406_NOT_ACCEPTABLE) 
-    
+                                'error_msg':tools.beautify_errors({**dict(f1.errors)}),
+                                'errors':{**dict(f1.errors)},
+                                'response':{},
+                                },status=status.HTTP_200_OK)
+        
+        #u_s_r=list(account_models.Users.objects.filter((Q(country_code=request.POST['country_code'])&Q(phone_number=request.POST['phone_number']))|Q(email=request.POST['email'])))
+        u_s_r=list(account_models.Users.objects.filter((Q(country_code=request.data['country_code'])&Q(phone_number=request.data['phone_number']))|Q(email=request.data['email'])))
+        if u_s_r==[]:
+            u_s_r=f1.save()
+            
+            if  'profile_pic' in request.FILES:
+                u_s_r.profile_pic=request.FILES['profile_pic']
+                u_s_r.save()
+            
+            u_s_e_r=account_models.Users()
+            u_s_e_r.email=request.POST["email"]
+            u_s_e_r.full_name=request.POST["full_name"]
+            u_s_e_r.country_code=request.POST["country_code"]
+            u_s_e_r.phone_number=request.POST["phone_number"]
+            u_s_e_r.gender=request.POST["gender"]
+            u_s_e_r.facebook=request.POST["facebook"]
+            u_s_e_r.instagram=request.POST["instagram"]
+            u_s_e_r.bio=request.POST["bio"]
+            u_s_e_r.profile_pic=request.POST["profile_pic"]
+           
+            u_s_e_r.save()
+            
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':'',
+                            },status=status.HTTP_200_OK)
+        return Response({'success':'false',
+                            'error_msg':'User  Already exist',
+                            'errors':{},
+                            'response':{},
+                                 },status=status.HTTP_200_OK)
+    '''                           
     @is_authenticate()
     def put(self,request,id):
         user=list(account_models.Users.objects.filter(id=id))
@@ -467,6 +580,9 @@ class edit_user_api(APIView):
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
+
+        f1=serializers.user_forms(user[0],data=request.data)
+       
         user=user[0]
         f1=serializers.search_consumer_form(instance=user,data=request.POST)
         f1.is_valid()
@@ -489,9 +605,10 @@ class edit_user_api(APIView):
 
                             },status=status.HTTP_200_OK)
         
+
 class delete_user(APIView):
     @is_authenticate()
-    def get(self,request,id):
+    def delete(self,request,id):
         user=list(account_models.Users.objects.filter(id=id))
         if user==[]:
             return Response({'success':'false',
@@ -534,7 +651,6 @@ class block_user(APIView):
                             'response':{},
                             },status=status.HTTP_200_OK)
 
-
 class subadmin_list(APIView):
     def get(self,request):
         f1=serializers.pagination(data=request.POST)
@@ -567,6 +683,7 @@ class subadmin_list(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
+
 class edit_subadmin(APIView):
     @is_authenticate()
     def get(self,request,id):
@@ -614,6 +731,7 @@ class edit_subadmin(APIView):
                             'response':{},
 
                             },status=status.HTTP_200_OK)
+
 class delete_subadmin(APIView):
     @is_authenticate()
     def get(self,request,id):
@@ -638,6 +756,7 @@ class delete_subadmin(APIView):
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_200_OK)
+
 class block_subadmin(APIView):
     @is_authenticate()
     def get(self,request,id):
@@ -657,6 +776,7 @@ class block_subadmin(APIView):
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_200_OK)
+
 class song_search_list(APIView):
     @is_authenticate()
     def get(self,request):
@@ -769,7 +889,6 @@ class get_playlist_admin(APIView):
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 
-
 class get_song_admin_playlist(APIView):
     @is_authenticate()
     def get(self,request,id):
@@ -836,8 +955,6 @@ class get_song_admin_playlist(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
-
-
 
 class playlist_admin(APIView):
     @is_authenticate()
@@ -929,7 +1046,6 @@ class playlist_admin(APIView):
                             'errors':{},
                             'response':{"deleted":{**dict(f1.data)}},
                             },status=status.HTTP_200_OK)
-#
 
 class playlist_admin_removesong(APIView):
     @is_authenticate()
@@ -1001,13 +1117,6 @@ class playlist_admin_addsong(APIView):
                                 'errors':{},
                                 'response':{'all_playlist':playlist_admin_form(i).data}
                                 },status=status.HTTP_200_OK)
-
-#experimenting
-
-
-
-
-#
     
 class playlist_admin_get(APIView): 
     @is_authenticate()
@@ -1331,7 +1440,6 @@ class Song_api(APIView):
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
 #saurabh
-
 class Artist_album_search_list(APIView):
     @is_authenticate()
     def get(self, request):
@@ -1408,12 +1516,8 @@ class Artist_album_search_list(APIView):
                                             'errors':{},
                                             'response':{}
                                             },status=status.HTTP_400_BAD_REQUEST)
-
-
-
 # ALBUM API
-
-class albumAPI(APIView):
+class Albums_Section(APIView):
     @is_authenticate()
     def get(self,request, id=None):
         try:
@@ -1532,7 +1636,6 @@ class albumAPI(APIView):
                                         'errors':{},
                                         'response':{},
                                         },status=status.HTTP_400_BAD_REQUEST)
-
 # Dashboard api
 class dash_board(APIView):
     @is_authenticate()
@@ -1757,8 +1860,6 @@ class song_album(APIView):
                                         'response':{},
                                         },status=status.HTTP_400_BAD_REQUEST)
 
-
-
 class albums_song_search_list(APIView):
     @is_authenticate()
     def get(self, request):
@@ -1814,10 +1915,6 @@ class albums_song_search_list(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
-
-
-
-#success only boolean
 #saurabh
 class SubscriptionPlan_api(APIView):
     @ is_authenticate()
@@ -1925,6 +2022,7 @@ class SubscriptionPlan_api(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
           
  #saurabh   
+
 class Notification_api(APIView):
     @ is_authenticate()
     def get(self, request,pk=None):
@@ -2127,6 +2225,7 @@ class Artist_song_search_list(APIView):
                                 'errors':{},
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
+
 class Artist_album_song_search_list(APIView):
     @is_authenticate()
     def get(self, request):
@@ -2195,8 +2294,6 @@ class Artist_album_song_search_list(APIView):
             result=result.order_by(order)
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
-      
-      
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},

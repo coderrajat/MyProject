@@ -124,6 +124,12 @@ class song_data(serializers.ModelSerializer):
         model=admin_models.songs
         fields=('__all__')
         depth=2
+class Song_search_data(serializers.ModelSerializer):
+
+    class Meta:
+        model=admin_models.songs
+        fields=('name','song_mp3','cover','artist','album','genres')
+        depth=1
 class search_song(serializers.Serializer):
     search=serializers.CharField(required=False)
 class playlist_admin_data(serializers.ModelSerializer):
@@ -137,3 +143,16 @@ class playlist_admin_form(serializers.ModelSerializer):
     class Meta:
         model=admin_models.playlist_admin
         fields=('name','gener')
+
+class Albums_songs(serializers.ModelSerializer):
+    class Meta:
+        model = admin_models.album
+        fields = ['id','name','artist','year','cover','songs']
+        depth=2
+
+class Album_songs(serializers.ModelSerializer):
+    class Meta:
+        model = admin_models.songs
+        fields = ['id','name','album','artist','year','songs']
+        depth=1
+

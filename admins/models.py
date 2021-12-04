@@ -81,7 +81,6 @@ class songs(models.Model):
 
 class playlist_admin(models.Model):
     name=models.CharField(max_length=400) 
-    #title
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
     gener=models.CharField(max_length=400,default='POP', choices=gener_choices)
     songs=models.ManyToManyField(songs,blank=True,related_name='admin_playlist')
@@ -89,7 +88,7 @@ class playlist_admin(models.Model):
   
 
 class SubscriptionPlan(models.Model):
-
+    
     plan_name=models.CharField(max_length=200)
     descriptions=models.CharField(max_length=500,default="",null=True)
     date_created=models.DateTimeField(null=True,blank=True)

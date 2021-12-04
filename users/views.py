@@ -1,7 +1,4 @@
 from django.shortcuts import render
-
-# Create your views here.
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.paginator import Paginator
@@ -9,13 +6,11 @@ from rest_framework import status
 from django.db.models import Q
 from admins import models as admin_models
 from accounts import models as account_models
-# Create your views here.
 import bcrypt
 from accounts import tools
 import datetime
 from . import serializers
 import random
-# from . import tools
 def is_authenticate(*Dargs,**Dkwargs):
     def inner(func):
         def wrapper(*args,**kwargs):
@@ -55,6 +50,7 @@ def is_authenticate(*Dargs,**Dkwargs):
         return wrapper
     return inner
 class recomended_playlist(APIView):
+    @is_authenticate
     def get(self,request):
         gener=['pop','dance&electronics','rock','rockstar','bollywood','folk&acoustic']
         gener=random.choice(gener)
@@ -76,3 +72,90 @@ class recomended_playlist(APIView):
                             'errors':{},
                             'response':{"playlist_data":f1.data},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
                             },status=status.HTTP_200_OK)
+
+class Songs_search(APIView):
+    @is_authenticate()
+    def get(self,request):
+        f1=serializers.search_song()
+        f2=serializers.pagination()
+        print(f1.data)
+        return Response({**f1.data,**f2.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    @is_authenticate()                          
+    def post(self,request):
+        f1=serializers.search_song(data=request.POST)
+        f2=serializers.pagination(data=request.POST)
+        #print("serializer",f1,f2)
+        if not(f1.is_valid() and f2.is_valid()):
+            f1.is_valid()
+            f2.is_valid()
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors),**dict(f2.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        s=request.POST['search']
+       
+        flg=True
+        #print(flg)
+        if s!='':
+            flg=False
+            search_query=Q()  
+            search_query.add(Q(name__icontains=s) | Q(album__name__icontains=s) | Q(artist__name__icontains=s) | Q(genres__icontains=s),Q.AND)
+            #search_query.add(Q(charts__icontains=s),Q.OR)
+        if flg:
+            result=admin_models.songs.objects.select_related().order_by('-id')
+        else:
+            result=admin_models.songs.objects.filter(search_query).distinct().order_by('-id')
+        #print('\n\n#result=',result[0].album.__dict__,result[0].album.year,'\n\n')
+        '''
+        if request.POST['order_by']!=None and request.POST['order_by']!='':
+            if request.POST['order_by_type']=='dec':
+                order='-'+request.POST['order_by']
+            else:
+                order=request.POST['order_by']
+            result=result.order_by(order)
+            '''
+        paginate_result=Paginator(result, int(request.POST['result_limit']))
+        
+        p_r=paginate_result.get_page(request.POST['page'])
+
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':serializers.Song_search_data(p_r,many=True).data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                                },
+                            },status=status.HTTP_202_ACCEPTED)
+
+class Albums_songs(APIView):
+    @is_authenticate()
+    def get(self,request,id):
+        if id.isnumeric() !=  True:
+            return Response({'success':'false',
+                            'error_msg':'ID IS NOT AN INTEGER',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_404_NOT_FOUND)
+
+        #alb=list(admin_models.album.objects.prefetch_related().filter(id=id))
+        alb=list(admin_models.album.objects.filter(songs__album__id=id))
+        if alb==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        alb=alb[0]
+        f1=serializers.Albums_songs(alb)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"Albums_songs_data":f1.data},
+                            },status=status.HTTP_200_OK)    
+

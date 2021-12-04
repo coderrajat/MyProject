@@ -1,10 +1,7 @@
 #from django.db.models import fields
-from django.db.models import fields
+#from django.db.models import fields
 from rest_framework import serializers
 
-#from Mayani_Backend.accounts import models
-
-#from accounts import models
 from . import models as admin_models
 from accounts import models as account_models
 from django.core.exceptions import ValidationError
@@ -177,7 +174,13 @@ class change_password(serializers.Serializer):
 class csm_about_us_api(serializers.ModelSerializer):
     class Meta:
         model=admin_models.CMS
-        fields=('content')
+        fields=['content']
+
+class faq_category(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.faq
+        fields=['id','question','answer']
+
 # class faq_category(serializers.ModelSerializer):
 #     class Meta:
 #         model=admin_models.faq_category
@@ -250,19 +253,18 @@ class search_user(serializers.Serializer):
 class search_consumer_form(serializers.ModelSerializer):
     class Meta:
         model=account_models.Users
+        #fields=('__all__')
         exclude=('password','token','otp')
 class song_data(serializers.ModelSerializer):
-    # playlist_admin=
     class Meta:
         model=admin_models.songs
         fields=('__all__')
-        depth=2
+        depth=2 
 
 class search_song(serializers.Serializer):
     search=serializers.CharField(required=False)
 
 class playlist_admin_data(serializers.ModelSerializer):
-    # search=serializers.CharField(required=False)
     class Meta:
         model=admin_models.playlist_admin
         fields=('__all__')
@@ -274,6 +276,7 @@ class playlist_admin_form(serializers.ModelSerializer):
     class Meta:
         model=admin_models.playlist_admin
         fields=('id','name','gener','songs','downloads','cover')
+
 class Artist_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
@@ -302,8 +305,15 @@ class albums_songs_search(serializers.Serializer):
 class user_forms(serializers.ModelSerializer):
     class Meta:
         model=account_models.Users
-        exclude=('password','token')
-        #fields=('__all__')
+        #exclude=('password','token')
+        fields = ['email','full_name','country_code','phone_number','gender','facebook','instagram','bio','profile_pic']
+
+class Add_user(serializers.ModelSerializer):
+    #referral_code=serializers.CharField(required=False)
+    class Meta():
+        model=account_models.Users
+        fields=("country_code","phone_number",'email')
+
 
 class albums_Song_data(serializers.ModelSerializer):
     class Meta:
@@ -311,8 +321,6 @@ class albums_Song_data(serializers.ModelSerializer):
         fields=["id","cover","name","song_mp3","album","artist"]
         depth=1
 
-
-        
 class SubscriptionPlan_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.SubscriptionPlan
@@ -349,7 +357,6 @@ class Album_song_data(serializers.ModelSerializer):#for a particular artist
     class Meta:
         model=admin_models.songs
         fields=["name","song_mp3","genres","likes","downloads"]
-#to add song in album from database
 class Song_album_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
