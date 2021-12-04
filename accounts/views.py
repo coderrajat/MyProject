@@ -60,6 +60,9 @@ def login_required(*ag,**kg):
 def login_admin(userid,token=''):
     token=tools.codetoken(userid,type='admin',token=token)
     return token
+def login_user(userid,token=''):
+    token=tools.codetoken(userid,type='users',token=token)
+    return token
 def logout_admin(token):
     try:
         data=tools.decodetoken(token)
@@ -75,6 +78,22 @@ def logout_admin(token):
     except Exception as e:
         print(e)
         return False
+def logout_user(token):
+    try:
+        data=tools.decodetoken(token)
+        uzr=list(accounts_models.Users.objects.filter(id=data[1]))
+
+        if uzr!=[]:
+            uzr=uzr[0]
+            uzr.token=''
+            uzr.save()
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        return False
+
 class login_admin_api(APIView):
     @login_not_required()
     def get(self,request):
@@ -128,6 +147,24 @@ class logout_api(APIView):
     @login_required()
     def get(self,request):
         val=logout_admin(request.META['HTTP_AUTHORIZATION'])
+        if val:
+            return Response({'success':'true',
+            'error_msg':'',
+            'response':{},
+
+            },status=status.HTTP_200_OK)
+        else:
+            print(val)
+            return Response({'success':'false',
+                                'error_msg':'Logout fail',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+
+class logout_user_api(APIView):
+    @login_required()
+    def get(self,request):
+        val=logout_user(request.META['HTTP_AUTHORIZATION'])
         if val:
             return Response({'success':'true',
             'error_msg':'',
@@ -418,6 +455,7 @@ class signin_user(APIView):
                                 'response':{},
                                 },status=status.HTTP_200_OK)
         uzr=list(accounts_models.Users.objects.filter(Q(country_code=request.POST['country_code'])&Q(phone_number=request.POST['phone_number'])))
+        print("user",uzr)
         if uzr==[]:
             return Response({'success':'false',
                                 'error_msg':'invalid credentials',
@@ -437,7 +475,7 @@ class signin_user(APIView):
             uzr.token=sec
             uzr.last_login=datetime.datetime.now()
             uzr.save()
-            re=login_admin(uzr.id,token=sec)
+            re=login_user(uzr.id,token=sec)
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},

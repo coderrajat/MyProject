@@ -4,6 +4,7 @@ from accounts import models as account_models
 from users import models as user_model
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+
 def is_small(data):
     for i in data:
         if ord(i)>=97 and ord(i)<=122:
@@ -156,3 +157,37 @@ class Album_songs(serializers.ModelSerializer):
         fields = ['id','name','album','artist','year','songs']
         depth=1
 
+class Edit_User_Profile(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        fields=["full_name","email","phone_number","facebook","instagram","bio","gender"]
+#to create palylist
+class Create_Playlist(serializers.ModelSerializer):
+    
+    class Meta:
+        model=admin_models.playlist_admin
+        fields=["name"]
+#to show playlist data
+class Artist_Playlist_List(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.playlist_admin
+        fields="__all__"
+class Artist_Data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.artist
+        fields=["id","name"]
+
+
+        
+
+
+
+
+
+
+
+
+
+
+    
+ 
