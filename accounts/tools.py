@@ -1,8 +1,6 @@
-
 import random
 import base64
 import pytz,datetime
-
 import secrets
 import math
 import bcrypt
@@ -45,7 +43,6 @@ def code(data):
         s+=code_(ord(i))+spacer[random.randint(0,5)]
     print(s)
     return s
-
 
 def decode(data):
     key={'x': 0, 'K': 0, '7': 0, 'A': 0, 'Z': 0, '-': 0, 'U': 1, 'd': 1, 'B': 1, 'w': 1, 'i': 1, 'C': 1, 'y': 2, 'J': 2, 'V': 2, 'e': 2, 'o': 2, '1': 2, 'm': 3, '_': 3, 'f': 3, '.': 3, 'F': 3, '2': 3, 'Y': 4, 'D': 4, 'E': 4, 'r': 4, 'T': 4, '~': 4, 't': 5, 'O': 5, 'z': 5, 's': 5, 'b': 5, '5': 5, 'j': 6, 'h': 6, 'H': 6, 'L': 6, 'P': 6, '3': 6, 'G': 7, 'p': 7, 'u': 7, '8': 7, 'N': 7, 'I': 7, 'R': 8, '0': 8, 'l': 8, '6': 8, 'v': 8, 'q': 8, 'W': 9, 'Q': 9, 'M': 9, 'k': 9, 'n': 9, 'g': 9}

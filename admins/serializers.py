@@ -1,10 +1,7 @@
 #from django.db.models import fields
-from django.db.models import fields
+#from django.db.models import fields
 from rest_framework import serializers
 
-#from Mayani_Backend.accounts import models
-
-#from accounts import models
 from . import models as admin_models
 from accounts import models as account_models
 from django.core.exceptions import ValidationError
@@ -185,6 +182,11 @@ class csm_about_us_api(serializers.ModelSerializer):
     class Meta:
         model=admin_models.CMS
         fields=('content',)
+
+class faq_category(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.faq
+        fields=('id','question','answer')
 # class faq_category(serializers.ModelSerializer):
 #     class Meta:
 #         model=admin_models.faq_category
@@ -257,7 +259,14 @@ class search_user(serializers.Serializer):
 class search_consumer_form(serializers.ModelSerializer):
     class Meta:
         model=account_models.Users
+        #fields=('__all__')
         exclude=('password','token','otp','date_joined','last_login')
+class song_data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=('__all__')
+        depth=2 
+        
 
 class artist_for_song_serializer(serializers.ModelSerializer):
     class Meta:
@@ -286,7 +295,6 @@ class search_song_in_artist(serializers.Serializer):
     genres=serializers.ChoiceField(required=False, choices = admin_models.gener_choices)
 
 class playlist_admin_data(serializers.ModelSerializer):
-    # search=serializers.CharField(required=False)
     class Meta:
         model=admin_models.playlist_admin
         fields=('id', 'name', 'cover', 'gener', 'songs')
@@ -356,8 +364,6 @@ class albums_Song_data(serializers.ModelSerializer):
         fields=["id","cover","name","song_mp3","album","artist"]
         depth=1
 
-
-        
 class SubscriptionPlan_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.SubscriptionPlan

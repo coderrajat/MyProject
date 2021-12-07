@@ -10,28 +10,16 @@ from django.core.paginator import Paginator
 from rest_framework import status
 from django.db.models import Q, manager
 from accounts.views import login_admin
-#from Mayani_Backend.accounts.views import login_admin
-#from .accounts.serializers import user_data
 from admins import models as admin_models
 from accounts import models as account_models
-from accounts.models import Users
-from accounts.models import Admins
-from accounts.serializers import serializers as se
-import random
-import datetime
 from django.utils import timezone
 
 
 # Create your views here.
-
-import secrets
 import bcrypt
 from accounts import tools
 import datetime
 from . import serializers
-from .serializers import playlist_admin_form,song_data
-from django.http import Http404
-#from . import tools
 from rest_framework import status
 
 def is_authenticate(*Dargs,**Dkwargs):
@@ -139,6 +127,110 @@ class cms(APIView):
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
 
+class Faq_section(APIView):
+    @ is_authenticate()
+    def get(self,request,pk=None):
+        try:
+            if pk is not None:
+                
+                fq=list(admin_models.faq.objects.filter(pk=pk))
+                if fq==[]:
+                    return Response({'success':'false',
+                            'error_msg':"Data does not exist",
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_400_BAD_REQUEST) 
+                fq2=serializers.faq_category(fq[0])
+                
+                return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"FAQ_data":fq2}
+                            },status=status.HTTP_200_OK)
+            fq=admin_models.faq.objects.all()
+            fq2=serializers.faq_category(fq,many=True)
+            
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{"FAQ_data":fq2.data}
+                                },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()
+    def post(self, request):
+        fq=serializers.faq_category(data=request.data)
+        if fq.is_valid():
+            fq.save()
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_200_OK)
+        return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(fq.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+
+    @is_authenticate()    
+    def put(self,request,pk):
+        try:
+            
+            fq=list(admin_models.faq.objects.filter(pk=pk))
+            if fq==[]:
+                return Response({'success':'false',
+                                'error_msg':"Data does not exists ",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+            fq1=serializers.faq_category(fq[0],data=request.data)
+            if fq1.is_valid():
+                fq1.save()
+                return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_200_OK)
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(fq1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter the integer value for id",
+                                'errors':{},
+                                'response':{}
+                                    },status=status.HTTP_400_BAD_REQUEST)
+    @is_authenticate()                         
+    def delete(self,request,pk):
+        try:
+            fq=list(admin_models.faq.objects.filter(pk=pk))
+            if fq==[]:
+                return Response({'success':'false',
+                            'error_msg':"Data does not exixts",
+                            'errors':{},
+                            'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+            
+            fq[0].delete()
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_200_OK)
+        except ValueError as ex:
+            return Response({'success':'false',
+                                'error_msg':"please enter the integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+
 class image_settings(APIView):
     @is_authenticate()
     def get(self,request):
@@ -173,8 +265,6 @@ class smtp_settings_api(APIView):
                             'errors':{},
                             'response':{**f1.data},
                             },status=status.HTTP_200_OK)
-
-
     @is_authenticate()
     def post(self,request):
         if request.method=='POST':
@@ -309,6 +399,7 @@ class admin_profile(APIView):
                             'response':{},
 
                             },status=status.HTTP_200_OK)
+
 class change_admin_password(APIView):
     @is_authenticate()
     def get(self,request):
@@ -396,13 +487,8 @@ class search_consumer_api(APIView):
             # result_flg=False
         if s!='':
             search_query.add(Q(email__icontains=s),Q.OR)
-            #search_query.add(Q(first_name__icontains=s),Q.OR)
-            #search_query.add(Q(last_name__icontains=s),Q.OR)
-            
             search_query.add(Q(phone_number__icontains=s),Q.OR)
-            #search_query.add(Q(country__icontains=s),Q.OR)
             search_query.add(Q(country_code__icontains=s),Q.OR)
-           # search_query.add(Q(state__icontains=s),Q.OR)
             search_query.add(Q(full_name__icontains=s),Q.OR)
             search_query.add(Q(bio__icontains=s),Q.OR)
             # result_flg=False
@@ -421,7 +507,7 @@ class search_consumer_api(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{'result':serializers.search_consumer_form(p_r,many=True).data},
+                            'response':{'result':serializers.user_forms(p_r,many=True).data},
                             'pagination':{'count':len(list(p_r)),
                                         'previous':'true' if p_r.has_previous() else 'false',
                                         'next':'true' if p_r.has_next() else 'false',
@@ -434,7 +520,6 @@ class search_consumer_api(APIView):
 class edit_user_api(APIView):
     @is_authenticate()
     def get(self,request,id):
-        
         user=list(account_models.Users.objects.filter(id=id))
         if user==[]:
             return Response({'success':'false',
@@ -449,11 +534,13 @@ class edit_user_api(APIView):
                             'errors':{},
                             'response':f1.data,
                             },status=status.HTTP_200_OK)
+    
+    
+
     @is_authenticate()
     def post(self,request,id=None):
         try:
             #data = request.POST
-            
             user=list(account_models.Users.objects.filter((Q(country_code=request.data['country_code'])&Q(phone_number=request.data['phone_number']))))
             if user!=[]:
                 return Response({'success':'false',
@@ -468,8 +555,7 @@ class edit_user_api(APIView):
                                         'error_msg':'',
                                         'errors':{},
                                         'response':{""},
-                                        },status=status.HTTP_200_OK) 
-
+                                        },status=status.HTTP_200_OK)
             return Response({'success':'false',
                                         'error_msg':'invalid_input',
                                         'errors':{},
@@ -480,8 +566,8 @@ class edit_user_api(APIView):
                                         'error_msg':'Please enter a integer value as ID',
                                         'errors':{},
                                         'response':{}
-                                        },status=status.HTTP_406_NOT_ACCEPTABLE) 
-    
+                                        },status=status.HTTP_406_NOT_ACCEPTABLE)
+                              
     @is_authenticate()
     def put(self,request,id):
         user=list(account_models.Users.objects.filter(id=id))
@@ -494,11 +580,14 @@ class edit_user_api(APIView):
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
+
+       
+        #f1=serializers.user_forms(instance=user,data=request.POST)
         
         
         user=user[0]
           
-        f1=serializers.search_consumer_form(instance=user,data=request.POST)
+        f1=serializers.user_forms(instance=user,data=request.data)
         x=(Q(country_code=request.data['country_code'])&Q(phone_number=request.data['phone_number']))&~Q(id=id)
         uzr=list(account_models.Users.objects.filter(x))
         
@@ -528,9 +617,10 @@ class edit_user_api(APIView):
 
                             },status=status.HTTP_200_OK)
         
+
 class delete_user(APIView):
     @is_authenticate()
-    def get(self,request,id):
+    def delete(self,request,id):
         user=list(account_models.Users.objects.filter(id=id))
         if user==[]:
             return Response({'success':'false',
@@ -575,7 +665,6 @@ class block_user(APIView):
                             'response':{},
                             },status=status.HTTP_200_OK)
 
-
 class subadmin_list(APIView):
     @is_authenticate()
     def post(self,request):
@@ -609,6 +698,7 @@ class subadmin_list(APIView):
                                         'totalResults':len(list(result)),
                                 },
                             },status=status.HTTP_202_ACCEPTED)
+
 class edit_subadmin(APIView):
     @is_authenticate()
     def get(self,request,id):
@@ -665,6 +755,7 @@ class edit_subadmin(APIView):
                             'response':{},
 
                             },status=status.HTTP_200_OK)
+
 class delete_subadmin(APIView):
     @is_authenticate()
     def delete(self,request,id):
@@ -1217,7 +1308,7 @@ class playlist_admin(APIView):
                                 },status=status.HTTP_204_NO_CONTENT)
             
             
-        f1=playlist_admin_form(snippet[0])
+        f1=serializers.playlist_admin_form(snippet[0])
         print(f1.data)
         snippet[0].delete()
         return Response({'success':'true',
@@ -1256,7 +1347,7 @@ class playlist_admin_removesong(APIView):
         return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'all_playlist':playlist_admin_form(i).data}
+                                'response':{'all_playlist':serializers.playlist_admin_form(i).data}
                                 },status=status.HTTP_200_OK)
 
 # add a song to playlist
@@ -1296,7 +1387,7 @@ class playlist_admin_addsong(APIView):
         return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'all_playlist':playlist_admin_form(i).data}
+                                'response':{'all_playlist':serializers.playlist_admin_form(i).data}
                                 },status=status.HTTP_200_OK)
 
 # Playlist Add 
@@ -1304,7 +1395,7 @@ class playlist_admin_get(APIView):
     @is_authenticate()
     def get(self,request):
         temp=admin_models.playlist_admin.objects.all()
-        f1=playlist_admin_form(temp,many=True)
+        f1=serializers.playlist_admin_form(temp,many=True)
         return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},

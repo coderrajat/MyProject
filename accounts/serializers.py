@@ -132,7 +132,7 @@ class password(serializers.Serializer):
 class signup_user(serializers.ModelSerializer):
     referral_code=serializers.CharField(required=False)
     class Meta():
-        model=models.Admins
+        model=models.Users
         fields=('country_code',"phone_number","referral_code")
 class admins_forms(serializers.ModelSerializer):
     class Meta():

@@ -115,7 +115,7 @@ class login_admin_api(APIView):
 
             password=str(request.POST['password']).encode('utf-8')
             hash_pass=user.password.encode('utf-8')
-            print(password,hash_pass)
+            #print(password,hash_pass)
             if bcrypt.checkpw(password,hash_pass):
                 sec=''
                 for i in range(10):
@@ -142,7 +142,7 @@ class login_admin_api(APIView):
                                 'errors':dict(f1.errors),
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
-
+                             
 class logout_api(APIView):
     @login_required()
     def get(self,request):
@@ -219,6 +219,7 @@ class get_email(APIView):
                             'errors':{},
                             'response':serializers.admin_data(uzr).data,
                             },status=status.HTTP_200_OK)
+                            
 class check_admin_otp(APIView):
     def get(self,request):
         # f0=serializers.password()
@@ -304,7 +305,7 @@ class change_password_admin(APIView):
 #     def
 class signup_user(APIView):
     def get(self,request):
-        # f0=serializers.password()
+      
         f1=serializers.signup_user()
 
         return Response({**f1.data,
@@ -327,10 +328,11 @@ class signup_user(APIView):
                                     'response':{},
                                     },status=status.HTTP_200_OK)
             else:
-                uzr.delete()
+              uzr.delete()
         uzr=accounts_models.Users()
         uzr.country_code=request.POST["country_code"]
         uzr.phone_number=request.POST["phone_number"]
+        
         ##
         print(uzr.country_code)
         print(uzr.phone_number)
