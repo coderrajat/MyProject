@@ -300,11 +300,100 @@ class Artist_Song_List(APIView):
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
                       
- 
-                                
+ class User_Liked_Songs(APIView):
+    @is_authenticate()
+    def get(self,request):
+        f1=serializers.search()
+        return Response(f1.data,status=status.HTTP_200_OK)
+    @is_authenticate()
+    def post(self, request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        search=request.data["search"] 
+        if search!="":
+            result=list(admin_models.songs.objects.filter(likes=requstuser.id,name__icontains=search))
+            f1=admin_serializers.User_Liked_Songs_By_Admin(result,many=True)
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':f1.data,
+                                },status=status.HTTP_200_OK)
+        result=list(admin_models.songs.objects.filter(likes=requstuser.id))
+        f1=admin_serializers.User_Liked_Songs_By_Admin(result,many=True)
+        return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':f1.data,
+                                },status=status.HTTP_200_OK)                               
           
           
+class User_Liked_Songs(APIView):
+    def get(self,request):
+        f1=admin_serializers.search()
+        f2=serializers.pagination()
+        return Response({**f1.data,**f2.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    @is_authenticate()
+    def post(self, request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        f1=admin_serializers.search(data=request.POST)
+        f2=admin_serializers.pagination(data=request.POST)
+        if not(f1.is_valid() and f2.is_valid()):
+            f1.is_valid()
+            f2.is_valid()
+            return Response({'success':'false',
+                            'error_msg':'invalid_input',
+                            'errors':{},
+                            'response':{**dict(f1.errors),**dict(f2.errors)},
+                            },status=status.HTTP_400_BAD_REQUEST)
 
+        search=request.data["search"] 
+        if search!="":
+            result=list(admin_models.songs.objects.filter((Q(likes=requstuser.id)&Q(name__icontains=search)|Q(artist__name__icontains=search)|Q(album__name__icontains=search)|Q(genres__icontains=search))).distinct())
+            paginate_result=Paginator(result, int(request.POST['result_limit']))
+            p_r=paginate_result.get_page(request.POST['page'])
+            if result==[]:
+                return Response({'success':'false',
+                            'error_msg':'did not get any result',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_400_BAD_REQUEST)
+            f1=admin_serializers.User_Liked_Songs_By_Admin(p_r,many=True)
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':f1.data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                                },
+                            },status=status.HTTP_202_ACCEPTED)
+        result=list(admin_models.songs.objects.filter(likes=requstuser.id))
+        paginate_result=Paginator(result, int(request.POST['result_limit']))
+        p_r=paginate_result.get_page(request.POST['page'])
+        if result==[]:
+            return Response({'success':'false',
+                        'error_msg':'you did not like any song till now',
+                        'errors':{},
+                        'response':{},
+                        },status=status.HTTP_400_BAD_REQUEST)
+        f1=admin_serializers.User_Liked_Songs_By_Admin(p_r,many=True)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':f1.data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                                },
+                            },status=status.HTTP_202_ACCEPTED)
 
 
 

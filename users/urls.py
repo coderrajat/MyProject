@@ -14,6 +14,7 @@ urlpatterns=[
     path("add_song_playlist",views.Add_Song_Playlist.as_view(),name="add_song_playlist"),
     path("artist_albumlist<pk>",views.Aritst_All_Albums_List.as_view(),name="artist_albumlist"),
     path("artist_playlist<pk>",views.Aritst_All_Playlist_List.as_view(),name="artist_playlist_list"),
-    path("artist_songlist<pk>",views.Artist_Song_List.as_view(),name="artist_song_list")
+    path("artist_songlist<pk>",views.Artist_Song_List.as_view(),name="artist_song_list"),
+    path("liked_songs_user",views.User_Liked_Songs.as_view(),name="user_liked_songs")
    
     ]
