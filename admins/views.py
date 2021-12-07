@@ -587,7 +587,7 @@ class edit_user_api(APIView):
         
         user=user[0]
           
-        f1=serializers.user_forms(instance=user,data=request.data)
+        f1=serializers.edit_user_forms(instance=user,data=request.data)
         x=(Q(country_code=request.data['country_code'])&Q(phone_number=request.data['phone_number']))&~Q(id=id)
         uzr=list(account_models.Users.objects.filter(x))
         

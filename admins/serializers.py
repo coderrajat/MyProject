@@ -358,6 +358,11 @@ class user_forms(serializers.ModelSerializer):
         exclude=('password','token','date_joined','last_login','otp')
         #fields=('__all__')
 
+class edit_user_forms(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        exclude=('password','token','date_joined','last_login','otp', 'profile_pic')
+
 class albums_Song_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
