@@ -669,6 +669,8 @@ class subadmin_list(APIView):
     @is_authenticate()
     def post(self,request):
         f1=serializers.pagination(data=request.POST)
+        f2 = serializers.search(data=request.POST)
+
         if not(f1.is_valid() ):
             return Response({'success':'false',
                                 'error_msg':'invalid_input',
@@ -677,7 +679,15 @@ class subadmin_list(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        result=list(account_models.Admins.objects.filter(~Q(id=requstuser.id)))
+
+        s=request.POST['search']
+        search_query=Q()
+        search_query.add(~Q(id=requstuser.id),Q.AND)
+        if s!='':
+            search_query.add(Q(first_name__icontains=s) | Q(last_name__icontains=s) | Q(email__icontains=s),Q.AND)
+
+
+        result=list(account_models.Admins.objects.filter(search_query))
         if request.POST['order_by']!=None and request.POST['order_by']!='':
             if request.POST['order_by_type']=='dec':
                 order='-'+request.POST['order_by']
