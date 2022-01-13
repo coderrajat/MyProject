@@ -846,7 +846,116 @@ class Add_Subadmin(APIView):
      
                                 
 
+#---- Genere APIs ------
+class Genere_API(APIView):
+    @is_authenticate()
+    def get(self, request, id):
+        if(id == '-1'):
+            data = admin_models.Generes.objects.all()
 
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"data": serializers.Genere_Serializer(data, many=True).data},
+                            },status=status.HTTP_200_OK)  
+
+        if(not id.isnumeric()):
+            return Response({'success':'false',
+                                 'error_msg':'Invalid id',
+                                 'errors':'',
+                                 'response':{},
+                                 },status=status.HTTP_400_BAD_REQUEST)
+
+        data = list(admin_models.Generes.objects.filter(id=id))
+        if(data == []):
+            return Response({'success':'false',
+                                 'error_msg':'Genre not found',
+                                 'errors':'',
+                                 'response':{},
+                                 },status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"data": serializers.Genere_Serializer(data[0]).data},
+                            },status=status.HTTP_200_OK) 
+    @is_authenticate()
+    def post(self, request, id):
+        f1 = serializers.Genere_Serializer(data=request.POST)
+        if f1.is_valid():
+            f1.save()
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
+        else:
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+
+
+    @is_authenticate()
+    def put(self, request, id):
+
+        if(not id.isnumeric()):
+            return Response({'success':'false',
+                                 'error_msg':'Invalid id',
+                                 'errors':'',
+                                 'response':{},
+                                 },status=status.HTTP_400_BAD_REQUEST)
+
+        data = list(admin_models.Generes.objects.filter(id=id))
+        if(data == []):
+            return Response({'success':'false',
+                                 'error_msg':'Genre not found',
+                                 'errors':'',
+                                 'response':{},
+                                 },status=status.HTTP_404_NOT_FOUND)
+
+
+        f1 = serializers.Genere_Serializer(data=request.data, instance=data[0])
+        if f1.is_valid():
+            f1.save()
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
+        else:
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+    
+    @is_authenticate()
+    def delete(self, request, id):
+
+        if(not id.isnumeric()):
+            return Response({'success':'false',
+                                 'error_msg':'Invalid id',
+                                 'errors':'',
+                                 'response':{},
+                                 },status=status.HTTP_400_BAD_REQUEST)
+
+        data = list(admin_models.Generes.objects.filter(id=id))
+        if(data == []):
+            return Response({'success':'false',
+                                 'error_msg':'Genre not found',
+                                 'errors':'',
+                                 'response':{},
+                                 },status=status.HTTP_404_NOT_FOUND)
+
+        data[0].delete()
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
+#-------
 
              
 
@@ -2041,7 +2150,7 @@ class dash_board(APIView):
     @is_authenticate()
     def get(self,request,pk=None):
         try:   
-            artist=admin_models.artist.objects.filter().order_by('-most_played_artists')[0:50]
+            artist=admin_models.artist.objects.filter().order_by('-most_played')[0:50]
             alb = admin_models.album.objects.all()
             a=alb.count()
             a_r_t = admin_models.artist.objects.all()

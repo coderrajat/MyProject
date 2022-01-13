@@ -292,7 +292,7 @@ class search(serializers.Serializer):
 
 class search_song_in_artist(serializers.Serializer):
     search=serializers.CharField(required=False)
-    genres=serializers.ChoiceField(required=False, choices = admin_models.gener_choices)
+    genres=serializers.CharField(required=False)
 
 class playlist_admin_data(serializers.ModelSerializer):
     class Meta:
@@ -377,7 +377,7 @@ class SubscriptionPlan_data(serializers.ModelSerializer):
 class Notification_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.Notification_admin
-        fields=["id","title","type","message","created_at"]
+        fields=["id", "created_at", "user_sender", "type_of_notification", "status"]
 
 
 #to show only two fields[id&artist name in song information]
@@ -493,6 +493,11 @@ class Admin_User_Subscription_Plan(serializers.ModelSerializer):
     class Meta:
         model=admin_models.Subscription_History
         fields=["id","user","subscription","active","expire"]
+
+class Genere_Serializer(serializers.ModelSerializer):
+    class Meta: 
+        model=admin_models.Generes
+        fields=["id", "name"]
         
 
         

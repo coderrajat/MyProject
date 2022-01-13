@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "storages",
     "corsheaders",
     'ckeditor',
+    "channels",
 
 ]
 
@@ -154,6 +155,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mayani.wsgi.application'
+ASGI_APPLICATION = 'mayani.asgi.application'
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
 
 
 # Database

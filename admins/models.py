@@ -1,6 +1,11 @@
 from django.db import models
 from datetime import datetime
-from accounts.models import Users  
+from accounts.models import Users, Admins 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+import json
+from django.core import serializers
+
 class CMS(models.Model):
     name=models.CharField(max_length=200,unique=True)
     content = models.TextField(null=True,blank=True)
@@ -77,14 +82,14 @@ class songs(models.Model):
     number_of_likes=models.IntegerField(default=0)
     likes=models.ManyToManyField(Users,related_name="liked_song")#the user id will be here who like the song eg: 1,2
     lyrics=models.CharField(max_length=4000,blank=True,default='')
-    genres = models.CharField(max_length=400, blank=True, default='POP', choices=gener_choices)
+    genres = models.CharField(max_length=400, blank=True, default='Pop')
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateField(default=datetime.now(), blank=True)
 
 class playlist_admin(models.Model):
     name=models.CharField(max_length=400) 
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
-    gener=models.CharField(max_length=400,default='POP', choices=gener_choices)
+    gener=models.CharField(max_length=400,default='Pop')
     songs=models.ManyToManyField(songs,blank=True,null=True, related_name='admin_playlist')
     downloads=models.IntegerField( default=0)
     user=models.ForeignKey(Users,on_delete=models.SET_NULL,related_name='admin_playlist',null=True,blank=True)
@@ -111,10 +116,35 @@ class SubscriptionPlan(models.Model):
 
 #get notification
 class Notification_admin(models.Model):
-    title=models.CharField(max_length=100)
-    type=models.CharField(max_length=100)
-    message=models.CharField(max_length=500)
+    user_sender=models.ForeignKey(Users,on_delete=models.CASCADE,null=True,blank=True,related_name="user_sender")
+    #user_revoker=models.ForeignKey(Admins,on_delete=models.CASCADE,null=True,blank=True,related_name="user_revoker")
+    #title=models.CharField(max_length=100)
+    #type=models.CharField(max_length=100)
+    #message=models.CharField(max_length=500)
+
+    status=models.CharField(max_length=264,null=True,blank=True,default="unread")
+    type_of_notification=models.CharField(max_length=264,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        print("Notification was saved")
+        channel_layer = get_channel_layer()
+        notifications_unread = Notification_admin.objects.filter(status = "unread").count()
+        notifications = Notification_admin.objects.all().order_by('created_at')[:9]
+        data = {
+            'notifications_unread': notifications_unread + 1,
+            'notifications': serializers.serialize('json', notifications),
+            'current_notification': serializers.serialize('json', [self])
+        }
+
+        async_to_sync(channel_layer.group_send)(
+            'admin_group', {
+                'type': 'send_notification',
+                'value': json.dumps(data)
+            }   
+        )
+
+        super(Notification_admin, self).save(*args, **kwargs)
 
 
 #to show subscription history to user
@@ -124,6 +154,8 @@ class Subscription_History(models.Model):
     active=models.DateTimeField(default=datetime.now())
     expire=models.DateTimeField(default=datetime.now())
  
+class Generes(models.Model):
+    name=models.CharField(max_length=400)
 
 
     

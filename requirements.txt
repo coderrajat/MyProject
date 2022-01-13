@@ -14,3 +14,5 @@ twilio==6.48.0
 psycopg2
 python-decouple
 Pillow
+channels
+channels-redis

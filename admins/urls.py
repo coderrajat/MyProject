@@ -25,6 +25,9 @@ urlpatterns=[
     path("add_subadmin",views.Add_Subadmin.as_view(),name='add_subadmin'),
     path("block_subadmin<id>",views.block_subadmin.as_view(),name='block_subadmin'),
     
+    # Genere Apis
+    path("genre/<id>",views.Genere_API.as_view(),name='genre'),
+    
     path("song_search_list",views.song_search_list.as_view(),name='song_search_list'),
     path("song/<pk>",views.Song_api.as_view(),name="song"),
     
