@@ -399,7 +399,7 @@ class Song_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
         fields=["id","name","song_mp3","album","artist","downloads","cover","year","genres","charts","lyrics","number_of_likes","likes"]
-
+        depth=1
 
 # to create a new song      
 class Song_Add(serializers.ModelSerializer):
