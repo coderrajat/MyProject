@@ -500,8 +500,16 @@ class Genere_Serializer(serializers.ModelSerializer):
         fields=["id", "name"]
         
 
-        
+class Charts_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.charts_admin
+        fields=("name", "gener")       
 
+class Get_Charts_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.charts_admin
+        fields=("__all__")
+        depth=1   
         
 
 

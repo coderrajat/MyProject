@@ -65,6 +65,8 @@ urlpatterns=[
     
     #path("playlist_all",views.playlist_by_id.as_view(),name='playlist_admin'),
     
+    path("charts/<id>",views.Charts_API.as_view(),name='charts'),
+    path("charts_songs",views.Add_Songs_to_Charts.as_view(),name='charts_songs'),
 
     
     #path("playlist_admin/all",views.playlist_adminget.as_view(),name='playlist_admin'), #getting all playlist
