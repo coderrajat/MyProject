@@ -357,7 +357,7 @@ class admin_profile(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         print("test",requstuser)
-        f1=serializers.admin_data(requstuser)
+        f1=serializers.admin_info(requstuser)
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
@@ -2550,7 +2550,7 @@ class SubscriptionPlan_api(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
     @is_authenticate()
     def post(self, request):
-        f2=serializers.SubscriptionPlan_data(data=request.data)
+        f2=serializers.SubscriptionPlan_Data_Add(data=request.data)
         if f2.is_valid():
             f2.save()
             return Response({'success':'true',
@@ -2885,6 +2885,52 @@ class User_Liked_Songs_By_Admin(APIView):
     @is_authenticate()
     def get(self,request):
         f1=serializers.search()
+        f2=serializers.pagination()
+        return Response({**f1.data,**f2.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    
+    @is_authenticate()
+    def post(self, request,pk):
+        f1=serializers.search(data=request.POST)
+        f2=serializers.pagination(data=request.POST)
+        if not(f1.is_valid() and f2.is_valid()):
+            return Response({'success':'false',
+                            'error_msg':'invalid_input',
+                            'errors':{},
+                            'response':{**dict(f1.errors),**dict(f2.errors)},
+                            },status=status.HTTP_400_BAD_REQUEST)
+        search=request.data["search"] 
+        if search!="":
+            result=list(admin_models.songs.objects.filter((Q(likes=pk)&(Q(name__icontains=search)|Q(artist__name__icontains=search)|Q(album__name__icontains=search)))).distinct())
+        else:   
+             result=list(admin_models.songs.objects.filter(likes=pk))
+        if request.POST['order_by']!=None and request.POST['order_by']!='':
+            if request.POST['order_by_type']=='dec':
+                order='-'+request.POST['order_by']
+            else:
+                order=request.POST['order_by']
+                result=result.order_by(order)
+        paginate_result=Paginator(result, int(request.POST['result_limit']))
+        p_r=paginate_result.get_page(request.POST['page'])
+        f1=serializers.User_Liked_Songs_By_Admin(result,many=True)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':f1.data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                            },   
+                            },status=status.HTTP_202_ACCEPTED)
+
+"""
+class User_Liked_Songs_By_Admin(APIView):
+    @is_authenticate()
+    def get(self,request):
+        f1=serializers.search()
         return Response(f1.data,status=status.HTTP_200_OK)
     @is_authenticate()
     def post(self, request,pk):
@@ -2918,13 +2964,16 @@ class User_Liked_Songs_By_Admin(APIView):
                                 'errors':{},
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
+"""
 #subscription plan history of user                             
 class User_Subscription_Plan_History_For_Admin(APIView):
     @is_authenticate()
     def get(self, request,pk):
         try:
             data=list(admin_models.Subscription_History.objects.filter(user=pk))
+            print("test",data)
             f1=serializers.Admin_User_Subscription_Plan(data,many=True)
+           
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},

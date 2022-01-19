@@ -373,6 +373,11 @@ class SubscriptionPlan_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.SubscriptionPlan
         fields = ["id","plan_name","descriptions","date_created","is_pause"]
+# to add a new subscription plan
+class SubscriptionPlan_Data_Add(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.SubscriptionPlan
+        fields = ("plan_name","descriptions","is_pause")
 
 class Notification_data(serializers.ModelSerializer):
     class Meta:
@@ -438,10 +443,7 @@ class Artist_song_data(serializers.ModelSerializer):#for a particular artist
 
 class Search_album_song(serializers.Serializer):
     search=serializers.CharField(required=False)
-class Create_artist_album(serializers.ModelSerializer):
-    class Meta:
-        model=admin_models.album
-        fields=["name","year"]
+
 class Album_song_data(serializers.ModelSerializer):#for a particular artist
     class Meta:
         model=admin_models.songs

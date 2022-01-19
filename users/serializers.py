@@ -172,7 +172,7 @@ class artist_songs(serializers.ModelSerializer):
 class Edit_User_Profile(serializers.ModelSerializer):
     class Meta:
         model=account_models.Users
-        fields=["full_name","email","phone_number","facebook","instagram","bio","gender"]
+        fields=["full_name","email","phone_number","facebook","instagram","bio","gender","profile_pic","country_code"]
 #to create palylist
 class Create_Playlist(serializers.ModelSerializer):
     
@@ -187,7 +187,20 @@ class Artist_Playlist_List(serializers.ModelSerializer):
 class Artist_Data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
-        fields=["id","name"]
+        fields=["id","name","photo"]
+class Song_Data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=("id","name","year","likes")
+class Album_Data_Artist(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.album
+        fields=("id","name","year","songs")
+class Trending_Song(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=["id","name","likes"]
+
 
 class User_feed_back(serializers.ModelSerializer):
     class Meta:
