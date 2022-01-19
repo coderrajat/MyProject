@@ -84,14 +84,14 @@ class songs(models.Model):
     number_of_likes=models.IntegerField(default=0)
     likes=models.ManyToManyField(Users,related_name="liked_song")#the user id will be here who like the song eg: 1,2
     lyrics=models.CharField(max_length=4000,blank=True,default='')
-    genres = models.CharField(max_length=400, blank=True, default='Pop')
+    genres = models.ForeignKey(Generes,on_delete=models.SET_NULL,related_name='genre_songs',null=True,blank=True)
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateField(default=datetime.now(), blank=True)
 
 class playlist_admin(models.Model):
     name=models.CharField(max_length=400) 
     cover=models.ImageField(upload_to='images/playlist',default='deafult_profile_pic.jpeg')
-    gener=models.CharField(max_length=400,default='Pop')
+    gener=models.ForeignKey(Generes,on_delete=models.SET_NULL,related_name='gener_playlist',null=True,blank=True)
     songs=models.ManyToManyField(songs,blank=True,null=True, related_name='admin_playlist')
     downloads=models.IntegerField( default=0)
     user=models.ForeignKey(Users,on_delete=models.SET_NULL,related_name='admin_playlist',null=True,blank=True)

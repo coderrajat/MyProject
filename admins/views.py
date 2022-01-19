@@ -1144,6 +1144,9 @@ class Song_api(APIView):
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
             
+            if song[0].cover != 'deafult_profile_pic.jpeg':
+                song[0].cover.delete()
+            song[0].song_mp3.delete()
             song[0].delete()
 
             return Response({'success':'true',
@@ -1250,7 +1253,7 @@ class get_playlist_admin(APIView):
         if s!='':
             flg=False
             search_query=Q()
-            search_query.add(Q(name__icontains=s) | Q(gener__icontains=s),Q.AND)
+            search_query.add(Q(name__icontains=s) | Q(gener__name__icontains=s),Q.AND)
         if flg:
             result=admin_models.playlist_admin.objects.select_related()
         else:
@@ -1317,7 +1320,7 @@ class get_song_admin_playlist(APIView):
         if s!='':
             flg=False
             search_query=Q()
-            search_query.add(Q(name__icontains=s) | Q(genres__icontains=s),Q.AND)
+            search_query.add(Q(name__icontains=s) | Q(genres__name__icontains=s),Q.AND)
         if flg:
             result=admin_models.songs.objects.filter(admin_playlist=playlist_check[0].id)
         else:
