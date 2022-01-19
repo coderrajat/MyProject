@@ -494,10 +494,11 @@ class Admin_User_Subscription_Plan(serializers.ModelSerializer):
         model=admin_models.Subscription_History
         fields=["id","user","subscription","active","expire"]
         
+class Users_feedback(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.Feedback
+        fields=["id","subject","message","user"]
 
-        
-
-        
 
 
 

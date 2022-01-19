@@ -17,6 +17,8 @@ admin.site.register(models.playlist_admin)
 admin.site.register(models.SubscriptionPlan)
 admin.site.register(models.Notification_admin)
 admin.site.register(models.Subscription_History)
+admin.site.register(models.Feedback)
+
 
 
 

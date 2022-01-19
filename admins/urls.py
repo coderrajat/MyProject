@@ -1,6 +1,8 @@
 from os import name
 from django.urls import path
 
+
+
 from . import views
 urlpatterns=[
     path("cms<name>",views.cms.as_view(),name='cms'),
@@ -99,8 +101,8 @@ urlpatterns=[
     path("user_subscription_plan",views.User_Subscription_Plan_History_For_Admin.as_view(),name="admin_user_subscription_plan"),
     path("user_subscription_plan/<pk>",views.User_Subscription_Plan_History_For_Admin.as_view(),name="admin_user_subscription_plan"),
     path("Artist_album_remove_song",views.Artist_Album_Remove_Song.as_view(),name="artist_album_remove_song"),
-    path("user_current_subscription_plan/<pk>",views.User_Current_Subscription_Plan.as_view(),name="current_subscription_plan")
-
+    path("user_current_subscription_plan/<pk>",views.User_Current_Subscription_Plan.as_view(),name="current_subscription_plan"),
+    path("user_feedback/<pk>",views.User_Feedback.as_view(),name='users_feedback')
    
     
    

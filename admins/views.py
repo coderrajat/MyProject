@@ -61,11 +61,11 @@ def is_authenticate(*Dargs,**Dkwargs):
         return wrapper
     return inner
 
+# add cms and get cms
 class cms(APIView):
     @is_authenticate()
     def get(self,request,name):
         content=list(admin_models.CMS.objects.filter(name=name))
-        print("test",content)
         if content==[]:
             if name in ['about_us','legal_disclamer','t&s','privacy_policy','how_to_pay_via_mobile']:
                 cms=admin_models.CMS()
@@ -132,7 +132,7 @@ class Faq_section(APIView):
     def get(self,request,pk=None):
         try:
             if pk is not None:
-                
+
                 fq=list(admin_models.faq.objects.filter(pk=pk))
                 if fq==[]:
                     return Response({'success':'false',
@@ -141,20 +141,20 @@ class Faq_section(APIView):
                             'response':{}
                             },status=status.HTTP_400_BAD_REQUEST) 
                 fq2=serializers.faq_category(fq[0])
-                
                 return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{"FAQ_data":fq2}
+                            'response':{"FAQ_data":fq2.data}
                             },status=status.HTTP_200_OK)
+                            
             fq=admin_models.faq.objects.all()
             fq2=serializers.faq_category(fq,many=True)
-            
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
                                 'response':{"FAQ_data":fq2.data}
                                 },status=status.HTTP_200_OK)
+            
         except ValueError as ex:
             return Response({'success':'false',
                                 'error_msg':"please enter integer value for id",
@@ -283,6 +283,7 @@ class smtp_settings_api(APIView):
                                     'errors':{**dict(f1.errors)},
                                     'response':{},
                                     },status=status.HTTP_400_BAD_REQUEST)
+                            
 class social_media_settings(APIView):
     @is_authenticate()
     def get(self,request):
@@ -834,24 +835,6 @@ class Add_Subadmin(APIView):
                                  'response':{},
                                  },status=status.HTTP_400_BAD_REQUEST)   
      
-                                
-
-
-
-             
-
-       
-         
-           
-    
-        
-
-
-
-
-
-
-
 #------  SONG APIS ------
 
 # Song Add, Edit, Delete, View
@@ -1919,14 +1902,6 @@ class Artist_remove_album(APIView):
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-
-
-
-
-
 # Album Add, Edit, Delete, View
 class albumAPI(APIView):
     @is_authenticate()
@@ -2028,10 +2003,10 @@ class albumAPI(APIView):
 
 # Dashboard api
 class dash_board(APIView):
-    @is_authenticate()
+    #@is_authenticate()
     def get(self,request,pk=None):
         try:   
-            artist=admin_models.artist.objects.filter().order_by('-most_played_artists')[0:50]
+            artist=admin_models.artist.objects.filter().order_by('-most_played')[0:50]
             alb = admin_models.album.objects.all()
             a=alb.count()
             a_r_t = admin_models.artist.objects.all()
@@ -2040,7 +2015,7 @@ class dash_board(APIView):
             s=song.count()
             u_s_e_r = account_models.Users.objects.all()
             u=u_s_e_r.count()
-            serializer = serializers.Artist_data(artist,many =True)
+            serializer = serializers.Artist_Data(artist,many =True)
             return Response({'success':'true',
                                         'error_msg':'',
                                         'errors':{''},
@@ -2331,6 +2306,7 @@ class SubscriptionPlan_api(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
           
  #view a notification
+
 class Notification_api(APIView):
     @ is_authenticate()
     def get(self, request,pk):
@@ -2695,8 +2671,6 @@ class Artist_Album_Remove_Song(APIView):
                                     'response':{}
                                     },status=status.HTTP_400_BAD_REQUEST)
 
-
-
 #to get the active subscription plan of user                           
 class User_Current_Subscription_Plan(APIView):
     @is_authenticate()
@@ -2723,31 +2697,28 @@ class User_Current_Subscription_Plan(APIView):
                     },status=status.HTTP_400_BAD_REQUEST)
 
 
-                                 
-                              
-                             
-
-
-
-                                
-                                
-                                
-                               
-
-
-
-
-        
-      
-        
-
-                                        
-                                        
-                                        
-                                       
-
-
-
+class User_Feedback(APIView):      
+    def get(self,request,pk):
+        if(pk.isnumeric()):
+            feedback=list(admin_models.Feedback.objects.filter(pk=pk))   
+            f1=serializers.Users_feedback(feedback,many=True)
+            if feedback==[]:
+                return Response({'success':'false',
+                                    'error_msg':'Data does not Exist',
+                                    'errors':{},
+                                    'response':{}
+                                    },status=status.HTTP_200_OK) 
+            return Response({'success':'true',
+                                    'error_msg':'',
+                                    'errors':{},
+                                    'response':{"Feedback data":f1.data}
+                                    },status=status.HTTP_200_OK)   
+        else:
+            return Response({'success':'false',
+                                'error_msg':"please enter integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
 
 
 
