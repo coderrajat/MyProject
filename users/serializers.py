@@ -145,17 +145,29 @@ class playlist_admin_form(serializers.ModelSerializer):
         model=admin_models.playlist_admin
         fields=('name','gener')
 
-class Albums_songs(serializers.ModelSerializer):
+
+#sonu
+class Album(serializers.ModelSerializer):
     class Meta:
         model = admin_models.album
-        fields = ['id','name','artist','year','cover','songs']
-        depth=2
+        fields = ('id','name','songs')
 
 class Album_songs(serializers.ModelSerializer):
     class Meta:
-        model = admin_models.songs
-        fields = ['id','name','album','artist','year','songs']
+        model = admin_models.album
+        fields = ('songs',)
         depth=1
+
+class artist_songs(serializers.ModelSerializer):
+    class Meta:
+        model = admin_models.artist
+        fields = ["id","name","songs"]
+        depth=1
+
+
+
+
+#        
 
 class Edit_User_Profile(serializers.ModelSerializer):
     class Meta:
@@ -177,9 +189,17 @@ class Artist_Data(serializers.ModelSerializer):
         model=admin_models.artist
         fields=["id","name"]
 
+class User_feed_back(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.Feedback
+        fields=["subject","message"]
+        
+class User_Data_Subscription_Plan(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        field=["id","full_name","subscription_plan"]
 
         
-
 
 
 

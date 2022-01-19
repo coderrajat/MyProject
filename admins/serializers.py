@@ -511,6 +511,12 @@ class Get_Charts_Serializer(serializers.ModelSerializer):
         fields=("__all__")
         depth=1   
         
+        
+class Users_feedback(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.Feedback
+        fields=["id","subject","message","user"]
+
 
 
 

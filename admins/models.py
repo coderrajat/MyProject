@@ -164,7 +164,10 @@ class Subscription_History(models.Model):
     active=models.DateTimeField(default=datetime.now())
     expire=models.DateTimeField(default=datetime.now())
  
-
+class Feedback(models.Model):
+    subject=models.CharField(max_length=100)
+    message=models.CharField(max_length=500)
+    user=models.ForeignKey(Users,on_delete=models.SET_NULL,null=True,blank=True,related_name="users_name")
 
 
     
