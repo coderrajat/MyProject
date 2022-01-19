@@ -71,6 +71,8 @@ gener_choices=(  #gener choices
         ('Trance','Trance'),
 )
 
+class Generes(models.Model):
+    name=models.CharField(max_length=400)
     
 class songs(models.Model):
     name=models.CharField(max_length=400)
@@ -93,6 +95,14 @@ class playlist_admin(models.Model):
     songs=models.ManyToManyField(songs,blank=True,null=True, related_name='admin_playlist')
     downloads=models.IntegerField( default=0)
     user=models.ForeignKey(Users,on_delete=models.SET_NULL,related_name='admin_playlist',null=True,blank=True)
+    year=models.DateTimeField(auto_now_add=True)
+
+class charts_admin(models.Model):
+    name=models.CharField(max_length=400) 
+    cover=models.ImageField(upload_to='images/charts',default='deafult_profile_pic.jpeg')
+    gener=models.ForeignKey(Generes,on_delete=models.SET_NULL,related_name='genre',null=True,blank=True)
+    songs=models.ManyToManyField(songs,blank=True,null=True, related_name='charts_songs')
+    #downloads=models.IntegerField( default=0)
     year=models.DateTimeField(auto_now_add=True)
    
   
@@ -154,8 +164,7 @@ class Subscription_History(models.Model):
     active=models.DateTimeField(default=datetime.now())
     expire=models.DateTimeField(default=datetime.now())
  
-class Generes(models.Model):
-    name=models.CharField(max_length=400)
+
 
 
     

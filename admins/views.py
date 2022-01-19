@@ -1539,7 +1539,178 @@ class playlist_admin_get(APIView):
                             },status=status.HTTP_200_OK)
 
 
+#----- CHARTS APIs -------
+# Charts Add 
+class Charts_API(APIView): 
+    @is_authenticate()
+    def get(self,request,id):
+        if id == "-1":
+            chart=list(admin_models.charts_admin.objects.all())
+            f1=serializers.Get_Charts_Serializer(chart, many=True)
 
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"chart_data":f1.data},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
+                            },status=status.HTTP_200_OK)
+
+        if id.isnumeric() !=  True:
+            return Response({'success':'false',
+                            'error_msg':'ID IS NOT AN INTEGER',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_404_NOT_FOUND)
+
+        chart=list(admin_models.charts_admin.objects.prefetch_related().filter(id=id))
+        print(chart)
+
+        if chart==[]:
+            return Response({'success':'false',
+                                'error_msg':'invalid ID',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        chart=chart[0]
+        f1=serializers.Get_Charts_Serializer(chart)
+
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{"chart_data":f1.data},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
+                            },status=status.HTTP_200_OK)
+    
+    @is_authenticate()
+    def post(self,request, id):
+        f1=serializers.Charts_Serializer(data=request.data)
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+        chart=f1.save()
+        if  'cover' in request.FILES:
+            chart.cover=request.FILES['cover']
+            chart.save()
+
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
+
+    @is_authenticate()
+    def put(self,request, id):
+        if id.isnumeric() !=  True:
+            return Response({'success':'false',
+                            'error_msg':'ID IS NOT AN INTEGER',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_404_NOT_FOUND)
+        chart = admin_models.charts_admin.objects.filter(id=id)
+
+        if chart == []: 
+            return Response({'success':'false',
+                            'error_msg':'chart not found',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_404_NOT_FOUND)                   
+
+        f1=serializers.Charts_Serializer(data=request.data, instance=chart[0])
+        print("-----",request.data['gener'])
+        if not(f1.is_valid()):
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors)}
+                                },status=status.HTTP_400_BAD_REQUEST)
+        chart = f1.save()
+        if  'cover' in request.FILES:
+            if chart.cover != 'deafult_profile_pic.jpeg':
+                chart.cover.delete()
+
+            chart.cover=request.FILES['cover']
+            chart.save()
+
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
+
+    @is_authenticate()
+    def delete(self,request, id):
+        if id.isnumeric() !=  True:
+            return Response({'success':'false',
+                            'error_msg':'ID IS NOT AN INTEGER',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_404_NOT_FOUND)
+        chart = admin_models.charts_admin.objects.filter(id=id)
+
+        if chart == []: 
+            return Response({'success':'false',
+                            'error_msg':'chart not found',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_404_NOT_FOUND)                   
+
+        chart = chart[0]
+
+        if chart.cover != 'deafult_profile_pic.jpeg':
+            chart.cover.delete()
+
+        chart.delete()
+
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK)
+
+class Add_Songs_to_Charts(APIView):
+    @is_authenticate()
+    def post(self,request):
+        try:
+            song=admin_models.songs.objects.get(pk=int(request.POST["song_id"]))
+            chart=admin_models.charts_admin.objects.get(pk=int(request.POST["chart_id"]))
+           
+
+            
+            chart.songs.add(song)
+            chart.save()
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_200_OK)
+        
+        except  Exception as ex:
+            return Response({'success':'false',
+                                'error_msg':"chart or song does not exists",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+
+    @is_authenticate()
+    def put(self,request):
+        try:
+            song=admin_models.songs.objects.get(pk=int(request.POST["song_id"]))
+            chart=admin_models.charts_admin.objects.get(pk=int(request.POST["chart_id"]))
+            
+            chart.songs.remove(song)
+            chart.save()
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response({'success':'false',
+                                'error_msg':"chart or song does not exists",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
 
 
 
