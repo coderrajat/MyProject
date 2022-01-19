@@ -1378,3 +1378,41 @@ class User_Current_Subscription_Plan(APIView):
                     'errors':{},
                     'response':{}
                     },status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+#-------- APIs for Charts of GENREs ----------
+class Genre_Charts(APIView):
+    def get(self, request):
+        data = admin_models.Generes.objects.all()
+
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{"data": admin_serializers.Genere_Serializer(data, many=True).data},
+                        },status=status.HTTP_200_OK) 
+
+
+    def post(self, request):
+
+        f1 = serializers.Genre_Chart_Serializer(data=request.data)
+
+        if not f1.is_valid():
+            return Response({'success':'false',
+                        'error_msg':'Invalid input',
+                        'errors':{**dict(f1.errors)},
+                        'response':{},
+                        },status=status.HTTP_400_BAD_REQUEST) 
+                        
+
+        songs = admin_models.songs.objects.filter(genres=request.data['genre_id']).order_by("-no_of_times_played")[:int(request.data['limit'])]
+
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{"data": admin_serializers.Song_data(songs, many=True).data},
+                        },status=status.HTTP_200_OK) 
+
+
+#-----------

@@ -93,6 +93,7 @@ class songs(models.Model):
     genres = models.ForeignKey(Generes,on_delete=models.SET_NULL,related_name='genre_songs',null=True,blank=True)
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateField(default=datetime.now(), blank=True)
+    no_of_times_played=models.IntegerField(default=0)
 
 class playlist_admin(models.Model):
     name=models.CharField(max_length=400) 

@@ -261,12 +261,7 @@ class search_consumer_form(serializers.ModelSerializer):
         model=account_models.Users
         #fields=('__all__')
         exclude=('password','token','otp','date_joined','last_login')
-class song_data(serializers.ModelSerializer):
-    class Meta:
-        model=admin_models.songs
-        fields=('__all__')
-        depth=2 
-        
+
 
 class artist_for_song_serializer(serializers.ModelSerializer):
     class Meta:

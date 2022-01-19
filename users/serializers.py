@@ -213,7 +213,9 @@ class User_Data_Subscription_Plan(serializers.ModelSerializer):
         field=["id","full_name","subscription_plan"]
 
         
-
+class Genre_Chart_Serializer(serializers.Serializer):
+    genre_id = serializers.IntegerField(required=True)
+    limit = serializers.IntegerField(required=True)
 
 
 

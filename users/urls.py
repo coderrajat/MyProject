@@ -64,6 +64,6 @@ urlpatterns=[
     path("preferred_playlist_by_user",views.Preferred_Playlist_By_User.as_view(),name="preferred_playlist_by_user"),
     path("remove_preferred",views.Remove_Preferred.as_view(),name="remove_preferred"),
    
-    
-   
+    #Genre Charts 
+    path("genre_charts",views.Genre_Charts.as_view(),name="genre_charts"),
     ]
