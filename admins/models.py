@@ -42,6 +42,8 @@ class artist(models.Model):
     artist_origin=models.TextField()
     likes=models.CharField(max_length=400,null=True,blank=True)
     followers=models.CharField(max_length=400,null=True,blank=True)
+    follow_by=models.ManyToManyField(Users,related_name="follow_artist",null=True,blank=True)
+    preferred_by=models.ManyToManyField(Users,related_name="prefer_artist",null=True,blank=True)
 
     photo=models.ImageField(upload_to='images/artist',default='deafult_profile_pic.jpeg')
     most_played=models.IntegerField(default=0)
@@ -52,6 +54,9 @@ class album(models.Model):
     cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
     likes=models.CharField(max_length=400,null=True,blank=True)
     downloads=models.CharField(max_length=400,null=True,blank=True)
+    likes=models.ManyToManyField(Users,related_name="liked_album")#user id will come here who will like the albums
+    preferred_by=models.ManyToManyField(Users,related_name="prefer_album",null=True,blank=True)
+   
     
 gener_choices=(  #gener choices
         ('Pop','Pop'),
@@ -80,13 +85,15 @@ class songs(models.Model):
     cover=models.ImageField(upload_to='images/songs',default='deafult_profile_pic.jpeg')
     album=models.ForeignKey(album,on_delete=models.SET_NULL,null=True,related_name='songs')
     artist=models.ManyToManyField(artist, blank=True, related_name='songs')
-    downloads=models.CharField(max_length=400,null=True,blank=True)
+    number_of_downloads=models.IntegerField(default=0)
+    downloads=models.ManyToManyField(Users,null=True, blank=True, related_name='downloaded_songs')#the user id will be here who download the song eg: 1,2
     number_of_likes=models.IntegerField(default=0)
     likes=models.ManyToManyField(Users,related_name="liked_song")#the user id will be here who like the song eg: 1,2
     lyrics=models.CharField(max_length=4000,blank=True,default='')
     genres = models.ForeignKey(Generes,on_delete=models.SET_NULL,related_name='genre_songs',null=True,blank=True)
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateField(default=datetime.now(), blank=True)
+    no_of_times_played=models.IntegerField(default=0)
 
 class playlist_admin(models.Model):
     name=models.CharField(max_length=400) 
@@ -96,6 +103,7 @@ class playlist_admin(models.Model):
     downloads=models.IntegerField( default=0)
     user=models.ForeignKey(Users,on_delete=models.SET_NULL,related_name='admin_playlist',null=True,blank=True)
     year=models.DateTimeField(auto_now_add=True)
+    preferred_by=models.ManyToManyField(Users,related_name="prefer_playlist",null=True,blank=True)
 
 class charts_admin(models.Model):
     name=models.CharField(max_length=400) 
@@ -104,6 +112,7 @@ class charts_admin(models.Model):
     songs=models.ManyToManyField(songs,blank=True,null=True, related_name='charts_songs')
     #downloads=models.IntegerField( default=0)
     year=models.DateTimeField(auto_now_add=True)
+    
    
   
 Plan_Type=(
@@ -164,7 +173,10 @@ class Subscription_History(models.Model):
     active=models.DateTimeField(default=datetime.now())
     expire=models.DateTimeField(default=datetime.now())
  
-
+class Feedback(models.Model):
+    subject=models.CharField(max_length=100)
+    message=models.CharField(max_length=500)
+    user=models.ForeignKey(Users,on_delete=models.SET_NULL,null=True,blank=True,related_name="users_name")
 
 
     

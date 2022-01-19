@@ -145,22 +145,34 @@ class playlist_admin_form(serializers.ModelSerializer):
         model=admin_models.playlist_admin
         fields=('name','gener')
 
-class Albums_songs(serializers.ModelSerializer):
+
+#sonu
+class Album(serializers.ModelSerializer):
     class Meta:
         model = admin_models.album
-        fields = ['id','name','artist','year','cover','songs']
-        depth=2
+        fields = ('id','name','songs')
 
 class Album_songs(serializers.ModelSerializer):
     class Meta:
-        model = admin_models.songs
-        fields = ['id','name','album','artist','year','songs']
+        model = admin_models.album
+        fields = ('songs',)
         depth=1
+
+class artist_songs(serializers.ModelSerializer):
+    class Meta:
+        model = admin_models.artist
+        fields = ["id","name","songs"]
+        depth=1
+
+
+
+
+#        
 
 class Edit_User_Profile(serializers.ModelSerializer):
     class Meta:
         model=account_models.Users
-        fields=["full_name","email","phone_number","facebook","instagram","bio","gender"]
+        fields=["full_name","email","phone_number","facebook","instagram","bio","gender","profile_pic","country_code"]
 #to create palylist
 class Create_Playlist(serializers.ModelSerializer):
     
@@ -175,12 +187,35 @@ class Artist_Playlist_List(serializers.ModelSerializer):
 class Artist_Data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
-        fields=["id","name"]
+        fields=["id","name","photo"]
+class Song_Data(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=("id","name","year","likes")
+class Album_Data_Artist(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.album
+        fields=("id","name","year","songs")
+class Trending_Song(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=["id","name","likes"]
 
+
+class User_feed_back(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.Feedback
+        fields=["subject","message"]
+        
+class User_Data_Subscription_Plan(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        field=["id","full_name","subscription_plan"]
 
         
-
-
+class Genre_Chart_Serializer(serializers.Serializer):
+    genre_id = serializers.IntegerField(required=True)
+    limit = serializers.IntegerField(required=True)
 
 
 

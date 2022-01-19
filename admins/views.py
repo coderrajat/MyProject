@@ -61,11 +61,11 @@ def is_authenticate(*Dargs,**Dkwargs):
         return wrapper
     return inner
 
+# add cms and get cms
 class cms(APIView):
     @is_authenticate()
     def get(self,request,name):
         content=list(admin_models.CMS.objects.filter(name=name))
-        print("test",content)
         if content==[]:
             if name in ['about_us','legal_disclamer','t&s','privacy_policy','how_to_pay_via_mobile']:
                 cms=admin_models.CMS()
@@ -132,7 +132,7 @@ class Faq_section(APIView):
     def get(self,request,pk=None):
         try:
             if pk is not None:
-                
+
                 fq=list(admin_models.faq.objects.filter(pk=pk))
                 if fq==[]:
                     return Response({'success':'false',
@@ -141,20 +141,20 @@ class Faq_section(APIView):
                             'response':{}
                             },status=status.HTTP_400_BAD_REQUEST) 
                 fq2=serializers.faq_category(fq[0])
-                
                 return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{"FAQ_data":fq2}
+                            'response':{"FAQ_data":fq2.data}
                             },status=status.HTTP_200_OK)
+                            
             fq=admin_models.faq.objects.all()
             fq2=serializers.faq_category(fq,many=True)
-            
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
                                 'response':{"FAQ_data":fq2.data}
                                 },status=status.HTTP_200_OK)
+            
         except ValueError as ex:
             return Response({'success':'false',
                                 'error_msg':"please enter integer value for id",
@@ -283,6 +283,7 @@ class smtp_settings_api(APIView):
                                     'errors':{**dict(f1.errors)},
                                     'response':{},
                                     },status=status.HTTP_400_BAD_REQUEST)
+                            
 class social_media_settings(APIView):
     @is_authenticate()
     def get(self,request):
@@ -356,7 +357,7 @@ class admin_profile(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         print("test",requstuser)
-        f1=serializers.admin_data(requstuser)
+        f1=serializers.admin_info(requstuser)
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
@@ -2212,14 +2213,6 @@ class Artist_remove_album(APIView):
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-
-
-
-
-
 # Album Add, Edit, Delete, View
 class albumAPI(APIView):
     @is_authenticate()
@@ -2321,7 +2314,7 @@ class albumAPI(APIView):
 
 # Dashboard api
 class dash_board(APIView):
-    @is_authenticate()
+    #@is_authenticate()
     def get(self,request,pk=None):
         try:   
             artist=admin_models.artist.objects.filter().order_by('-most_played')[0:50]
@@ -2333,7 +2326,7 @@ class dash_board(APIView):
             s=song.count()
             u_s_e_r = account_models.Users.objects.all()
             u=u_s_e_r.count()
-            serializer = serializers.Artist_data(artist,many =True)
+            serializer = serializers.Artist_Data(artist,many =True)
             return Response({'success':'true',
                                         'error_msg':'',
                                         'errors':{''},
@@ -2557,7 +2550,7 @@ class SubscriptionPlan_api(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
     @is_authenticate()
     def post(self, request):
-        f2=serializers.SubscriptionPlan_data(data=request.data)
+        f2=serializers.SubscriptionPlan_Data_Add(data=request.data)
         if f2.is_valid():
             f2.save()
             return Response({'success':'true',
@@ -2624,6 +2617,7 @@ class SubscriptionPlan_api(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
           
  #view a notification
+
 class Notification_api(APIView):
     @ is_authenticate()
     def get(self, request,pk):
@@ -2891,6 +2885,52 @@ class User_Liked_Songs_By_Admin(APIView):
     @is_authenticate()
     def get(self,request):
         f1=serializers.search()
+        f2=serializers.pagination()
+        return Response({**f1.data,**f2.data,
+                            },status=status.HTTP_202_ACCEPTED)
+    
+    @is_authenticate()
+    def post(self, request,pk):
+        f1=serializers.search(data=request.POST)
+        f2=serializers.pagination(data=request.POST)
+        if not(f1.is_valid() and f2.is_valid()):
+            return Response({'success':'false',
+                            'error_msg':'invalid_input',
+                            'errors':{},
+                            'response':{**dict(f1.errors),**dict(f2.errors)},
+                            },status=status.HTTP_400_BAD_REQUEST)
+        search=request.data["search"] 
+        if search!="":
+            result=list(admin_models.songs.objects.filter((Q(likes=pk)&(Q(name__icontains=search)|Q(artist__name__icontains=search)|Q(album__name__icontains=search)))).distinct())
+        else:   
+             result=list(admin_models.songs.objects.filter(likes=pk))
+        if request.POST['order_by']!=None and request.POST['order_by']!='':
+            if request.POST['order_by_type']=='dec':
+                order='-'+request.POST['order_by']
+            else:
+                order=request.POST['order_by']
+                result=result.order_by(order)
+        paginate_result=Paginator(result, int(request.POST['result_limit']))
+        p_r=paginate_result.get_page(request.POST['page'])
+        f1=serializers.User_Liked_Songs_By_Admin(result,many=True)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':f1.data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                            },   
+                            },status=status.HTTP_202_ACCEPTED)
+
+"""
+class User_Liked_Songs_By_Admin(APIView):
+    @is_authenticate()
+    def get(self,request):
+        f1=serializers.search()
         return Response(f1.data,status=status.HTTP_200_OK)
     @is_authenticate()
     def post(self, request,pk):
@@ -2924,13 +2964,16 @@ class User_Liked_Songs_By_Admin(APIView):
                                 'errors':{},
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
+"""
 #subscription plan history of user                             
 class User_Subscription_Plan_History_For_Admin(APIView):
     @is_authenticate()
     def get(self, request,pk):
         try:
             data=list(admin_models.Subscription_History.objects.filter(user=pk))
+            print("test",data)
             f1=serializers.Admin_User_Subscription_Plan(data,many=True)
+           
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
@@ -2988,8 +3031,6 @@ class Artist_Album_Remove_Song(APIView):
                                     'response':{}
                                     },status=status.HTTP_400_BAD_REQUEST)
 
-
-
 #to get the active subscription plan of user                           
 class User_Current_Subscription_Plan(APIView):
     @is_authenticate()
@@ -3016,31 +3057,28 @@ class User_Current_Subscription_Plan(APIView):
                     },status=status.HTTP_400_BAD_REQUEST)
 
 
-                                 
-                              
-                             
-
-
-
-                                
-                                
-                                
-                               
-
-
-
-
-        
-      
-        
-
-                                        
-                                        
-                                        
-                                       
-
-
-
+class User_Feedback(APIView):      
+    def get(self,request,pk):
+        if(pk.isnumeric()):
+            feedback=list(admin_models.Feedback.objects.filter(pk=pk))   
+            f1=serializers.Users_feedback(feedback,many=True)
+            if feedback==[]:
+                return Response({'success':'false',
+                                    'error_msg':'Data does not Exist',
+                                    'errors':{},
+                                    'response':{}
+                                    },status=status.HTTP_200_OK) 
+            return Response({'success':'true',
+                                    'error_msg':'',
+                                    'errors':{},
+                                    'response':{"Feedback data":f1.data}
+                                    },status=status.HTTP_200_OK)   
+        else:
+            return Response({'success':'false',
+                                'error_msg':"please enter integer value for id",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
 
 
 

@@ -5,3 +5,4 @@ migrations/
 *.png
 *.jpg
 db.sqlite3
+server.log
