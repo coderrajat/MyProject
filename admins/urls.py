@@ -29,6 +29,11 @@ urlpatterns=[
     
     # Genere Apis
     path("genre/<id>",views.Genere_API.as_view(),name='genre'),
+
+    # Recommendations by Admin
+    path("recommend_user_song",views.Admin_Recommendations.as_view(),name='recommend_user_song'),
+    path("recommend_user_song_list/<id>",views.Search_Recommended_Songs.as_view(),name='recommend_user_song_list'),
+
     
     path("song_search_list",views.song_search_list.as_view(),name='song_search_list'),
     path("song/<pk>",views.Song_api.as_view(),name="song"),

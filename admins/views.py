@@ -12,6 +12,7 @@ from django.db.models import Q, manager
 from accounts.views import login_admin
 from admins import models as admin_models
 from accounts import models as account_models
+from users import models as user_models
 from django.utils import timezone
 
 
@@ -959,9 +960,159 @@ class Genere_API(APIView):
 #-------
 
              
+#---- Recommendations by Admin APIS -------
+class Admin_Recommendations(APIView):
+    @is_authenticate()
+    def post(self, request):
+        f1 = serializers.Add_recommended_song_serializer(data=request.data)
+        if not f1.is_valid():
+            return Response({'success':'false',
+                            'error_msg':'invalid_input',
+                            'errors':{},
+                            'response':{**dict(f1.errors)}
+                            },status=status.HTTP_400_BAD_REQUEST)
+        
+        user = list(account_models.Users.objects.filter(id=request.data["user_id"]))
+
+        if(user == []):
+            return Response({'success':'false',
+                            'error_msg':'user does not exist',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_404_NOT_FOUND)
+        
+        song = list(admin_models.songs.objects.filter(id=request.data["song_id"]))
+
+        if(song == []):
+            return Response({'success':'false',
+                            'error_msg':'song does not exist',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_404_NOT_FOUND)
+        user = user[0]
+        song = song[0]
+
+        recommendations = list(user_models.Recommended_Songs_by_admin.objects.filter(user=user))
+
+        if recommendations == []:
+            recommendations = user_models.Recommended_Songs_by_admin()
+            recommendations.user = user
+            recommendations.save()
+        else:
+            recommendations = recommendations[0]
+        
+        recommendations.songs.add(song)
+        recommendations.save()
+
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK) 
+    
+    @is_authenticate()
+    def delete(self, request):
+        f1 = serializers.Add_recommended_song_serializer(data=request.data)
+        if not f1.is_valid():
+            return Response({'success':'false',
+                            'error_msg':'invalid_input',
+                            'errors':{},
+                            'response':{**dict(f1.errors)}
+                            },status=status.HTTP_400_BAD_REQUEST)
+        
+        user = list(account_models.Users.objects.filter(id=request.data["user_id"]))
+
+        if(user == []):
+            return Response({'success':'false',
+                            'error_msg':'user does not exist',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_404_NOT_FOUND)
+        
+        song = list(admin_models.songs.objects.filter(id=request.data["song_id"]))
+
+        if(song == []):
+            return Response({'success':'false',
+                            'error_msg':'song does not exist',
+                            'errors':{},
+                            'response':{}
+                            },status=status.HTTP_404_NOT_FOUND)
+        user = user[0]
+        song = song[0]
+
+        recommendations = list(user_models.Recommended_Songs_by_admin.objects.filter(user=user))
+
+        if recommendations == []:
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK) 
+        else:
+            recommendations = recommendations[0]
+        
+        recommendations.songs.remove(song)
+        recommendations.save()
+
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},
+                            },status=status.HTTP_200_OK) 
+
+class Search_Recommended_Songs(APIView):
+    @is_authenticate()                     
+    def post(self,request,id):
+        f1=serializers.search(data=request.POST)
+        f2=serializers.pagination(data=request.POST)
+        #print("serializer",f1,f2)
+        if not(f1.is_valid() and f2.is_valid()):
+            f1.is_valid()
+            f2.is_valid()
+            return Response({'success':'false',
+                                'error_msg':'invalid_input',
+                                'errors':{},
+                                'response':{**dict(f1.errors),**dict(f2.errors)},
+                                },status=status.HTTP_400_BAD_REQUEST)
+        s=request.POST['search']
+        
+        flg=True
+        search_query=Q()
+        print("-----", id)
+        search_query.add(Q(recommended_to_user__user__id=id), Q.AND)
+        if s!='':
+            flg=False
+              
+            search_query.add(Q(name__icontains=s) | Q(album__name__icontains=s) | Q(artist__name__icontains=s),Q.AND)
+            #search_query.add(Q(charts__icontains=s),Q.OR)
+            #result=admin_models.songs.objects.select_related.filter(Q(name__icontains=s)
 
        
-         
+        result=admin_models.songs.objects.filter(search_query).distinct().order_by('-id')
+        #print('\n\n#result=',result[0].album.__dict__,result[0].album.year,'\n\n')
+        """
+        if request.POST['order_by']!=None and request.POST['order_by']!='':
+            if request.POST['order_by_type']=='dec':
+                order='-'+request.POST['order_by']
+            else:
+                order=request.POST['order_by']
+            result=result.order_by(order)
+        """
+        paginate_result=Paginator(result, int(request.POST['result_limit']))
+        p_r=paginate_result.get_page(request.POST['page'])
+        # print(p_r)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'result':serializers.song_data(p_r,many=True).data},
+                            'pagination':{'count':len(list(p_r)),
+                                        'previous':'true' if p_r.has_previous() else 'false',
+                                        'next':'true' if p_r.has_next() else 'false',
+                                        'startIndex':p_r.start_index(),
+                                        'endIndex':p_r.end_index(),
+                                        'totalResults':len(list(result)),
+                                },
+                            },status=status.HTTP_202_ACCEPTED)  
            
     
         

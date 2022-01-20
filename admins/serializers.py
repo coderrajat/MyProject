@@ -515,7 +515,9 @@ class Users_feedback(serializers.ModelSerializer):
         fields=["id","subject","message","user"]
 
 
-
+class Add_recommended_song_serializer(serializers.Serializer):
+    user_id = serializers.IntegerField(required=True)
+    song_id = serializers.IntegerField(required=True)
 
 
 
