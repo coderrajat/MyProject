@@ -358,7 +358,7 @@ class admin_profile(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         print("test",requstuser)
-        f1=serializers.admin_info(requstuser)
+        f1=serializers.admin_form(requstuser)
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
@@ -2465,7 +2465,7 @@ class albumAPI(APIView):
 
 # Dashboard api
 class dash_board(APIView):
-    #@is_authenticate()
+    @is_authenticate()
     def get(self,request,pk=None):
         try:   
             artist=admin_models.artist.objects.filter().order_by('-most_played')[0:50]
@@ -2481,10 +2481,10 @@ class dash_board(APIView):
             return Response({'success':'true',
                                         'error_msg':'',
                                         'errors':{''},
-                                        'response':{'Exist total number of albums  =':a,
-                                        'Exist total number of artist =':ar,
-                                        'Exist total number of songs  =':s,'Exist total number of users  =':u,
-                                        'Top most 50 played artist=':serializer.data},
+                                        'response':{'Exist_total_number_of_albums':a,
+                                        'Exist_total_number_of_artist':ar,
+                                        'Exist_total_number_of_songs':s,'Exist_total_number_of_users':u,
+                                        'Top_most_50_played_artist':serializer.data},
                                         },status=status.HTTP_200_OK)
         except ValueError as ex:
             return Response ({'success':'false',
