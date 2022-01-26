@@ -16,3 +16,7 @@ python-decouple
 Pillow
 channels
 channels-redis
+numpy
+pandas
+tekore
+tqdm
