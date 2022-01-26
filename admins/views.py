@@ -358,7 +358,7 @@ class admin_profile(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         print("test",requstuser)
-        f1=serializers.admin_form(requstuser)
+        f1=serializers.admin_info(requstuser)
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},

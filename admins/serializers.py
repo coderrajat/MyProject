@@ -149,6 +149,18 @@ def is_in_word_limit(val):
 #     class Meta:
 #         model=admin_models.authorizations
 #         fields=('__all__')
+class admin_info(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Admins
+        #validators=[validate]
+        exclude=('id',
+                'token',
+                'otp',
+                'is_user_blocked',
+                'date_joined',
+                'last_login',
+                'password')
+
 class admin_form(serializers.ModelSerializer):
     class Meta:
         model=account_models.Admins
