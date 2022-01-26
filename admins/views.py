@@ -2477,7 +2477,7 @@ class dash_board(APIView):
             s=song.count()
             u_s_e_r = account_models.Users.objects.all()
             u=u_s_e_r.count()
-            serializer = serializers.Artist_Data(artist,many =True)
+            serializer = serializers.Artist_data(artist,many =True)
             return Response({'success':'true',
                                         'error_msg':'',
                                         'errors':{''},
