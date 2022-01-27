@@ -29,7 +29,7 @@ application = ProtocolTypeRouter({
     
     "websocket":AuthMiddlewareStack(
                     URLRouter(
-                    [path('ws/notification_testing/',consumers.NotificationConsumer.as_asgi())]
+                    [path('ws/notification_testing',consumers.NotificationConsumer.as_asgi())]
                 ))
     
     
