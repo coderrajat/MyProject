@@ -516,6 +516,7 @@ class search_consumer_api(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 
@@ -708,6 +709,7 @@ class subadmin_list(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 
@@ -1111,6 +1113,7 @@ class Search_Recommended_Songs(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)  
            
@@ -1371,6 +1374,7 @@ class song_search_list(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 
@@ -1429,6 +1433,7 @@ class get_playlist_admin(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 
@@ -1496,6 +1501,7 @@ class get_song_admin_playlist(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 
@@ -2024,6 +2030,7 @@ class Artist_search_list(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 
@@ -2090,6 +2097,7 @@ class Artist_album_search_list(APIView):
                                                 'startIndex':p_r.start_index(),
                                                 'endIndex':p_r.end_index(),
                                                 'totalResults':len(list(result)),
+                                                'noOfPages': paginate_result.num_pages
                                         },
                                     },status=status.HTTP_202_ACCEPTED)
             except ValueError as ex:
@@ -2242,6 +2250,7 @@ class Artist_song_search_list(APIView):
                                             'startIndex':p_r.start_index(),
                                             'endIndex':p_r.end_index(),
                                             'totalResults':len(list(result)),
+                                            'noOfPages': paginate_result.num_pages
                                     },
                                 },status=status.HTTP_202_ACCEPTED)
         except ValueError as ex:
@@ -2327,6 +2336,7 @@ class Artist_album_song_search_list(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 
@@ -2543,6 +2553,7 @@ class album_search(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 # Add song to album and remove song from album
@@ -2739,7 +2750,7 @@ class SubscriptionPlan_api(APIView):
                                 'errors':{},
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
-            f1=serializers.SubscriptionPlan_data(plan[0],data=request.data)
+            f1=serializers.SubscriptionPlan_Data_Add(plan[0],data=request.data)
             if f1.is_valid():
                 f1.save()
                 return Response({'success':'true',
@@ -2992,6 +3003,7 @@ class albums_song_search_list(APIView):
                                         'startIndex':p_r.start_index(),
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
+                                        'noOfPages': paginate_result.num_pages
                                 },
                             },status=status.HTTP_202_ACCEPTED)
 

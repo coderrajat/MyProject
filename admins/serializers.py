@@ -379,12 +379,12 @@ class albums_Song_data(serializers.ModelSerializer):
 class SubscriptionPlan_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.SubscriptionPlan
-        fields = ["id","plan_name","descriptions","date_created","is_pause"]
+        fields = ["__all__"]
 # to add a new subscription plan
 class SubscriptionPlan_Data_Add(serializers.ModelSerializer):
     class Meta:
         model=admin_models.SubscriptionPlan
-        fields = ("plan_name","descriptions","is_pause")
+        fields = ("plan_name","descriptions","is_pause", "cost", "plan_type", "benefits")
 
 class Notification_data(serializers.ModelSerializer):
     class Meta:
