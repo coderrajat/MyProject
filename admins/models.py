@@ -146,14 +146,17 @@ class Notification_admin(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        from admins.serializers import Notification_data
         print("Notification was saved")
         channel_layer = get_channel_layer()
         notifications_unread = Notification_admin.objects.filter(status = "unread").count()
         notifications = Notification_admin.objects.all().order_by('created_at')[:9]
         data = {
             'notifications_unread': notifications_unread + 1,
-            'notifications': serializers.serialize('json', notifications),
-            'current_notification': serializers.serialize('json', [self])
+            'notifications': Notification_data(notifications, many=True).data,
+            #'notifications': serializers.serialize('json', notifications),
+            'current_notification': Notification_data(self).data
+            #'current_notification': serializers.serialize('json', [self])
         }
 
         async_to_sync(channel_layer.group_send)(

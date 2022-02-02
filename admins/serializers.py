@@ -386,10 +386,17 @@ class SubscriptionPlan_Data_Add(serializers.ModelSerializer):
         model=admin_models.SubscriptionPlan
         fields = ("plan_name","descriptions","is_pause", "cost", "plan_type", "benefits")
 
+class user_profile(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        fields=('profile_pic',)
+        #fields=('__all__')
 class Notification_data(serializers.ModelSerializer):
+    user_sender = user_profile(read_only=True)
     class Meta:
         model=admin_models.Notification_admin
         fields=["id", "created_at", "user_sender", "type_of_notification", "status"]
+        depth=1
 
 
 #to show only two fields[id&artist name in song information]
