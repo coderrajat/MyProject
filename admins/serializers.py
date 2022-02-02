@@ -379,7 +379,7 @@ class albums_Song_data(serializers.ModelSerializer):
 class SubscriptionPlan_data(serializers.ModelSerializer):
     class Meta:
         model=admin_models.SubscriptionPlan
-        fields = ["__all__"]
+        fields = ("__all__")
 # to add a new subscription plan
 class SubscriptionPlan_Data_Add(serializers.ModelSerializer):
     class Meta:
