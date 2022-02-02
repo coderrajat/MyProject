@@ -85,6 +85,7 @@ urlpatterns=[
     #
     path("artist",views.Artist_api.as_view(),name="artist"),
     path("artist/<pk>",views.Artist_api.as_view(),name="artist_data1"),
+    path("subscription_data_getall",views.SubscriptionPlan_api_getall.as_view(),name="subscription_data_getall"),
     path("subscription_data",views.SubscriptionPlan_api.as_view(),name="subscription_data"),
     path("subscription_data/<pk>",views.SubscriptionPlan_api.as_view(),name="subscription_data1"),
     path("notification_data",views.Notification_api.as_view(),name="notification_data"),

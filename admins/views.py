@@ -2675,6 +2675,20 @@ class albums_song_search_list(APIView):
 
 
 """
+
+
+class SubscriptionPlan_api_getall(APIView):
+    @ is_authenticate()
+    def get(self, request):
+        plan=list(admin_models.SubscriptionPlan.objects.filter()) 
+        f1=serializers.SubscriptionPlan_data(plan, many=True)
+        return Response({'success':'true',
+                    'error_msg':'',
+                    'errors':{},
+                    'response':{"plan_data":f1.data}
+                    },status=status.HTTP_200_OK)
+        
+
 #view,edit,add,delete a subscription plan
 class SubscriptionPlan_api(APIView):
     @ is_authenticate()
