@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync,sync_to_async
 from channels.layers import get_channel_layer
 from .models import Notification_admin
 from accounts.models import Admins, Users
+from admins.serializers import Notification_data
 
 import json
 
@@ -21,16 +22,26 @@ def create_notification(receiver,typeof="task_created",status="unread"):
     print('I am here to help')
     return (notification_to_create.user_revoker.username,notification_to_create.type_of_notification)
 
+@database_sync_to_async
+def create_data():
+    notifications_unread = Notification_admin.objects.filter(status = "unread").count()
+    notifications = Notification_admin.objects.all().order_by('created_at')[:9]
+    data = {
+        'notifications_unread': notifications_unread + 1,
+        'notifications': Notification_data(notifications, many=True).data,
+    }
+    return data
+
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def websocket_connect(self,event):
             print('connected',event)
             print('Am i finallyy here')
             print(self.scope['user'].id)
             await self.accept()
-            await self.send(json.dumps({
-                "type":"websocket.send",
-                "text":"hello world"
-                }))
+            
+            data = await create_data()
+
+            await self.send(json.dumps(data))
             self.room_name='admin_group'   
             self.room_group_name='admin_group'
             await self.channel_layer.group_add(self.room_group_name,self.channel_name)
