@@ -26,7 +26,9 @@ class Admins(models.Model):
     REQUIRED_FIELDS = ['first_name','last_name']
 class Users(models.Model):
     email=models.EmailField(verbose_name="email", max_length=60, unique=True)
-    full_name=models.CharField(max_length=100)
+    full_name=models.CharField(max_length=100, default="")
+    first_name=models.CharField(max_length=100, default="")
+    last_name=models.CharField(max_length=100, default="")
     country_code=models.CharField(max_length=10)
     phone_number=models.CharField(max_length=15)
     password=models.TextField(default="")
