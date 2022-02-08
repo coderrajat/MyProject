@@ -1650,8 +1650,13 @@ class playlist_admin_addsong(APIView):
             
             for i in temp:
                 pass
-            j=i.songs.all()
-           
+            exist = list(i.songs.all())
+            if(song in exist):
+                return Response({'success':'false',
+                                'error_msg':"Song already added",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
            
             #j_id=j.get(id=song_id)
             i.songs.add(add_song_id)
@@ -1837,7 +1842,14 @@ class Add_Songs_to_Charts(APIView):
             chart=admin_models.charts_admin.objects.get(pk=int(request.POST["chart_id"]))
            
 
-            
+            exist = list(chart.songs.all())
+            if(song in exist):
+                return Response({'success':'false',
+                                'error_msg':"Song already added",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
+
             chart.songs.add(song)
             chart.save()
             return Response({'success':'true',
@@ -2151,6 +2163,13 @@ class Artist_song_data(APIView):
             artist=admin_models.artist.objects.get(pk=int(request.POST["artist_id"]))
            
 
+            exist = list(song.artist.all())
+            if(artist in exist):
+                return Response({'success':'false',
+                                'error_msg':"Artist already added",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
             
             song.artist.add(artist)
             song.save()
@@ -2852,6 +2871,14 @@ class Artist_song_add(APIView):
         try:
             song=admin_models.songs.objects.get(pk=int(request.POST["song_id"]))
             artist=admin_models.artist.objects.get(pk=int(request.POST["artist_id"]))
+
+            exist = list(song.artist.all())
+            if(artist in exist):
+                return Response({'success':'false',
+                                'error_msg':"Artist already added",
+                                'errors':{},
+                                'response':{}
+                                },status=status.HTTP_400_BAD_REQUEST)
             song.artist.add(artist)
             song.save()
             return Response({'success':'true',
