@@ -2798,14 +2798,8 @@ class Notification_api(APIView):
     @ is_authenticate()
     def get(self, request,pk):
         try:
-            notification=list(admin_models.Notification_admin.objects.filter(pk=pk))
-            if notification==[]:
-                return Response({'success':'false',
-                        'error_msg':"Data not exists in database",
-                        'errors':{},
-                        'response':{}
-                        },status=status.HTTP_400_BAD_REQUEST) 
-            f1=serializers.Notification_data(notification[0])
+            notification=list(admin_models.Notification_admin.objects.filter()) 
+            f1=serializers.Notification_data(notification, many=True)
             return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
