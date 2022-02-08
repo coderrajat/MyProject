@@ -1646,12 +1646,11 @@ class playlist_admin_addsong(APIView):
             #print(temp2[0])
             #print(song_id)
             #print(delete_id)
-
+            temp = temp[0]
             
-            for i in temp:
-                pass
-            exist = list(i.songs.all())
-            if(song in exist):
+            
+            exist = list(temp.songs.all())
+            if(add_song_id in exist):
                 return Response({'success':'false',
                                 'error_msg':"Song already added",
                                 'errors':{},
@@ -1659,10 +1658,11 @@ class playlist_admin_addsong(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
            
             #j_id=j.get(id=song_id)
-            i.songs.add(add_song_id)
-            i.save()
+            temp.songs.add(add_song_id)
+            temp.save()
             
         except Exception as e:
+            print(e)
             return Response({'success':'false',
                                 'error_msg':'ID error',
                                 'errors':{},
@@ -1672,7 +1672,7 @@ class playlist_admin_addsong(APIView):
         return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'all_playlist':serializers.playlist_admin_form(i).data}
+                                'response':{'all_playlist':serializers.playlist_admin_form(temp).data}
                                 },status=status.HTTP_200_OK)
 
 # Playlist Add 
