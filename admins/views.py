@@ -233,7 +233,7 @@ class Faq_section(APIView):
                                 },status=status.HTTP_400_BAD_REQUEST)
 
 class image_settings(APIView):
-    @is_authenticate()
+    #@is_authenticate()
     def get(self,request):
         ims=admin_models.image_settings.objects.get_or_create(id='1',defaults={'deafult_profile_pic': 'deafult_profile_pic.jpeg','default_parking_spot_pic': 'default_parking_spot_pic.jpeg'})[0]
         f1=serializers.image_settings(ims)
