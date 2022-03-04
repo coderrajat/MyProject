@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Admins(models.Model):
-    email=models.EmailField(verbose_name="email", max_length=60, unique=True)
+    email=models.EmailField(verbose_name="email", max_length=60)
     first_name=models.CharField(max_length=100)
     last_name=models.CharField(max_length=100)
     password=models.TextField(default="")
