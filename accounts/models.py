@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Admins(models.Model):
-    email=models.EmailField(verbose_name="email", max_length=60)
+    email=models.EmailField(verbose_name="email", max_length=60, unique=True)
     first_name=models.CharField(max_length=100)
     last_name=models.CharField(max_length=100)
     password=models.TextField(default="")
@@ -25,7 +25,7 @@ class Admins(models.Model):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name','last_name']
 class Users(models.Model):
-    email=models.EmailField(verbose_name="email", max_length=60, unique=True)
+    email=models.EmailField(verbose_name="email", max_length=60)
     full_name=models.CharField(max_length=100, default="")
     first_name=models.CharField(max_length=100, default="")
     last_name=models.CharField(max_length=100, default="")
