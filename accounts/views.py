@@ -332,11 +332,16 @@ class signup_user(APIView):
         uzr=accounts_models.Users()
         uzr.country_code=request.POST["country_code"]
         uzr.phone_number=request.POST["phone_number"]
-        
-        ##
-        print(uzr.country_code)
-        print(uzr.phone_number)
-        ##
+        if request.POST['password']==request.POST['confirm_password']:
+            password=request.POST['password'].encode('utf-8')
+            password=bcrypt.hashpw(password,bcrypt.gensalt())
+            uzr.password=password.decode("utf-8")
+        else:
+            return Response({'success':'false',
+                                    'error_msg':'Confirm Password does not match',
+                                    'errors':{},
+                                    'response':{},
+                                    },status=status.HTTP_400_BAD_REQUEST)
         uzr.otp=random.randint(1000,9999)
         uzr.save()
         tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
