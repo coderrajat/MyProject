@@ -1,9 +1,10 @@
+from itertools import count
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.paginator import Paginator
 from rest_framework import status
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.utils import timezone
 
 #from Mayani_Backend.admins.views import song_album
@@ -69,12 +70,10 @@ class recomended_playlist(APIView):
     def get(self,request):
         gener=['pop','dance&electronics','rock','rockstar','bollywood','folk&acoustic']
         gener=random.choice(gener)
-        print('hiiiii',gener)
-        playlist=list(admin_models.playlist_admin.objects.prefetch_related().filter(gener__icontains=gener))
-        print(playlist)
+        playlist=list(admin_models.playlist_admin.objects.prefetch_related().filter(gener__name__icontains=gener))
         if playlist==[]:
             #a=serializers.song_data(playlist.songs.all())
-            return Response({'success':'true',
+            return Response({'success':'False',
                                 'error_msg':'',
                                 'errors':{},
                                 'response':{},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
@@ -329,9 +328,13 @@ class Add_Song_Playlist(APIView):
         try:
             data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
             requstuser=tools.get_user(*data)
-            song=list(admin_models.songs.objects.filter(pk=request.data["song_id"]))
+            print(requstuser)
+            song=admin_models.songs.objects.filter(pk=request.data["song_id"])
+            song=song[0]
             playlist=admin_models.playlist_admin.objects.get(pk=request.data["playlist_id"])
+            print(playlist)
             if playlist.user==requstuser:
+                print('yes')
                 playlist.songs.add(song)
                 playlist.save()
                 return Response({'success':'true',
@@ -348,7 +351,7 @@ class Add_Song_Playlist(APIView):
         
         except Exception as ex:
             return  Response({'success':'false',
-                            'error_msg':'playlist_id & song_id are required',
+                            'error_msg':str(ex),
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_400_BAD_REQUEST)
@@ -361,7 +364,7 @@ class Aritst_All_Albums_List(APIView):
     def get(self,request):
         f1=admin_serializers.search()
         f2=serializers.pagination()
-        return Response({**f1.data,**f2.data,
+        return Response({**f1.data,**f2.data,'artist_id':'',
                             },status=status.HTTP_202_ACCEPTED)
     
     @is_authenticate()
@@ -402,7 +405,7 @@ class Aritst_All_Albums_List(APIView):
                                         'endIndex':p_r.end_index(),
                                         'totalResults':len(list(result)),
                             },   
-                            },status=status.HTTP_202)
+                            },status=status.HTTP_202_ACCEPTED)
 
 class Aritst_All_Playlist_List(APIView):
     @is_authenticate()
@@ -667,8 +670,13 @@ class User_Downloaded_Songs(APIView):
 class User_Playlist(APIView):
     @is_authenticate()
     def get(self,request):
-        f1=serializers.search()
-        return Response(f1.data,status=status.HTTP_200_OK)
+        f1=admin_serializers.search()
+        f2=admin_serializers.pagination()
+        return Response({'success':'true',
+                            'error_msg':'Please add the required fields in the following',
+                            'errors':{},
+                            'response':{**dict(f1.data),**dict(f2.data)},
+                            },status=status.HTTP_200_OK)
     
     @is_authenticate()
     def post(self, request):
@@ -684,7 +692,12 @@ class User_Playlist(APIView):
                             },status=status.HTTP_400_BAD_REQUEST)
         search=request.data["search"] 
         if search!="":
-            result=list(admin_models.playlist_admin.objects.filter((Q(user__id=requstuser.id)&(Q(name__icontains=search)|Q(gener__icontains=search)))).distinct())
+            q=Q()
+            q1=Q()
+            q1.add(Q(user__id=requstuser.id),Q.AND)
+            q.add(Q(name__icontains=search),Q.OR)
+            q.add(Q(gener__name__icontains=search),Q.OR)
+            result=list(admin_models.playlist_admin.objects.filter(q1&q))
         else:   
              result=list(admin_models.playlist_admin.objects.filter(user__id=requstuser.id))
         if request.POST['order_by']!=None and request.POST['order_by']!='':
@@ -782,6 +795,10 @@ class  Like_Album_By_User(APIView):
 #remove songs from the specific playlist
 class Remove_Song_Playlist(APIView):
     @is_authenticate()
+    def get(self,request):
+        return Response({'song_id':'','playlist_id':''},status=status.HTTP_200_OK)
+
+    @is_authenticate()
     def post(self,request):
         try:
             data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
@@ -803,7 +820,7 @@ class Remove_Song_Playlist(APIView):
                                     },status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
             return  Response({'success':'false',
-                                'error_msg':'invalid input',
+                                'error_msg':str(ex),
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_400_BAD_REQUEST)
@@ -947,7 +964,7 @@ class Dislike_Album_By_User(APIView):
         
         except Exception as e:
             return  Response({'success':'false',
-                            'error_msg':'invalid id',
+                            'error_msg':str(e),
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_400_BAD_REQUEST)
@@ -1152,15 +1169,17 @@ class All_Latest_Songs(APIView):
 #trending songs on basis of likes
 class Trending_Songs(APIView):
     def get(self, request):
-        s=admin_models.songs.objects.annotate(x=Count("likes")).order_by("-x")[:4]
-        print(s)
-        f=serializers.Trending_Song(s,many=True)
-        return  Response({'success':'true',
-                    'error_msg':'',
-                    'errors':{},
-                    'response':{"msg":f.data},
-                    },status=status.HTTP_200_OK)   
-    
+        try:
+            s=admin_models.songs.objects.annotate(x=Count("likes")).order_by("-x")[:4]
+            print(s)
+            f=serializers.Trending_Song(s,many=True)
+            return  Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{"msg":f.data},
+                        },status=status.HTTP_200_OK)   
+        except Exception as e:
+            return Response({'exception':str(e)},status=status.HTTP_400_BAD_REQUEST)
         
 
 #user will select max 5 artist
@@ -1373,10 +1392,11 @@ class User_Current_Subscription_Plan(APIView):
                             'response':{}
                             },status=status.HTTP_400_BAD_REQUEST) 
         except Exception as ex:
+            msg=str(ex)
             return Response({'success':'false',
-                    'error_msg':'id is not valid or data not exist',
+                    'error_msg':msg,
                     'errors':{},
-                    'response':{}
+                    'response':{},
                     },status=status.HTTP_400_BAD_REQUEST)
 
 
