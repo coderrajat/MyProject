@@ -132,8 +132,6 @@ def beautify_errors(*args):
 def send_sms(to,data):
     account_sid = settings.ACCOUNT_SID
     auth_token = settings.AUTH_TOKEN
-    #account_sid='ACd9f25f76012a61b20630ca4c4d39b440'
-    #auth_token='d0b8cb13d6bd7cf67bc1a2ea2b55193f'
     client = Client(account_sid, auth_token)
 
     message = client.messages \
@@ -142,11 +140,9 @@ def send_sms(to,data):
                          #from_=list(admin_models.SMTP_setting.objects.filter(id=1))[0].twilio_phone_number,
                          #to=to#'+15558675310'
                          #body='Hi',
-                         from_='+12069008228',
-                         to='+919958365127'
+                         from_='+14156501429',
+                         to=to
                      )
-    print("this works?")
-    print(message.sid,message)
     return message.sid
 
 def get_base64_to_img(image_data):

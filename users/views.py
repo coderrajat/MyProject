@@ -1436,3 +1436,118 @@ class Genre_Charts(APIView):
 
 
 #-----------
+class user_referral_code(APIView):
+    @is_authenticate()
+    def get(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        print(requstuser.id)
+        code=account_models.Users.objects.filter(id=requstuser.id)
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{"referal_code":serializers.referalserializer(code,many=True).data},
+                        },status=status.HTTP_202_ACCEPTED)
+
+class user_points(APIView):
+    @is_authenticate()
+    def get(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        point=account_models.Users.objects.filter(id=requstuser.id)
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{"Collect_Points":serializers.show_points(point, many=True).data},
+                        },status=status.HTTP_202_ACCEPTED)
+
+class Stream(APIView):
+    @is_authenticate()
+    def get(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        point=account_models.Users.objects.get(id=requstuser.id)
+        if point.stream_count<=1:
+            point.stream_points+=1
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==5:
+            point.stream_points+=2
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==20:
+            point.stream_points+=5
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==50:
+            point.stream_points+=10
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==100:
+            point.stream_points+=20
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==500:
+            point.stream_points+=50
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==1000:
+            point.stream_points+=100
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==2000:
+            point.stream_points+=200
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==5000:
+            point.stream_points+=500
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==10000:
+            point.stream_points+=1000
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==50000:
+            point.stream_points+=2000
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==100000:
+            point.stream_points+=10000
+            point.stream_count+=1
+            point.save()
+        elif point.stream_count==500000:
+            point.stream_points+=20000
+            point.stream_count+=1
+            point.save()
+        else:
+            point.stream_count+=1
+            point.save()
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{},
+                        },status=status.HTTP_202_ACCEPTED)
+
+class new_songs(APIView):
+    def get(self,request):
+        song=admin_models.songs.objects.all().order_by('-year')
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{'song':serializers.new_song(song,many=True).data},
+                        },status=status.HTTP_202_ACCEPTED)
+
+"""
+class subscription(APIView):
+    @is_authenticate()
+    def get(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        subscriber=account_models.Users.objects.get(id=requstuser.id)
+        total=subscriber.stream_points+subscriber.invitation_points+subscriber.sigup_points
+        if total>=30 and total<50:
+            subscriber.subscription_plan='weekly'
+            subscriber.save()
+            =total-30
+            
+"""          

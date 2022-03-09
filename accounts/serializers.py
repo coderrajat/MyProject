@@ -3,6 +3,7 @@ from . import models
 from django.core.exceptions import ValidationError
 from rest_framework.exceptions import AuthenticationFailed
 from django.utils.translation import gettext_lazy as _
+import admins.models as admin_models
 def is_small(data):
     for i in data:
         if ord(i)>=97 and ord(i)<=122:
@@ -160,4 +161,8 @@ class users_login(serializers.Serializer):
     email=serializers.CharField(max_length=200)
     password=serializers.CharField(max_length=155,required=False)
 
+class user_serailizer(serializers.ModelSerializer):
+    class Meta:
+        model=models.Users
+        fields=('invitation_points',)
 
