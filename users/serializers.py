@@ -1,3 +1,4 @@
+from numpy import source
 from rest_framework import serializers
 from admins import models as admin_models
 from accounts import models as account_models
@@ -199,7 +200,7 @@ class Album_Data_Artist(serializers.ModelSerializer):
 class Trending_Song(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
-        fields=["id","name","likes"]
+        fields=["id","name","cover"]
 
 
 class User_feed_back(serializers.ModelSerializer):
@@ -217,12 +218,20 @@ class Genre_Chart_Serializer(serializers.Serializer):
     genre_id = serializers.IntegerField(required=True)
     limit = serializers.IntegerField(required=True)
 
+class show_points(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        fields=('invitation_points','signup_points','stream_points',)
+        
 
 
-
-
-
-
-
+class referalserializer(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        fields=('referral_code',)
     
  
+class new_song(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=('__all__')

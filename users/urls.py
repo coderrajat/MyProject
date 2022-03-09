@@ -66,4 +66,10 @@ urlpatterns=[
    
     #Genre Charts 
     path("genre_charts",views.Genre_Charts.as_view(),name="genre_charts"),
+
+    #######################################################3
+    path("user_points",views.user_points.as_view(),name='show_user_points_api'),
+    path("referral_code",views.user_referral_code.as_view(),name='referral_code'),
+    path("stream_point",views.Stream.as_view(),name='strammer'),
+    path("new_song",views.new_songs.as_view(),name='new_song'),
     ]

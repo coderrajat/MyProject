@@ -308,7 +308,7 @@ class signup_user(APIView):
       
         f1=serializers.signup_user()
 
-        return Response({**f1.data,
+        return Response({**f1.data,"confirm_password":'',
                             },status=status.HTTP_200_OK)
     def post(self,request):
         f1=serializers.signup_user(data=request.POST)
@@ -330,6 +330,40 @@ class signup_user(APIView):
             else:
               uzr.delete()
         uzr=accounts_models.Users()
+        if request.POST['referral_code']!='':
+            val=int(request.POST['referral_code'],16)
+            try:
+                result=accounts_models.Users.objects.get(id=val)
+            except:
+                 return Response({'success':'false',
+                                    'error_msg':'referral code is not valid',
+                                    'errors':{},
+                                    'response':{},
+                                    },status=status.HTTP_200_OK)
+            if result.subscription_plan.lower()=='weekly':
+                result.invitation_points+=30
+                result.save()
+                uzr.signup_points=15
+                uzr.save()
+            elif result.subscription_plan.lower()=='monthly':
+                result.invitation_points+=50
+                result.save()
+                uzr.signup_points=25
+                uzr.save()
+            elif result.subscription_plan.lower()=='yearly':
+                result.invitation_points+=1500
+                result.save()
+                uzr.signup_points=125
+                uzr.save()
+            else:
+                result.invitation_points+=10
+                result.save()
+                uzr.signup_points=7
+                uzr.save()
+        else:
+            uzr.signup_points=5
+            uzr.save()
+
         uzr.country_code=request.POST["country_code"]
         uzr.phone_number=request.POST["phone_number"]
         if request.POST['password']==request.POST['confirm_password']:
@@ -344,18 +378,20 @@ class signup_user(APIView):
                                     },status=status.HTTP_400_BAD_REQUEST)
         uzr.otp=random.randint(1000,9999)
         uzr.save()
-        tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
-           )
+        uzr.referral_code=hex(uzr.id)
+        uzr.save()
+        
+        #tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
+        #  )
          
         try:
             
             tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
            )
         
-         
         except Exception as e:
              return Response({'success':'false',
-                                 'error_msg':'please try again later',
+                                 'error_msg':str(e),
                                  'errors':'',
                                  'response':{},
                                  },status=status.HTTP_200_OK)

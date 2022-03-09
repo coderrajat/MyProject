@@ -181,8 +181,8 @@ class Feedback(models.Model):
     message=models.CharField(max_length=500)
     user=models.ForeignKey(Users,on_delete=models.SET_NULL,null=True,blank=True,related_name="users_name")
 
-
     
+
 
 
 

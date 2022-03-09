@@ -26,6 +26,7 @@ admin.site.register(models.Feedback)
 
 
 
+
 # admin.site.register(models.CMS)
 
 

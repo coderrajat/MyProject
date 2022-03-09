@@ -25,12 +25,16 @@ class Admins(models.Model):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name','last_name']
 class Users(models.Model):
+<<<<<<< HEAD
     email=models.EmailField(verbose_name="email", max_length=60)
+=======
+    email=models.EmailField(verbose_name="email", max_length=60, unique=False)
+>>>>>>> mayani-rj
     full_name=models.CharField(max_length=100, default="")
     first_name=models.CharField(max_length=100, default="")
     last_name=models.CharField(max_length=100, default="")
     country_code=models.CharField(max_length=10)
-    phone_number=models.CharField(max_length=15)
+    phone_number=models.CharField(max_length=15, unique=True)
     password=models.TextField(default="")
 
     gender=models.CharField(max_length=15)#Male femail others
@@ -48,5 +52,11 @@ class Users(models.Model):
     token=models.CharField(max_length=10,default='')
     subscription_plan=models.CharField(max_length=100,default='free')
     
+    referral_code=models.TextField(null=True)
+    signup_points=models.IntegerField(default=0)
+    invitation_points=models.IntegerField(default=0)
+    stream_points=models.IntegerField(default=0)
+    stream_count=models.IntegerField(default=0)
+
     #USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ["country_code","phone_number"]
