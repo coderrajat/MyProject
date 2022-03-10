@@ -343,12 +343,12 @@ class signup_user(APIView):
             if result.subscription_plan.lower()=='weekly':
                 result.invitation_points+=30
                 result.save()
-                uzr.signup_points=15
+                uzr.signup_points=25
                 uzr.save()
             elif result.subscription_plan.lower()=='monthly':
-                result.invitation_points+=50
+                result.invitation_points+=125
                 result.save()
-                uzr.signup_points=25
+                uzr.signup_points=50
                 uzr.save()
             elif result.subscription_plan.lower()=='yearly':
                 result.invitation_points+=1500
