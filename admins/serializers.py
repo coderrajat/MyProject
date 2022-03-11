@@ -509,6 +509,7 @@ class Admin_User_Subscription_Plan(serializers.ModelSerializer):
     class Meta:
         model=admin_models.Subscription_History
         fields=["id","user","subscription","active","expire"]
+        depth=1
 
 class Genere_Serializer(serializers.ModelSerializer):
     class Meta: 

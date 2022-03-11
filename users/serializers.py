@@ -235,3 +235,8 @@ class new_song(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
         fields=('__all__')
+    
+class points_history(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.Points_History
+        fields=('__all__')

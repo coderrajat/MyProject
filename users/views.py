@@ -1,3 +1,4 @@
+from ast import Param
 from itertools import count
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -25,6 +26,7 @@ import os
 from django.utils import timezone
 import boto3
 import json
+from django.conf import settings
 
 # from . import tools
 def is_authenticate(*Dargs,**Dkwargs):
@@ -1020,15 +1022,21 @@ class Download_Song_By_User(APIView):
     @is_authenticate()
     def get(self,request,song_id):
         #try:
-            data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
-            requstuser=tools.get_user(*data)
-            
-            song=admin_models.songs.objects.get(pk=song_id)
-            s3_client=boto3.client("s3")
-            r=s3_client.get_object(Bucket="mayanis3",Key="images/songs/song.mp3",aws_acess_key_id='AKIAWZRQG6YB6AULJEWD',aws_secret_acess_key='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')
-            d=r["Body"].read()
-            print(d)
-                
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID
+        Bucket=settings.AWS_STORAGE_BUCKET_NAME
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        s3_client=boto3.client("s3",aws_secret_access_key=aws_secret_access_key,aws_access_key_id=aws_access_key_id)
+        data={'Bucket':Bucket,'Key':"images/songs/song.mp3"}
+        r=s3_client.generate_presigned_url('get_object',Params=data,ExpiresIn=600)
+        
+        print(r)
+        return  Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{r},
+                        },status=status.HTTP_202_ACCEPTED)  
 
 """
             #=admin_serializers.song_data(song)
@@ -1467,58 +1475,99 @@ class Stream(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         point=account_models.Users.objects.get(id=requstuser.id)
+        history=admin_models.Points_History()
+        
         if point.stream_count<=1:
             point.stream_points+=1
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=1
+            history.save()
         elif point.stream_count==5:
             point.stream_points+=2
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=2
+            history.save()
         elif point.stream_count==20:
             point.stream_points+=5
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=5
+            history.save()
         elif point.stream_count==50:
             point.stream_points+=10
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=10
+            history.save()
         elif point.stream_count==100:
             point.stream_points+=20
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=20
+            history.save()
         elif point.stream_count==500:
             point.stream_points+=50
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=50
+            history.save()
         elif point.stream_count==1000:
             point.stream_points+=100
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=100
+            history.save()
         elif point.stream_count==2000:
             point.stream_points+=200
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=200
+            history.save()
         elif point.stream_count==5000:
             point.stream_points+=500
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=500
+            history.save()
         elif point.stream_count==10000:
             point.stream_points+=1000
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=1000
+            history.save()
         elif point.stream_count==50000:
             point.stream_points+=2000
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=2000
+            history.save()
         elif point.stream_count==100000:
             point.stream_points+=10000
             point.stream_count+=1
             point.save()
-        elif point.stream_count==500000:
+            history.user=point
+            history.stream_track=10000
+            history.save()
+        elif point.stream_count==200000:
             point.stream_points+=20000
             point.stream_count+=1
             point.save()
+            history.user=point
+            history.stream_track=20000
+            history.save()
         else:
             point.stream_count+=1
             point.save()
@@ -1537,17 +1586,169 @@ class new_songs(APIView):
                         'response':{'song':serializers.new_song(song,many=True).data},
                         },status=status.HTTP_202_ACCEPTED)
 
-"""
+
 class subscription(APIView):
+    @is_authenticate()
+    def post(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        subscriber=account_models.Users.objects.get(id=requstuser.id)
+        plan=admin_models.SubscriptionPlan.objects.all()
+        total=subscriber.stream_points+subscriber.invitation_points+subscriber.signup_points
+        history=admin_models.Points_History()
+        sub_history=admin_models.Subscription_History()
+        print(total)
+        if request.POST['plan']=='weeklyplan':
+            price=500
+            coin=30
+            bal=total
+        if request.POST['plan']=='monthlyplan':
+            price=1600
+            coin=125
+            bal=total
+        if request.POST['plan']=='yearlyplan':
+            price=16000
+            coin=1500
+            bal=total
+        if total>=30 and plan[0].plan_name.lower()==request.POST['plan'].lower():
+            subscriber.subscription_plan=plan[0].plan_name
+            subscriber.save()
+            history.user=subscriber
+            history.used_track='30'
+            history.save()
+            sub_history.user=subscriber
+            sub_history.subscription=plan[1]
+            expire=datetime.datetime.now()+datetime.timedelta(days=7)
+            sub_history.expire=expire
+            sub_history.save()
+            if subscriber.stream_points<=(total-30):
+                subscriber.stream_points=total-30
+                subscriber.invitation_points=0
+                subscriber.signup_points=0
+                subscriber.save()
+            elif subscriber.invitation_points<=(total-30):
+                subscriber.invitation_points=total-30
+                subscriber.stream_points=0
+                subscriber.signup_points=0
+                subscriber.save()
+            elif subscriber.signup_points<=(total-30):
+                subscriber.signup_points=total-30
+                subscriber.stream_points=0
+                subscriber.invitation_points=0
+                subscriber.save()
+            else:
+                subscriber.stream_points=0
+                subscriber.invitation_points=0
+                subscriber.signup_points=0
+            return Response({'success':'True',
+                        'error_msg':'success',
+                        'errors':{},
+                        'response':{},
+                        },status=status.HTTP_202_ACCEPTED)
+        elif total>=125 and plan[1].plan_name.lower()==request.POST['plan'].lower():
+            subscriber.subscription_plan=plan[1].plan_name
+            subscriber.save()
+            history.used_track='125'
+            history.save()
+            history.user=subscriber
+            history.used_track='125'
+            history.save()
+            sub_history.user=subscriber
+            sub_history.subscription=plan[1]
+            expire=datetime.datetime.now()+datetime.timedelta(days=30)
+            sub_history.expire=expire
+            sub_history.save()
+            if subscriber.stream_points<=(total-125):
+                print(total-125)
+                subscriber.stream_points=total-125
+                subscriber.invitation_points=0
+                subscriber.signup_points=0
+                total=0
+                subscriber.save()
+            elif subscriber.invitation_points<=(total-125):
+                subscriber.invitation_points=total-125
+                subscriber.stream_points=0
+                subscriber.signup_points=0
+                total=0
+                subscriber.save()
+            elif subscriber.signup_points<=(total-125):
+                subscriber.signup_points=total-125
+                subscriber.stream_points=0
+                subscriber.invitation_points=0
+                total=0
+                subscriber.save()
+            else:
+                subscriber.stream_points=0
+                subscriber.invitation_points=0
+                subscriber.signup_points=0
+            return Response({'success':'True',
+                        'error_msg':'success',
+                        'errors':{},
+                        'response':{},
+                        },status=status.HTTP_202_ACCEPTED)
+        elif total>=1500 and plan[2].plan_name.lower()==request.POST['plan'].lower():
+            subscriber.subscription_plan=plan[2].plan_name
+            subscriber.save()
+            history.used_track='1500'
+            history.user=subscriber
+            history.save()
+            sub_history.user=subscriber
+            sub_history.subscription=plan[2]
+            expire=datetime.datetime.now()+datetime.timedelta(days=360)
+            sub_history.expire=expire
+            sub_history.save()
+            if subscriber.stream_points<=(total-1500):
+                subscriber.stream_points=total-1500
+                subscriber.invitation_points=0
+                subscriber.signup_points=0
+                total=0
+                subscriber.save()
+            elif subscriber.invitation_points<=(total-1500):
+                subscriber.invitation_points=total-1500
+                subscriber.stream_points=0
+                subscriber.signup_points=0
+                total=0
+                subscriber.save()
+            elif subscriber.signup_points<=(total-1500):
+                subscriber.signup_points=total-1500
+                subscriber.stream_points=0
+                subscriber.invitation_points=0
+                total=0
+                subscriber.save()
+            else:
+                subscriber.stream_points=0
+                subscriber.invitation_points=0
+                subscriber.signup_points=0
+                subscriber.save()
+            return Response({'success':'True',
+                        'error_msg':'success',
+                        'errors':{},
+                        'response':{},
+                        },status=status.HTTP_202_ACCEPTED)
+        elif request.POST['pay']=='pay':
+            amt=((price/coin)*bal-price)*(-1)
+            return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{'you have to pay '+str(amt)},
+                        },status=status.HTTP_202_ACCEPTED)
+
+        else:
+            return Response({'success':'false',
+                        'error_msg':'You have insufficient coins still you want to purchase the plan?',
+                        'errors':{},
+                        'response':{},
+                        },status=status.HTTP_202_ACCEPTED)
+
+class point_history(APIView):
     @is_authenticate()
     def get(self,request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        subscriber=account_models.Users.objects.get(id=requstuser.id)
-        total=subscriber.stream_points+subscriber.invitation_points+subscriber.sigup_points
-        if total>=30 and total<50:
-            subscriber.subscription_plan='weekly'
-            subscriber.save()
-            =total-30
-            
-"""          
+        histo=admin_models.Points_History.objects.filter(user=requstuser.id)
+        return Response({'success':'false',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{'history':serializers.points_history(histo,many=True).data},
+                        },status=status.HTTP_202_ACCEPTED)
+

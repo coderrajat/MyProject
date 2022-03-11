@@ -72,4 +72,7 @@ urlpatterns=[
     path("referral_code",views.user_referral_code.as_view(),name='referral_code'),
     path("stream_point",views.Stream.as_view(),name='strammer'),
     path("new_song",views.new_songs.as_view(),name='new_song'),
+    path("subscription",views.subscription.as_view(),name='subscription_by_points'),
+    path("point_history",views.point_history.as_view(),name='point_history'),
+
     ]
