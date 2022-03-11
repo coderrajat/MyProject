@@ -330,6 +330,7 @@ class signup_user(APIView):
             else:
               uzr.delete()
         uzr=accounts_models.Users()
+        history=admin_models.Points_History()
         if request.POST['referral_code']!='':
             val=int(request.POST['referral_code'],16)
             try:
@@ -343,26 +344,43 @@ class signup_user(APIView):
             if result.subscription_plan.lower()=='weekly':
                 result.invitation_points+=30
                 result.save()
-                uzr.signup_points=15
-                uzr.save()
-            elif result.subscription_plan.lower()=='monthly':
-                result.invitation_points+=50
-                result.save()
                 uzr.signup_points=25
                 uzr.save()
+                var1=25
+                history.user=result
+                history.invite_point=30
+                history.save()
+            elif result.subscription_plan.lower()=='monthly':
+                result.invitation_points+=125
+                result.save()
+                uzr.signup_points=50
+                uzr.save()
+                var1=50
+                history.user=result
+                history.invite_point=125
+                history.save()
             elif result.subscription_plan.lower()=='yearly':
                 result.invitation_points+=1500
                 result.save()
                 uzr.signup_points=125
                 uzr.save()
+                var1=125
+                history.user=result
+                history.invite_point=1500
+                history.save()
             else:
                 result.invitation_points+=10
                 result.save()
                 uzr.signup_points=7
                 uzr.save()
+                var1=7
+                history.user=result
+                history.invite_point=10
+                history.save()
         else:
             uzr.signup_points=5
             uzr.save()
+            var1=5
 
         uzr.country_code=request.POST["country_code"]
         uzr.phone_number=request.POST["phone_number"]
@@ -380,7 +398,18 @@ class signup_user(APIView):
         uzr.save()
         uzr.referral_code=hex(uzr.id)
         uzr.save()
-        
+        obj=accounts_models.Users.objects.get(id=uzr.id)
+        plan=admin_models.SubscriptionPlan.objects.filter(plan_name='free')
+        sub_history=admin_models.Subscription_History()
+        sub_history.user=obj
+        sub_history.subscription=plan[0]
+        expire=datetime.datetime.now()+datetime.timedelta(days=30)
+        sub_history.expire=expire
+        sub_history.save()
+        history=admin_models.Points_History()
+        history.user=obj
+        history.sigin_track=var1
+        history.save()
         #tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
         #  )
          

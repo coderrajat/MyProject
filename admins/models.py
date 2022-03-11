@@ -94,6 +94,13 @@ class songs(models.Model):
     charts=models.CharField(max_length=400,blank=True,default='')
     year=models.DateField(default=datetime.now(), blank=True)
     no_of_times_played=models.IntegerField(default=0)
+    ####Credits
+    producer=models.CharField(max_length=400,blank=True,default='')
+    writer=models.CharField(max_length=400,blank=True,default='')
+    mixing=models.CharField(max_length=400,blank=True,default='')
+    mastering=models.CharField(max_length=400,blank=True,default='')
+    artwork=models.CharField(max_length=400,blank=True,default='')
+    photographer=models.CharField(max_length=400,blank=True,default='')
 
 class playlist_admin(models.Model):
     name=models.CharField(max_length=400) 
@@ -181,7 +188,13 @@ class Feedback(models.Model):
     message=models.CharField(max_length=500)
     user=models.ForeignKey(Users,on_delete=models.SET_NULL,null=True,blank=True,related_name="users_name")
 
-    
+class Points_History(models.Model):
+    user=models.ForeignKey(Users,on_delete=models.CASCADE,null=True,blank=True,related_name="users_points")
+    sigin_track=models.CharField(max_length=264,null=True,blank=True)
+    invite_point=models.CharField(max_length=264,null=True,blank=True)
+    stream_track=models.CharField(max_length=264,null=True,blank=True)
+    used_track=models.CharField(max_length=264,null=True,blank=True)
+    daytime=models.DateTimeField(default=datetime.now())
 
 
 

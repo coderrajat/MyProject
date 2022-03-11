@@ -20,7 +20,7 @@ admin.site.register(models.Subscription_History)
 admin.site.register(models.Generes)
 admin.site.register(models.charts_admin)
 admin.site.register(models.Feedback)
-
+admin.site.register(models.Points_History)
 
 
 
