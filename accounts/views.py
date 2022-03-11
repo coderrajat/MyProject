@@ -399,7 +399,7 @@ class signup_user(APIView):
         uzr.referral_code=hex(uzr.id)
         uzr.save()
         obj=accounts_models.Users.objects.get(id=uzr.id)
-        plan=admin_models.SubscriptionPlan.objects.filter(plan_name='free')
+        plan=admin_models.SubscriptionPlan.objects.filter(plan_type='Free')
         sub_history=admin_models.Subscription_History()
         sub_history.user=obj
         sub_history.subscription=plan[0]
