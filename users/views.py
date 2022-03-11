@@ -1593,7 +1593,10 @@ class subscription(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         subscriber=account_models.Users.objects.get(id=requstuser.id)
-        plan=admin_models.SubscriptionPlan.objects.all()
+        plan1=admin_models.SubscriptionPlan.objects.filter(plan_type='Weeklyplan')
+        plan2=admin_models.SubscriptionPlan.objects.filter(plan_type='Monthlyplan')
+        plan3=admin_models.SubscriptionPlan.objects.filter(plan_type='Yearlyplan')
+        print(plan3)
         total=subscriber.stream_points+subscriber.invitation_points+subscriber.signup_points
         history=admin_models.Points_History()
         sub_history=admin_models.Subscription_History()
@@ -1610,14 +1613,14 @@ class subscription(APIView):
             price=16000
             coin=1500
             bal=total
-        if total>=30 and plan[0].plan_name.lower()==request.POST['plan'].lower():
-            subscriber.subscription_plan=plan[0].plan_name
+        if total>=30 and plan1[0].plan_type.lower()==request.POST['plan'].lower():
+            subscriber.subscription_plan=plan1[0].plan_type
             subscriber.save()
             history.user=subscriber
             history.used_track='30'
             history.save()
             sub_history.user=subscriber
-            sub_history.subscription=plan[1]
+            sub_history.subscription=plan1[0]
             expire=datetime.datetime.now()+datetime.timedelta(days=7)
             sub_history.expire=expire
             sub_history.save()
@@ -1645,8 +1648,8 @@ class subscription(APIView):
                         'errors':{},
                         'response':{},
                         },status=status.HTTP_202_ACCEPTED)
-        elif total>=125 and plan[1].plan_name.lower()==request.POST['plan'].lower():
-            subscriber.subscription_plan=plan[1].plan_name
+        elif total>=125 and plan2[0].plan_type.lower()==request.POST['plan'].lower():
+            subscriber.subscription_plan=plan2[0].plan_type
             subscriber.save()
             history.used_track='125'
             history.save()
@@ -1654,7 +1657,7 @@ class subscription(APIView):
             history.used_track='125'
             history.save()
             sub_history.user=subscriber
-            sub_history.subscription=plan[1]
+            sub_history.subscription=plan2[0]
             expire=datetime.datetime.now()+datetime.timedelta(days=30)
             sub_history.expire=expire
             sub_history.save()
@@ -1686,14 +1689,14 @@ class subscription(APIView):
                         'errors':{},
                         'response':{},
                         },status=status.HTTP_202_ACCEPTED)
-        elif total>=1500 and plan[2].plan_name.lower()==request.POST['plan'].lower():
-            subscriber.subscription_plan=plan[2].plan_name
+        elif total>=1500 and plan3[0].plan_type.lower()==request.POST['plan'].lower():
+            subscriber.subscription_plan=plan3[0].plan_type
             subscriber.save()
             history.used_track='1500'
             history.user=subscriber
             history.save()
             sub_history.user=subscriber
-            sub_history.subscription=plan[2]
+            sub_history.subscription=plan3[0]
             expire=datetime.datetime.now()+datetime.timedelta(days=360)
             sub_history.expire=expire
             sub_history.save()

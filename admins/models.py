@@ -123,6 +123,7 @@ class charts_admin(models.Model):
    
   
 Plan_Type=(
+            ("Free","Free"),
            ("Monthlyplan","Monthlyplan"),
            ("Weeklyplan","Weeklyplan"),
            ("Yearlyplan","Yearlyplan"),
