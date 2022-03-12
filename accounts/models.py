@@ -33,9 +33,7 @@ class Users(models.Model):
     phone_number=models.CharField(max_length=15, unique=True)
     password=models.TextField(default="")
 
-    gender=models.CharField(max_length=15)#Male femail others
-    facebook=models.CharField(max_length=2000,default="")
-    instagram=models.CharField(max_length=2000,default="")
+    gender=models.CharField(max_length=15)#Male female others
     bio=models.CharField(max_length=500,default="")
     profile_pic=models.ImageField(upload_to='images/profile',default='deafult_profile_pic.jpeg')
     otp=models.CharField(max_length=200,default='')
