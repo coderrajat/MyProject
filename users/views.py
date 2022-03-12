@@ -98,7 +98,7 @@ class Songs_search(APIView):
     def get(self,request):
         f1=serializers.search_song()
         f2=serializers.pagination()
-        print(f1.data)
+        #print(f1.data)
         return Response({**f1.data,**f2.data,
                             },status=status.HTTP_202_ACCEPTED)
     @is_authenticate()                          
@@ -330,13 +330,13 @@ class Add_Song_Playlist(APIView):
         try:
             data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
             requstuser=tools.get_user(*data)
-            print(requstuser)
+            #print(requstuser)
             song=admin_models.songs.objects.filter(pk=request.data["song_id"])
             song=song[0]
             playlist=admin_models.playlist_admin.objects.get(pk=request.data["playlist_id"])
-            print(playlist)
+            #print(playlist)
             if playlist.user==requstuser:
-                print('yes')
+                #print('yes')
                 playlist.songs.add(song)
                 playlist.save()
                 return Response({'success':'true',
@@ -1031,7 +1031,7 @@ class Download_Song_By_User(APIView):
         data={'Bucket':Bucket,'Key':"images/songs/song.mp3"}
         r=s3_client.generate_presigned_url('get_object',Params=data,ExpiresIn=600)
         
-        print(r)
+        #print(r)
         return  Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
@@ -1179,7 +1179,6 @@ class Trending_Songs(APIView):
     def get(self, request):
         try:
             s=admin_models.songs.objects.annotate(x=Count("likes")).order_by("-x")[:4]
-            print(s)
             f=serializers.Trending_Song(s,many=True)
             return  Response({'success':'true',
                         'error_msg':'',
@@ -1449,7 +1448,6 @@ class user_referral_code(APIView):
     def get(self,request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        print(requstuser.id)
         code=account_models.Users.objects.filter(id=requstuser.id)
         return Response({'success':'true',
                         'error_msg':'',
@@ -1471,10 +1469,13 @@ class user_points(APIView):
 
 class Stream(APIView):
     @is_authenticate()
-    def get(self,request):
+    def get(self,request,song_id):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         point=account_models.Users.objects.get(id=requstuser.id)
+        song=admin_models.songs.objects.get(id=song_id)
+        song.no_of_times_played+=1
+        song.save()
         history=admin_models.Points_History()
         
         if point.stream_count<=1:
@@ -1596,11 +1597,11 @@ class subscription(APIView):
         plan1=admin_models.SubscriptionPlan.objects.filter(plan_type='Weeklyplan')
         plan2=admin_models.SubscriptionPlan.objects.filter(plan_type='Monthlyplan')
         plan3=admin_models.SubscriptionPlan.objects.filter(plan_type='Yearlyplan')
-        print(plan3)
+        #print(plan3)
         total=subscriber.stream_points+subscriber.invitation_points+subscriber.signup_points
         history=admin_models.Points_History()
         sub_history=admin_models.Subscription_History()
-        print(total)
+        #print(total)
         if request.POST['plan']=='weeklyplan':
             price=500
             coin=30
@@ -1662,7 +1663,7 @@ class subscription(APIView):
             sub_history.expire=expire
             sub_history.save()
             if subscriber.stream_points<=(total-125):
-                print(total-125)
+                #print(total-125)
                 subscriber.stream_points=total-125
                 subscriber.invitation_points=0
                 subscriber.signup_points=0
