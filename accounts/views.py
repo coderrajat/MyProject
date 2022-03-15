@@ -453,6 +453,8 @@ class check_user_otp(APIView):
                                 },status=status.HTTP_200_OK)
         uzr=uzr[0]
         if uzr.otp==request.POST["otp"]:
+            uzr.is_varified=True
+            uzr.save()
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
@@ -533,28 +535,74 @@ class signin_user(APIView):
                                 'response':{},
                                 },status=status.HTTP_200_OK)
         uzr=uzr[0]
-        password=str(request.POST['password']).encode('utf-8')
-        hash_pass=uzr.password.encode('utf-8')
-        print(uzr.password)
-        print(password,hash_pass)
-        if bcrypt.checkpw(password,hash_pass):
-            sec=''
-            for i in range(10):
-                sec+=secrets.choice(secrets.choice([chr(ii) for ii in range(45,123)]))
+        if uzr.is_varified==True:
+            password=str(request.POST['password']).encode('utf-8')
+            hash_pass=uzr.password.encode('utf-8')
+            if bcrypt.checkpw(password,hash_pass):
+                sec=''
+                for i in range(10):
+                    sec+=secrets.choice(secrets.choice([chr(ii) for ii in range(45,123)]))
 
-            uzr.token=sec
-            uzr.last_login=datetime.datetime.now()
-            uzr.save()
-            re=login_user(uzr.id,token=sec)
-            return Response({'success':'true',
-                                'error_msg':'',
-                                'errors':{},
-                                'response':{'user':[serializers.user_data(uzr).data],},
-                                'token':re,
-                            },status=status.HTTP_200_OK)
+                uzr.token=sec
+                uzr.last_login=datetime.datetime.now()
+                uzr.save()
+                re=login_user(uzr.id,token=sec)
+                return Response({'success':'true',
+                                    'error_msg':'',
+                                    'errors':{},
+                                    'response':{'user':[serializers.user_data(uzr).data],},
+                                    'token':re,
+                                },status=status.HTTP_200_OK)
+            return Response({'success':'false',
+                                'error_msg':'invalid credentials',
+                                'response':{},
+                                'errors':'',
+                                },status=status.HTTP_200_OK)
         return Response({'success':'false',
-                            'error_msg':'invalid credentials',
-                            'response':{},
-                            'errors':'',
-                            },status=status.HTTP_200_OK)
+                                'error_msg':'You are not verified',
+                                'response':{},
+                                'errors':'',
+                                },status=status.HTTP_200_OK)
 
+class get_forgotpass_user_otp(APIView):
+    def post(self,request):
+        result=accounts_models.Users.objects.get(phone_number=request.POST['phone_number'])
+        result.otp=random.randint(1000,9999)
+        result.save()
+        try:
+            
+            tools.send_sms('+91'+result.phone_number,str(result.full_name)+' \n your OTP for Mayani \n'+str(result.otp)
+           )
+        
+        except Exception as e:
+             return Response({'success':'false',
+                                 'error_msg':str(e),
+                                 'errors':'',
+                                 'response':{},
+                                 },status=status.HTTP_200_OK)
+        return Response({'success':'true',
+                                 'error_msg':'send successfully',
+                                 'errors':'',
+                                 'response':{'id':result.id},
+                                 },status=status.HTTP_200_OK)
+
+class resend_user_otp(APIView):
+    def get(self,request,user_id):
+        result=accounts_models.Users.objects.get(id=user_id)
+
+        try:
+            
+            tools.send_sms('+91'+result.phone_number,str(result.full_name)+' \n your OTP for Mayani \n'+str(result.otp)
+           )
+        
+        except Exception as e:
+             return Response({'success':'false',
+                                 'error_msg':str(e),
+                                 'errors':'',
+                                 'response':{},
+                                 },status=status.HTTP_200_OK)
+        return Response({'success':'true',
+                                 'error_msg':'send successfully',
+                                 'errors':'',
+                                 'response':{},
+                                 },status=status.HTTP_200_OK)

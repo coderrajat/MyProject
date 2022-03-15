@@ -23,4 +23,6 @@ urlpatterns=[
     # path("login_admin_api",views.login_admin_api.as_view(),name='login_admin_api'),
     # path("login_admin_api",views.login_admin_api.as_view(),name='login_admin_api'),
     #path('all_users', views.userall_data.as_view()),
+    path("get_forgotpass_user_otp",views.get_forgotpass_user_otp.as_view(),name='get_user_otp'),
+    path("resend_otp/<int:user_id>",views.resend_user_otp.as_view(),name='resend_user_otp'),
     ]
