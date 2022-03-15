@@ -494,17 +494,9 @@ class create_password(APIView):
                                 'response':{},
                                 },status=status.HTTP_200_OK)
         uzr=uzr[0]
-        if uzr.otp!=request.POST["otp"]:
-            return Response({'success':'false',
-                                'error_msg':'invalid OTP',
-                                'errors':{},
-                                'response':{},
-                                },status=status.HTTP_200_OK)
         password=request.POST['password'].encode('utf-8')
         uzr.password=bcrypt.hashpw(password,bcrypt.gensalt())
-        print('----',uzr.password)
         uzr.password=uzr.password.decode("utf-8")
-        print(uzr.password)
         uzr.is_varified=True
         uzr.save()
         return Response({'success':'true',

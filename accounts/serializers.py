@@ -147,7 +147,6 @@ class user_data(serializers.ModelSerializer):
         model=models.Users
         exclude=('password','token','otp')
 class create_password(serializers.Serializer):
-    otp=serializers.IntegerField()
     id=serializers.CharField()
     password=serializers.CharField(validators=[validate])
     confirm_password=serializers.CharField()
