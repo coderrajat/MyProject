@@ -30,7 +30,7 @@ class Users(models.Model):
     first_name=models.CharField(max_length=100, default="")
     last_name=models.CharField(max_length=100, default="")
     country_code=models.CharField(max_length=10)
-    phone_number=models.CharField(max_length=15, unique=True)
+    phone_number=models.CharField(max_length=15, unique=False)
     password=models.TextField(default="")
 
     gender=models.CharField(max_length=15)#Male female others

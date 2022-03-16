@@ -2814,7 +2814,7 @@ class SubscriptionPlan_api(APIView):
  #view a notification
 
 class Notification_api(APIView):
-    @ is_authenticate()
+    #@ is_authenticate()
     def get(self, request,pk):
         try:
             notification=list(admin_models.Notification_admin.objects.filter()) 
