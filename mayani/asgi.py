@@ -21,17 +21,18 @@ from django.urls import re_path,path
 from django.core.asgi import get_asgi_application
 
 
-from admins import consumers
-import admins.routing
+from admins import consumers as admins_consumer
+#from users import consumers as user_consumer
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     
     "websocket":AuthMiddlewareStack(
                     URLRouter(
-                    [path('ws/notification_testing',consumers.NotificationConsumer.as_asgi())]
+                    [path(r'^notifications/(?P<stream>\w+)/$',admins_consumer.NotificationConsumer.as_asgi()),
+                    #path(r'notifications/(?P<stream>\w+)/$',user_consumer.NotificationConsumer.as_asgi()),
+                    ]
                 ))
-    
     
     
 })

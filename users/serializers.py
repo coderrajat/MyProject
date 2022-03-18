@@ -240,3 +240,16 @@ class points_history(serializers.ModelSerializer):
     class Meta:
         model=admin_models.Points_History
         fields=('__all__')
+        
+class Notification_data(serializers.ModelSerializer):
+    class Meta:
+        model=user_model.Notification_user
+        fields=["id", "created_at", "type_of_notification", "status"]
+        depth=1
+
+class like_songs(serializers.ModelSerializer):
+    # playlist_admin=
+    class Meta:
+        model=admin_models.songs
+        fields=('__all__')
+        

@@ -331,6 +331,8 @@ class signup_user(APIView):
               uzr.delete()
         uzr=accounts_models.Users()
         history=admin_models.Points_History()
+        notify=admin_models.Notification_admin()
+        notify1=admin_models.Notification_admin()
         if request.POST['referral_code']!='':
             val=int(request.POST['referral_code'],16)
             try:
@@ -354,7 +356,6 @@ class signup_user(APIView):
                 result.invitation_points+=125
                 result.save()
                 uzr.signup_points=50
-                uzr.save()
                 var1=50
                 history.user=result
                 history.invite_point=125
@@ -399,6 +400,7 @@ class signup_user(APIView):
         uzr.referral_code=hex(uzr.id)
         uzr.save()
         obj=accounts_models.Users.objects.get(id=uzr.id)
+        
         plan=admin_models.SubscriptionPlan.objects.filter(plan_type='Free')
         sub_history=admin_models.Subscription_History()
         sub_history.user=obj
@@ -482,7 +484,7 @@ class create_password(APIView):
                                 },status=status.HTTP_200_OK)
         if request.POST["password"]!=request.POST["confirm_password"]:
             return Response({'success':'false',
-                                'error_msg':'password and confirm_password dose not match',
+                                'error_msg':'Confirm password does not match',
                                 'errors':{},
                                 'response':{},
                                 },status=status.HTTP_200_OK)
