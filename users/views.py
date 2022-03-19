@@ -1795,14 +1795,14 @@ class point_history(APIView):
                         'errors':{},
                         'response':{'history':serializers.points_history(histo,many=True).data},
                         },status=status.HTTP_202_ACCEPTED)
-"""
+
 class user_notification_api(APIView):
     @ is_authenticate()
     def get(self, request,user_id):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         try:
-            notification=list(admin_models.Notification_admin.objects.filter((Q(user_sender=requstuser.id)) or (Q(user_sender=user_id)))) 
+            notification=list(admin_models.Notification_user.objects.filter((Q(user_sender=requstuser.id)) or (Q(user_sender=user_id)))) 
             print(notification)
             f1=serializers.Notification_data(notification, many=True)
             return Response({'success':'true',
@@ -1816,7 +1816,7 @@ class user_notification_api(APIView):
                                 'errors':{},
                                 'response':{}
                                 },status=status.HTTP_400_BAD_REQUEST)
-"""
+
 class user_like_song(APIView):
     @is_authenticate()
     def get(self,request):
@@ -1855,7 +1855,7 @@ class Myplalist(APIView):
             return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{'downloaded_song':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data},
+                            'response':{'playlist':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data},
                             },status=status.HTTP_202_ACCEPTED)
         return Response({'success':'true',
                             'error_msg':'',
@@ -1873,7 +1873,7 @@ class Artist_letest_songs(APIView):
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'playlists':serializers.artist_playlist(artist,many=True).data},
+                        'response':{'artist_letest':serializers.artist_playlist(artist,many=True).data},
                         },status=status.HTTP_202_ACCEPTED)
 
 class Artist_album(APIView):

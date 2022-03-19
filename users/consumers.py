@@ -3,8 +3,9 @@ from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync,sync_to_async
 from channels.layers import get_channel_layer
 from .models import Notification_user
-from accounts.models import Admins, Users
-from serializers import Notification_data
+from accounts.models import Users
+from .serializers import Notification_data
+from accounts.tools import get_user, decodetoken
 
 import json
 
@@ -42,8 +43,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             data = await create_data()
 
             await self.send(json.dumps(data))
-            self.room_name='admin_group'   
-            self.room_group_name='admin_group'
+            self.room_name='user_group'   
+            self.room_group_name='user_group'
             await self.channel_layer.group_add(self.room_group_name,self.channel_name)
             
             self.send({
@@ -113,4 +114,4 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data = json.dumps({'message': message}))
 
-""" 
+"""  

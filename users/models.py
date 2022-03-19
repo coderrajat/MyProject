@@ -18,7 +18,7 @@ class Notification_user(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        from serializers import Notification_data
+        from .serializers import Notification_data
         print("Notification was saved")
         channel_layer = get_channel_layer()
         notifications_unread = Notification_user.objects.filter(status = "unread").count()
