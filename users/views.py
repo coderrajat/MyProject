@@ -1208,14 +1208,20 @@ class Preferred_Artist_By_User(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         a=admin_models.artist.objects.get(pk=request.data["artist_id"])
+        print(a)
         if len(admin_models.artist.objects.filter(preferred_by=requstuser.id))>=5:
             return Response({'success':'false',
                             'error_msg':'you can prefer max 3 artist',
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_400_BAD_REQUEST) 
-            
-              
+        a.preferred_by.add(requstuser.id)
+        a.save()
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{},
+                        },status=status.HTTP_200_OK)   
  
 #user will select max 5 album       
 class Preferred_Album_By_User(APIView):
