@@ -860,6 +860,7 @@ class recomended_artist(APIView):
     def get(self,request,id):
         art=random.choice(id)
         artist=list(admin_models.artist.objects.filter(songs__artist__id=art))
+        print(artist)
         #print(artist)
         if artist==[]:
             return Response({'success':'false',
@@ -871,7 +872,7 @@ class recomended_artist(APIView):
             artist=artist[0]
         else:
             artist=artist[random.randint(0,len(artist))]
-        f1=serializers.artist_songs(artist)
+        f1=serializers.artist_songs(artist,many=True)
 
         return Response({'success':'true',
                             'error_msg':'',
@@ -1849,45 +1850,41 @@ class user_downloaded_song(APIView):
 
 class Myplalist(APIView):
     @is_authenticate()
-    def post(self, request):
-        artist_id=request.data["artist_id"]
-        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
-        requstuser=tools.get_user(*data)
-        if artist_id!="":
-            result=list(admin_models.playlist_admin.objects.filter((Q(user=requstuser.id)) & (Q(songs__artist=artist_id))).order_by("year").distinct())
-        else: 
+    def get(self, request):
+        try:
+            data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+            requstuser=tools.get_user(*data)
             result=list(admin_models.playlist_admin.objects.filter((Q(user=requstuser.id))).order_by("-year").distinct())
 
             return Response({'success':'true',
-                            'error_msg':'',
-                            'errors':{},
-                            'response':{'playlist':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data},
-                            },status=status.HTTP_202_ACCEPTED)
-        return Response({'success':'true',
-                            'error_msg':'',
-                            'errors':{},
-                            'response':{'downloaded_song':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data},
-                            },status=status.HTTP_202_ACCEPTED)
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{'playlist':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data},
+                                },status=status.HTTP_202_ACCEPTED)
+        except:
+            return Response({'success':'true',
+                                'error_msg':'Please give the valid input',
+                                'errors':{},},status=status.HTTP_202_ACCEPTED)
 
 
 
 
-class Artist_letest_songs(APIView):
+class Artist_list(APIView):
     @is_authenticate()
     def get(self,request,artist_id):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
         artist=admin_models.songs.objects.filter(artist=artist_id).order_by('-year')
+        artist_album=admin_models.album.objects.filter(artist=artist_id)
+        result=list(admin_models.playlist_admin.objects.filter((Q(user=requstuser.id)) & (Q(songs__artist=artist_id))).order_by("year").distinct())
+        recomended=list(admin_models.artist.objects.all().order_by('-most_played'))
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'artist_letest':serializers.artist_playlist(artist,many=True).data},
-                        },status=status.HTTP_202_ACCEPTED)
-
-class Artist_album(APIView):
-    @is_authenticate()
-    def get(self,request,artist_id):
-        artist=admin_models.album.objects.filter(artist=artist_id)
-        return Response({'success':'true',
-                        'error_msg':'',
-                        'errors':{},
-                        'response':{'album':serializers.artist_album(artist,many=True).data},
+                        'response':{
+                                'artist_latest_song':serializers.artist_playlist(artist,many=True).data[:20],
+                                'album':serializers.artist_album(artist_album,many=True).data,
+                                'playlist':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data[:10],
+                                'recommended_artist':serializers.artist_songs(recomended,many=True).data[:10],
+                                },
                         },status=status.HTTP_202_ACCEPTED)
