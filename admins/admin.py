@@ -27,6 +27,7 @@ admin.site.register(models.Points_History)
 
 
 
+
 # admin.site.register(models.CMS)
 
 

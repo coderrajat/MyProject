@@ -49,7 +49,7 @@ class artist(models.Model):
     most_played=models.IntegerField(default=0)
 class album(models.Model):
     name=models.CharField(max_length=400)
-    #artist=models.ManyToManyField(artist,related_name='albums_artist')
+    artist=models.ManyToManyField(artist,related_name='albums_artist')
     year=models.DateField(default=datetime.now(), blank=True)
     cover=models.ImageField(upload_to='images/album',default='deafult_profile_pic.jpeg')
     likes=models.CharField(max_length=400,null=True,blank=True)
@@ -196,7 +196,5 @@ class Points_History(models.Model):
     stream_track=models.CharField(max_length=264,null=True,blank=True)
     used_track=models.CharField(max_length=264,null=True,blank=True)
     daytime=models.DateTimeField(default=datetime.now())
-
-
 
 

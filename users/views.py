@@ -420,6 +420,8 @@ class Aritst_All_Playlist_List(APIView):
     @is_authenticate()
     def post(self, request):
         artist_id=request.data["artist_id"]
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
         f1=admin_serializers.search(data=request.POST)
         f2=admin_serializers.pagination(data=request.POST)
         if not(f1.is_valid() and f2.is_valid()):
@@ -430,11 +432,9 @@ class Aritst_All_Playlist_List(APIView):
                             },status=status.HTTP_400_BAD_REQUEST)
         search=request.data["search"] 
         if search!="":
-            
-        
-            result=list(admin_models.playlist_admin.objects.filter((Q(songs__artist__pk=artist_id)&(Q(name__icontains=search)|Q(year__icontains=search)|Q(song__icontains=search)))).order_by("year").distinct())
+            result=list(admin_models.playlist_admin.objects.filter(user=requstuser &(Q(songs__artist__icontains=artist_id)&(Q(name__icontains=search)|Q(year__icontains=search)|Q(song__icontains=search)))).order_by("year").distinct())
         else:   
-            result=list(admin_models.playlist_admin.objects.filter(songs__artist__pk=artist_id).order_by("-year").distinct())
+            result=list(admin_models.playlist_admin.objects.filter(user=requstuser & (Q(songs__artist__icontains=artist_id))).order_by("-year").distinct())
         if request.POST['order_by']!=None and request.POST['order_by']!='':
             if request.POST['order_by_type']=='dec':
                 order='-'+request.POST['order_by']
@@ -1823,7 +1823,7 @@ class user_like_song(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         like_song=admin_models.songs.objects.filter(likes=requstuser.id)
-        return Response({'success':'false',
+        return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
                         'response':{'Like_song':serializers.like_songs(like_song,many=True).data},
@@ -1835,7 +1835,7 @@ class user_downloaded_song(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         download_song=admin_models.songs.objects.filter(downloads=requstuser.id)
-        return Response({'success':'false',
+        return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
                         'response':{'downloaded_song':serializers.like_songs(download_song,many=True).data},
@@ -1843,12 +1843,45 @@ class user_downloaded_song(APIView):
 
 class Myplalist(APIView):
     @is_authenticate()
-    def get(self,request):
+    def post(self, request):
+        artist_id=request.data["artist_id"]
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        download_song=admin_models.playlist_admin.objects.filter(user=requstuser.id)
-        return Response({'success':'false',
+        if artist_id!="":
+            result=list(admin_models.playlist_admin.objects.filter((Q(user=requstuser.id)) & (Q(songs__artist=artist_id))).order_by("year").distinct())
+        else: 
+            result=list(admin_models.playlist_admin.objects.filter((Q(user=requstuser.id))).order_by("-year").distinct())
+
+            return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'downloaded_song':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data},
+                            },status=status.HTTP_202_ACCEPTED)
+        return Response({'success':'true',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{'downloaded_song':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data},
+                            },status=status.HTTP_202_ACCEPTED)
+
+
+
+
+class Artist_letest_songs(APIView):
+    @is_authenticate()
+    def get(self,request,artist_id):
+        artist=admin_models.songs.objects.filter(artist=artist_id).order_by('-year')
+        return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'playlists':serializers.Create_Playlist(download_song,many=True).data},
+                        'response':{'playlists':serializers.artist_playlist(artist,many=True).data},
+                        },status=status.HTTP_202_ACCEPTED)
+
+class Artist_album(APIView):
+    @is_authenticate()
+    def get(self,request,artist_id):
+        artist=admin_models.album.objects.filter(artist=artist_id)
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{'album':serializers.artist_album(artist,many=True).data},
                         },status=status.HTTP_202_ACCEPTED)

@@ -252,4 +252,14 @@ class like_songs(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
         fields=('__all__')
+class artist_playlist(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=('__all__')
+        
+
+class artist_album(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.album
+        fields=('__all__')
         
