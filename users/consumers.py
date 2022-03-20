@@ -10,11 +10,11 @@ from accounts.tools import get_user, decodetoken
 import json
 
 @database_sync_to_async
-def get_user(user_id):
+def gets_user(user_id):
     try:
         return Users.objects.get(id=user_id)
     except:
-        return AnonymousUser()
+        return None
 
 
 @database_sync_to_async
@@ -24,9 +24,9 @@ def create_notification(receiver,typeof="task_created",status="unread"):
     return (notification_to_create.user_revoker.username,notification_to_create.type_of_notification)
 
 @database_sync_to_async
-def create_data():
-    notifications_unread = Notification_user.objects.filter(status = "unread").count()
-    notifications = Notification_user.objects.all().order_by('created_at')[:9]
+def create_data(requstuser):
+    notifications_unread = Notification_user.objects.filter(user=requstuser,status = "unread").count()
+    notifications = Notification_user.objects.filter(user=requstuser).order_by('created_at')[:9]
     data = {
         'notifications_unread': notifications_unread + 1,
         'notifications': Notification_data(notifications, many=True).data,
@@ -37,26 +37,36 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def websocket_connect(self,event):
             print('connected',event)
             print('Am i finallyy here')
-            print(self.scope['user'].id)
+            print(self.scope['user'])
             await self.accept()
             
-            data = await create_data()
+            token = self.scope['url_route']['kwargs']['room_name']
+            print(token)
+            if(token == 'auth'):
+                self.room_name='user_group'  
+                self.room_group_name='user_group' 
+                await self.channel_layer.group_add(self.room_group_name,self.channel_name)
 
-            await self.send(json.dumps(data))
-            self.room_name='user_group'   
-            self.room_group_name='user_group'
-            await self.channel_layer.group_add(self.room_group_name,self.channel_name)
-            
-            self.send({
-                "type":"websocket.send",
-                "text":"room made"
-            })
+                await self.send(json.dumps({
+                    "type":"websocket.send",
+                    "text":"room made"
+                }))
+            else:
+                print("----token", token)
+                requstuser=await gets_user(token)
 
+                print("----token", token)
+                print("----user", requstuser)
+
+                self.room_name='user_group'+str(requstuser.id)  
+                self.room_group_name='user_group'+str(requstuser.id) 
+                await self.channel_layer.group_add(self.room_group_name,self.channel_name)
+                data = await create_data(requstuser)
+                await self.send(json.dumps(data))
+                
     async def websocket_receive(self,event):
             print(event)
             data_to_get=json.loads(event['text'])
-            user_to_get=await get_user(int(data_to_get))
-            print(user_to_get)
             """
             get_of=await create_notification(user_to_get)
             self.room_group_name='test_consumer_group'
@@ -70,6 +80,16 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             )
             print('receive',event)
             """
+            data=await sync_to_async(decodetoken)(data_to_get['token'])
+            print("----data", data)
+            requstuser=await sync_to_async(get_user)(*data)
+
+            print("----token", data_to_get['token'])
+            print("----user", requstuser)
+
+            data = await create_data(requstuser)
+
+            await self.send(json.dumps(data))
     
     async def websocket_disconnect(self,event):
             print('disconnect',event)
