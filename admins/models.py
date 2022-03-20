@@ -78,6 +78,7 @@ gener_choices=(  #gener choices
 
 class Generes(models.Model):
     name=models.CharField(max_length=400)
+    cover=models.ImageField(upload_to='images/generes',default='deafult_profile_pic.jpeg')
     
 class songs(models.Model):
     name=models.CharField(max_length=400)

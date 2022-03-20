@@ -514,7 +514,7 @@ class Admin_User_Subscription_Plan(serializers.ModelSerializer):
 class Genere_Serializer(serializers.ModelSerializer):
     class Meta: 
         model=admin_models.Generes
-        fields=["id", "name"]
+        fields=["id", "name",'cover']
         
 
 class Charts_Serializer(serializers.ModelSerializer):

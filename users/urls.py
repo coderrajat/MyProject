@@ -79,5 +79,6 @@ urlpatterns=[
     path("user_download_song",views.user_downloaded_song.as_view(),name='point_history'),
     path("Myplaylist",views.Myplalist.as_view(),name='myplaylist'),
     path("artist_list/<int:artist_id>",views.Artist_list.as_view(),name='artist_data'),
+    path("all_artist_list",views.All_artist_list.as_view(),name='all_artist_data'),
 
     ]

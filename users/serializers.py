@@ -162,7 +162,7 @@ class Album_songs(serializers.ModelSerializer):
 class artist_songs(serializers.ModelSerializer):
     class Meta:
         model = admin_models.artist
-        fields = ["id","name","songs"]
+        fields = ["id","name",'photo','songs']
         depth=1
 
 
@@ -263,3 +263,7 @@ class artist_album(serializers.ModelSerializer):
         model=admin_models.album
         fields=('__all__')
         
+class artist_list(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.artist
+        fields=('__all__')

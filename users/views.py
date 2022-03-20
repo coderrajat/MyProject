@@ -67,19 +67,21 @@ def is_authenticate(*Dargs,**Dkwargs):
                 return Response({'success':'false','error_msg':'no HTTP_AUTHORIZATION ','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
         return wrapper
     return inner
+
 class recomended_playlist(APIView):
     @is_authenticate()
     def get(self,request):
         gener=['pop','dance&electronics','rock','rockstar','bollywood','folk&acoustic']
         gener=random.choice(gener)
+        print(gener)
         playlist=list(admin_models.playlist_admin.objects.prefetch_related().filter(gener__name__icontains=gener))
         if playlist==[]:
-            #a=serializers.song_data(playlist.songs.all())
-            return Response({'success':'False',
-                                'error_msg':'',
-                                'errors':{},
-                                'response':{},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
-                                },status=status.HTTP_200_OK)
+        #a=serializers.song_data(playlist.songs.all())
+            return Response({'success':'false',
+                            'error_msg':'',
+                            'errors':{},
+                            'response':{},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
+                            },status=status.HTTP_200_OK)
         if len(playlist)<5:
             playlist=playlist[0]
         else:
@@ -105,8 +107,7 @@ class Songs_search(APIView):
     def post(self,request):
         f1=serializers.search_song(data=request.POST)
         f2=serializers.pagination(data=request.POST)
-        #print("serializer",f1,f2)
-        if not(f1.is_valid() and f2.is_valid()):
+        if not (f1.is_valid() and f2.is_valid()):
             f1.is_valid()
             f2.is_valid()
             return Response({'success':'false',
@@ -117,12 +118,14 @@ class Songs_search(APIView):
         s=request.POST['search']
        
         flg=True
-        #print(flg)
         if s!='':
             flg=False
             search_query=Q()  
-            search_query.add(Q(name__icontains=s) | Q(album__name__icontains=s) | Q(artist__name__icontains=s) | Q(genres__icontains=s),Q.AND)
-            #search_query.add(Q(charts__icontains=s),Q.OR)
+            search_query.add(Q(album__name__icontains=s),Q.OR)
+            search_query.add(Q(artist__name__icontains=s),Q.OR)
+            search_query.add(Q(genres__name__icontains=s),Q.OR)
+            search_query.add(Q(name__icontains=s),Q.OR)
+            search_query.add(Q(charts__icontains=s),Q.OR)
         if flg:
             result=admin_models.songs.objects.select_related().order_by('-id')
         else:
@@ -1208,16 +1211,17 @@ class Preferred_Artist_By_User(APIView):
     def post(self, request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        a=admin_models.artist.objects.get(pk=request.data["artist_id"])
-        print(a)
-        if len(admin_models.artist.objects.filter(preferred_by=requstuser.id))>=5:
-            return Response({'success':'false',
-                            'error_msg':'you can prefer max 3 artist',
+        id=request.data["artist_id"]
+        for i in id.split(','):
+            a=admin_models.artist.objects.get(pk=i)
+            if len(admin_models.artist.objects.filter(preferred_by=requstuser.id))>=5:
+                return Response({'success':'false',
+                            'error_msg':'you can prefer max 5 artist',
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_400_BAD_REQUEST) 
-        a.preferred_by.add(requstuser.id)
-        a.save()
+            a.preferred_by.add(requstuser.id)
+            a.save()
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
@@ -1241,16 +1245,18 @@ class Preferred_Album_By_User(APIView):
     def post(self, request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        a=admin_models.album.objects.get(pk=request.data["album_id"])
-        if len(admin_models.album.objects.filter(preferred_by=requstuser.id))>=5:
-            return Response({'success':'false',
-                            'error_msg':'you can prefer max 3 album',
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_400_BAD_REQUEST) 
-        
-        a.preferred_by.add(requstuser.id)
-        a.save()
+        id=request.data["artist_id"]
+        for i in id.split(','):
+            a=admin_models.album.objects.get(pk=i)
+            if len(admin_models.album.objects.filter(preferred_by=requstuser.id))>=5:
+                return Response({'success':'false',
+                                'error_msg':'you can prefer max 5 album',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST) 
+            
+            a.preferred_by.add(requstuser.id)
+            a.save()
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
@@ -1274,16 +1280,18 @@ class Preferred_Playlist_By_User(APIView):
     def post(self, request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        p=admin_models.playlist_admin.objects.get(pk=request.data["playlist_id"])
-        if len(admin_models.playlist_admin.objects.filter(preferred_by=requstuser.id))>=100:
-            return Response({'success':'false',
-                            'error_msg':'you can prefer max 100 playlist',
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_400_BAD_REQUEST) 
-        
-        p.preferred_by.add(requstuser.id)
-        p.save()
+        id=request.data["playlist_id"]
+        for i in id.split(','):
+            p=admin_models.playlist_admin.objects.get(pk=i)
+            if len(admin_models.playlist_admin.objects.filter(preferred_by=requstuser.id))>=100:
+                return Response({'success':'false',
+                                'error_msg':'you can prefer max 100 playlist',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_400_BAD_REQUEST) 
+            
+            p.preferred_by.add(requstuser.id)
+            p.save()
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
@@ -1445,7 +1453,7 @@ class Genre_Charts(APIView):
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{"data": admin_serializers.Song_data(songs, many=True).data},
+                        'response':{"songs": admin_serializers.Song_data(songs, many=True).data},
                         },status=status.HTTP_200_OK) 
 
 
@@ -1888,3 +1896,18 @@ class Artist_list(APIView):
                                 'recommended_artist':serializers.artist_songs(recomended,many=True).data[:10],
                                 },
                         },status=status.HTTP_202_ACCEPTED)
+
+class All_artist_list(APIView):
+    def get(self, request):
+        try:
+            result=admin_models.artist.objects.all()
+
+            return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{'playlist':serializers.artist_list(result,many=True).data},
+                                },status=status.HTTP_202_ACCEPTED)
+        except:
+            return Response({'success':'true',
+                                'error_msg':'Please give the valid input',
+                                'errors':{},},status=status.HTTP_202_ACCEPTED)
