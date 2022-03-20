@@ -1245,7 +1245,7 @@ class Preferred_Album_By_User(APIView):
     def post(self, request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        id=request.data["artist_id"]
+        id=request.data["album_id"]
         for i in id.split(','):
             a=admin_models.album.objects.get(pk=i)
             if len(admin_models.album.objects.filter(preferred_by=requstuser.id))>=5:
