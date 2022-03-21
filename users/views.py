@@ -1493,7 +1493,7 @@ class Stream(APIView):
         song.no_of_times_played+=1
         song.save()
         history=admin_models.Points_History()
-        
+        notify=models.Notification_user()
         if point.stream_count<=1:
             point.stream_points+=1
             point.stream_count+=1
@@ -1501,7 +1501,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=1
             history.save()
-           
+            notify.user=point
+            notify.type_of_notification='You recieved +1 stream points'
+            notify.save()
         elif point.stream_count==5:
             point.stream_points+=2
             point.stream_count+=1
@@ -1509,6 +1511,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=2
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +2 stream points'
+            notify.save()
           
         elif point.stream_count==20:
             point.stream_points+=5
@@ -1517,6 +1522,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=5
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +5 stream points'
+            notify.save()
             
         elif point.stream_count==50:
             point.stream_points+=10
@@ -1525,6 +1533,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=10
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +10 stream points'
+            notify.save()
            
         elif point.stream_count==100:
             point.stream_points+=20
@@ -1533,6 +1544,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=20
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +20 stream points'
+            notify.save()
           
         elif point.stream_count==500:
             point.stream_points+=50
@@ -1541,6 +1555,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=50
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +50 stream points'
+            notify.save()
             
         elif point.stream_count==1000:
             point.stream_points+=100
@@ -1549,6 +1566,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=100
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +100 stream points'
+            notify.save()
            
         elif point.stream_count==2000:
             point.stream_points+=200
@@ -1557,6 +1577,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=200
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +200 stream points'
+            notify.save()
             
         elif point.stream_count==5000:
             point.stream_points+=500
@@ -1565,6 +1588,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=500
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +500 stream points'
+            notify.save()
             
         elif point.stream_count==10000:
             point.stream_points+=1000
@@ -1573,6 +1599,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=1000
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +1000 stream points'
+            notify.save()
             
         elif point.stream_count==50000:
             point.stream_points+=2000
@@ -1581,6 +1610,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=2000
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +2000 stream points'
+            notify.save()
             
         elif point.stream_count==100000:
             point.stream_points+=10000
@@ -1589,6 +1621,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=10000
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +10000 stream points'
+            notify.save()
           
         elif point.stream_count==200000:
             point.stream_points+=20000
@@ -1597,6 +1632,9 @@ class Stream(APIView):
             history.user=point
             history.stream_track=20000
             history.save()
+            notify.user=point
+            notify.type_of_notification='You recieved +20000 stream points'
+            notify.save()
           
         else:
             point.stream_count+=1
