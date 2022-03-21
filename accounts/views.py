@@ -13,6 +13,7 @@ import random
 from admins import models as admin_models
 from accounts import models as accounts_models
 from . import serializers
+from users import models as user_models
 
 def login_not_required(*ag,**kg):
     def inner(func):
@@ -332,7 +333,7 @@ class signup_user(APIView):
         uzr=accounts_models.Users()
         history=admin_models.Points_History()
         notify=admin_models.Notification_admin()
-        notify1=admin_models.Notification_admin()
+        notify_user=user_models.Notification_user()
         if request.POST['referral_code']!='':
             val=int(request.POST['referral_code'],16)
             try:
@@ -352,6 +353,10 @@ class signup_user(APIView):
                 history.user=result
                 history.invite_point=30
                 history.save()
+                notify_user.user=result
+                notify_user.type_of_notification='You recieved +30 Invitation points'
+                notify_user.save()
+                
             elif result.subscription_plan.lower()=='monthly':
                 result.invitation_points+=125
                 result.save()
@@ -360,6 +365,9 @@ class signup_user(APIView):
                 history.user=result
                 history.invite_point=125
                 history.save()
+                notify_user.user=result
+                notify_user.type_of_notification='You recieved +125 Invitation points'
+                notify_user.save()
             elif result.subscription_plan.lower()=='yearly':
                 result.invitation_points+=1500
                 result.save()
@@ -369,6 +377,9 @@ class signup_user(APIView):
                 history.user=result
                 history.invite_point=1500
                 history.save()
+                notify_user.user=result
+                notify_user.type_of_notification='You recieved +1500 Invitation points'
+                notify_user.save()
             else:
                 result.invitation_points+=10
                 result.save()
@@ -378,6 +389,9 @@ class signup_user(APIView):
                 history.user=result
                 history.invite_point=10
                 history.save()
+                notify_user.user=result
+                notify_user.type_of_notification='You recieved +10 Invitation points'
+                notify_user.save()
         else:
             uzr.signup_points=5
             uzr.save()
@@ -400,12 +414,17 @@ class signup_user(APIView):
         uzr.referral_code=hex(uzr.id)
         uzr.save()
         obj=accounts_models.Users.objects.get(id=uzr.id)
-        
+        notify_user.user=obj
+        notify_user.type_of_notification='You recieved +'+str(var1)+' SignUp points'
+        notify_user.save()
+        notify.user_sender=result
+        notify.type_of_notification=str(uzr.full_name)+' join Mayani music family'
+        notify.save()
         plan=admin_models.SubscriptionPlan.objects.filter(plan_type='Free')
         sub_history=admin_models.Subscription_History()
         sub_history.user=obj
         sub_history.subscription=plan[0]
-        expire=datetime.datetime.now()+datetime.timedelta(days=30)
+        expire=datetime.datetime.now()+datetime.timedelta(days=7)
         sub_history.expire=expire
         sub_history.save()
         history=admin_models.Points_History()
