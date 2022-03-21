@@ -27,6 +27,7 @@ from django.utils import timezone
 import boto3
 import json
 from django.conf import settings
+from users import models
 
 # from . import tools
 def is_authenticate(*Dargs,**Dkwargs):
@@ -1488,7 +1489,6 @@ class Stream(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         point=account_models.Users.objects.get(id=requstuser.id)
-        notify=admin_models.Notification_admin()
         song=admin_models.songs.objects.get(id=song_id)
         song.no_of_times_played+=1
         song.save()
@@ -1501,9 +1501,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=1
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +1'+' stream point'
-            notify.save()
+           
         elif point.stream_count==5:
             point.stream_points+=2
             point.stream_count+=1
@@ -1511,9 +1509,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=2
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +2'+' stream point'
-            notify.save()
+          
         elif point.stream_count==20:
             point.stream_points+=5
             point.stream_count+=1
@@ -1521,9 +1517,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=5
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +5 '+'stream point'
-            notify.save()
+            
         elif point.stream_count==50:
             point.stream_points+=10
             point.stream_count+=1
@@ -1531,9 +1525,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=10
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +10 '+'stream point'
-            notify.save()
+           
         elif point.stream_count==100:
             point.stream_points+=20
             point.stream_count+=1
@@ -1541,9 +1533,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=20
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +20 '+'stream point'
-            notify.save()
+          
         elif point.stream_count==500:
             point.stream_points+=50
             point.stream_count+=1
@@ -1551,9 +1541,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=50
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +50 '+'stream point'
-            notify.save()
+            
         elif point.stream_count==1000:
             point.stream_points+=100
             point.stream_count+=1
@@ -1561,9 +1549,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=100
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +100 '+'stream point'
-            notify.save()
+           
         elif point.stream_count==2000:
             point.stream_points+=200
             point.stream_count+=1
@@ -1571,9 +1557,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=200
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +200 '+'stream point'
-            notify.save()
+            
         elif point.stream_count==5000:
             point.stream_points+=500
             point.stream_count+=1
@@ -1581,9 +1565,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=500
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +500 '+'stream point'
-            notify.save()
+            
         elif point.stream_count==10000:
             point.stream_points+=1000
             point.stream_count+=1
@@ -1591,9 +1573,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=1000
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +1000 '+'stream point'
-            notify.save()
+            
         elif point.stream_count==50000:
             point.stream_points+=2000
             point.stream_count+=1
@@ -1601,9 +1581,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=2000
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +2000 '+'stream point'
-            notify.save()
+            
         elif point.stream_count==100000:
             point.stream_points+=10000
             point.stream_count+=1
@@ -1611,9 +1589,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=10000
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +10000 '+'stream point'
-            notify.save()
+          
         elif point.stream_count==200000:
             point.stream_points+=20000
             point.stream_count+=1
@@ -1621,9 +1597,7 @@ class Stream(APIView):
             history.user=point
             history.stream_track=20000
             history.save()
-            notify.user_sender=point
-            notify.type_of_notification='Hurry you receive the'+' +20000 '+'stream point'
-            notify.save()
+          
         else:
             point.stream_count+=1
             point.save()
@@ -1817,7 +1791,7 @@ class user_notification_api(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         try:
-            notification=list(admin_models.Notification_user.objects.filter((Q(user_sender=requstuser.id)) or (Q(user_sender=user_id)))) 
+            notification=list(models.Notification_user.objects.filter((Q(user=requstuser.id)) or (Q(user=user_id)))) 
             print(notification)
             f1=serializers.Notification_data(notification, many=True)
             return Response({'success':'true',
