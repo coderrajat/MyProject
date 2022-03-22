@@ -1,5 +1,7 @@
 from ast import Param
 from itertools import count
+from logging import exception
+from urllib import response
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -139,7 +141,9 @@ class Songs_search(APIView):
             else:
                 order=request.POST['order_by']
             result=result.order_by(order)
-            '''
+        '''
+        if list(result)==[]:
+            return Response("Your search did not match any file")
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         
         p_r=paginate_result.get_page(request.POST['page'])
@@ -229,6 +233,7 @@ class Edit_User_Profile(APIView):
                             'response':{},
                             },status=status.HTTP_400_BAD_REQUEST)
         user=requstuser
+        profile=serializers.User_Profile(user)
         f1=serializers.Edit_User_Profile(user,data=request.data)     
         if not(f1.is_valid()):
             return Response({'success':'false',
@@ -240,7 +245,7 @@ class Edit_User_Profile(APIView):
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{},
+                        'response':{'profile':profile.data},
                         },status=status.HTTP_200_OK)
 
 
@@ -397,6 +402,8 @@ class Aritst_All_Albums_List(APIView):
             else:
                 order=request.POST['order_by']
                 result=result.order_by(order)
+        if list(result)==[]:
+            return Response("Your search did not match any file")
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
         f1=admin_serializers.User_Liked_Songs_By_Admin(result,many=True)
@@ -445,6 +452,8 @@ class Aritst_All_Playlist_List(APIView):
             else:
                 order=request.POST['order_by']
                 result=result.order_by(order)
+        if list(result)==[]:
+            return Response("Your search did not match any file")
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
         f1=admin_serializers.User_Liked_Songs_By_Admin(result,many=True)
@@ -524,6 +533,8 @@ class Artist_All_Song_List(APIView):
             else:
                 order=request.POST['order_by']
                 result=result.order_by(order)
+        if list(result)==[]:
+            return Response("Your search did not match any file")
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
         f1=serializers.Song_Data(result,many=True)
@@ -606,6 +617,8 @@ class User_Liked_Songs(APIView):
             else:
                 order=request.POST['order_by']
                 result=result.order_by(order)
+        if list(result)==[]:
+            return Response("Your search did not match any file")
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
         f1=admin_serializers.User_Liked_Songs_By_Admin(result,many=True)
@@ -647,13 +660,15 @@ class User_Downloaded_Songs(APIView):
         if search!="":
             result=list(admin_models.songs.objects.filter((Q(downloads=requstuser.id)&(Q(name__icontains=search)|Q(artist__name__icontains=search)|Q(album__name__icontains=search)))).distinct())
         else:   
-             result=list(admin_models.songs.objects.filter(downloads=requstuser.id))
+            result=list(admin_models.songs.objects.filter(downloads=requstuser.id))
         if request.POST['order_by']!=None and request.POST['order_by']!='':
             if request.POST['order_by_type']=='dec':
                 order='-'+request.POST['order_by']
             else:
                 order=request.POST['order_by']
                 result=result.order_by(order)
+        if list(result)==[]:
+            return Response("Your search did not match any file")
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
         f1=admin_serializers.User_Liked_Songs_By_Admin(result,many=True)
@@ -712,6 +727,8 @@ class User_Playlist(APIView):
             else:
                 order=request.POST['order_by']
             result=result.order_by(order)
+        if list(result)==[]:
+            return Response("Your search did not match any file")
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
         f1=admin_serializers.playlist_admin_data(result,many=True)
@@ -1026,23 +1043,22 @@ class Artist_Unfollow_By_User(APIView):
 class Download_Song_By_User(APIView):
     @is_authenticate()
     def get(self,request,song_id):
-        #try:
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID
+        song=admin_models.songs.objects.get(id=song_id)
         Bucket=settings.AWS_STORAGE_BUCKET_NAME
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        s3_client=boto3.client("s3",aws_secret_access_key=aws_secret_access_key,aws_access_key_id=aws_access_key_id)
-        data={'Bucket':Bucket,'Key':"images/songs/song.mp3"}
-        r=s3_client.generate_presigned_url('get_object',Params=data,ExpiresIn=600)
-        
-        #print(r)
+        s3_client=boto3.client("s3",aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                                    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                                    region_name='us-east-2',
+                                    )
+        data={'Bucket':Bucket,'Key':str(song.song_mp3),'ResponseContentDisposition': 'attachment'}
+        r=s3_client.generate_presigned_url('get_object',Params=data,ExpiresIn=400)
+        print(r)
         return  Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
                             'response':{r},
                         },status=status.HTTP_202_ACCEPTED)  
-
 """
             #=admin_serializers.song_data(song)
            # return Response({'success':f.data})
@@ -1099,8 +1115,6 @@ class Artist_Latest_Songs(APIView):
                             },status=status.HTTP_400_BAD_REQUEST)
         search=request.data["search"] 
         if search!="":
-            
-        
             result=list(admin_models.songs.objects.filter((Q(artist__pk=artist_id,year__gte=timezone.now()-timedelta(days=30))&(Q(name__icontains=search)|Q(artist__name__icontains=search)|Q(album__name__icontains=search)))).distinct())
         else:   
             result=list(admin_models.songs.objects.filter(artist__pk=artist_id,year__gte=timezone.now()-timedelta(days=30)))
@@ -1110,6 +1124,8 @@ class Artist_Latest_Songs(APIView):
             else:
                 order=request.POST['order_by']
                 result=result.order_by(order)
+        if list(result)==[]:
+            return Response("Your search did not match any file")
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
         f1=admin_serializers.User_Liked_Songs_By_Admin(result,many=True)
@@ -1162,6 +1178,8 @@ class All_Latest_Songs(APIView):
             else:
                 order=request.POST['order_by']
                 result=result.order_by(order)
+        if list(result)==[]:
+            return Response("Your search did not match any file")
         paginate_result=Paginator(result, int(request.POST['result_limit']))
         p_r=paginate_result.get_page(request.POST['page'])
         f1=admin_serializers.User_Liked_Songs_By_Admin(result,many=True)
@@ -1651,7 +1669,7 @@ class new_songs(APIView):
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'song':serializers.new_song(song,many=True).data},
+                        'response':{'song':serializers.new_song(song,many=True).data}
                         },status=status.HTTP_202_ACCEPTED)
 
 
@@ -1913,7 +1931,6 @@ class All_artist_list(APIView):
     def get(self, request):
         try:
             result=admin_models.artist.objects.all()
-
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},

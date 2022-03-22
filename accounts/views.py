@@ -324,7 +324,7 @@ class signup_user(APIView):
             uzr=uzr[0]
             if uzr.is_varified==True:
                 return Response({'success':'false',
-                                    'error_msg':'user alrady exist',
+                                    'error_msg':'User already exist',
                                     'errors':{},
                                     'response':{},
                                     },status=status.HTTP_200_OK)

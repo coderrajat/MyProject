@@ -168,7 +168,11 @@ class artist_songs(serializers.ModelSerializer):
 
 
 
-#        
+#   
+class User_Profile(serializers.ModelSerializer):
+    class Meta:
+        model=account_models.Users
+        fields=("first_name",'last_name',"full_name","email","phone_number","bio","gender","profile_pic","country_code")     
 
 class Edit_User_Profile(serializers.ModelSerializer):
     class Meta:
