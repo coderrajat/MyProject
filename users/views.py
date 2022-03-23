@@ -75,6 +75,8 @@ def is_authenticate(*Dargs,**Dkwargs):
 class recomended_playlist(APIView):
     @is_authenticate()
     def get(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
         gener=['pop','dance&electronics','rock','rockstar','bollywood','folk&acoustic']
         gener=random.choice(gener)
         print(gener)
@@ -95,7 +97,7 @@ class recomended_playlist(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{"playlist_data":f1.data},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
+                            'response':{"playlist_data":f1.data,'user_id':requstuser.id},#"songs":serializers.song_data(playlist.songs.all(),many=True).data
                             },status=status.HTTP_200_OK)
 
 # search api search by song name ,artist name, album name, gneres name
@@ -109,6 +111,8 @@ class Songs_search(APIView):
                             },status=status.HTTP_202_ACCEPTED)
     @is_authenticate()                          
     def post(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
         f1=serializers.search_song(data=request.POST)
         f2=serializers.pagination(data=request.POST)
         if not (f1.is_valid() and f2.is_valid()):
@@ -117,7 +121,7 @@ class Songs_search(APIView):
             return Response({'success':'false',
                                 'error_msg':'invalid_input',
                                 'errors':{},
-                                'response':{**dict(f1.errors),**dict(f2.errors)},
+                                'response':{**dict(f1.errors),**dict(f2.errors),'user_id':requstuser.id},
                                 },status=status.HTTP_400_BAD_REQUEST)
         s=request.POST['search']
        
@@ -191,6 +195,8 @@ class Albums_songs(APIView):
     @is_authenticate()
     def post(self, request,pk):
         try:
+            data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+            requstuser=tools.get_user(*data)
             album=admin_models.album.objects.get(pk=pk)
             result=admin_models.songs.objects.filter(album__id=pk).distinct().order_by('-id')
             paginate_result=Paginator(result, int(request.POST['result_limit']))
@@ -198,7 +204,7 @@ class Albums_songs(APIView):
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{"album_name": album.name, 'result':admin_serializers.song_data(p_r,many=True).data},
+                                'response':{"album_name": album.name, 'result':admin_serializers.song_data(p_r,many=True).data,'user_id':requstuser.id},
                                 'pagination':{'count':len(list(p_r)),
                                             'previous':'true' if p_r.has_previous() else 'false',
                                             'next':'true' if p_r.has_next() else 'false',
@@ -1185,14 +1191,17 @@ class All_Latest_Songs(APIView):
    
 #trending songs on basis of likes
 class Trending_Songs(APIView):
+    @is_authenticate()
     def get(self, request):
         try:
+            data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+            requstuser=tools.get_user(*data)
             s=admin_models.songs.objects.annotate(x=Count("likes")).order_by("-x")[:4]
             f=serializers.Trending_Song(s,many=True)
             return  Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{"msg":f.data},
+                        'response':{"msg":f.data,'user_id':requstuser.id},
                         },status=status.HTTP_200_OK)   
         except Exception as e:
             return Response({'exception':str(e)},status=status.HTTP_400_BAD_REQUEST)
@@ -1650,12 +1659,15 @@ class Stream(APIView):
                         },status=status.HTTP_202_ACCEPTED)
 
 class new_songs(APIView):
+    @is_authenticate()
     def get(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
         song=admin_models.songs.objects.all().order_by('-year')
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'song':serializers.new_song(song,many=True).data}
+                        'response':{'song':serializers.new_song(song,many=True).data,'user_id':requstuser.id}
                         },status=status.HTTP_202_ACCEPTED)
 
 
@@ -1883,7 +1895,7 @@ class Myplalist(APIView):
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'playlist':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data},
+                                'response':{'playlist':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data,'user_id':requstuser.id},
                                 },status=status.HTTP_202_ACCEPTED)
         except:
             return Response({'success':'true',
@@ -1910,7 +1922,7 @@ class Artist_list(APIView):
                                 'album':serializers.artist_album(artist_album,many=True).data,
                                 'playlist':admin_serializers.playlist_admin_data(result,many=True).data[:10],
                                 'recommended_artist':serializers.artist_songs(recomended,many=True).data[:10],
-                                },
+                                'user':requstuser.id},
                         },status=status.HTTP_202_ACCEPTED)
 
 class All_artist_list(APIView):
@@ -1934,5 +1946,5 @@ class album_list(APIView):
         return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'playlist':serializers.all_album(album,many=True).data},
+                                'response':{'album':serializers.all_album(album,many=True).data},
                                 },status=status.HTTP_202_ACCEPTED)     

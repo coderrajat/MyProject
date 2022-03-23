@@ -204,7 +204,7 @@ class Album_Data_Artist(serializers.ModelSerializer):
 class Trending_Song(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
-        fields=["id","name","cover",'song_mp3']
+        fields=("__all__")
 
 
 class User_feed_back(serializers.ModelSerializer):
