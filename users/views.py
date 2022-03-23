@@ -817,7 +817,7 @@ class  Like_dislike_Album_By_User(APIView):
                                 },status=status.HTTP_200_OK) 
         except Exception as e:
             return  Response({'success':'false',
-                            'error_msg':'invalid id'+str(e),
+                            'error_msg':'invalid id',
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_400_BAD_REQUEST)
@@ -1934,5 +1934,5 @@ class album_list(APIView):
         return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'playlist':serializers.Album_list(album,many=True).data},
+                                'response':{'playlist':serializers.all_album(album,many=True).data},
                                 },status=status.HTTP_202_ACCEPTED)     

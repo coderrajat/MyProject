@@ -279,3 +279,9 @@ class Album_list(serializers.ModelSerializer):
     class Meta:
         model=admin_models.album
         fields=('__all__')
+class all_album(serializers.ModelSerializer):
+    class Meta:
+        model = admin_models.album
+        fields = ['id','name','year','cover', 'songs']
+        depth=1
+        
