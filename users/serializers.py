@@ -204,7 +204,7 @@ class Album_Data_Artist(serializers.ModelSerializer):
 class Trending_Song(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
-        fields=["id","name","cover"]
+        fields=["id","name","cover",'song_mp3']
 
 
 class User_feed_back(serializers.ModelSerializer):
@@ -259,15 +259,23 @@ class like_songs(serializers.ModelSerializer):
 class artist_playlist(serializers.ModelSerializer):
     class Meta:
         model=admin_models.songs
-        fields=('__all__')
+        fields=('id','name','song_mp3','cover','charts','no_of_times_played','producer','writer','mixing',
+                'mastering','artwork','photographer','genres','artist','downloads')
+        depth=1
         
 
 class artist_album(serializers.ModelSerializer):
     class Meta:
         model=admin_models.album
-        fields=('__all__')
+        exclude=('artist','likes','preferred_by')
+  
         
 class artist_list(serializers.ModelSerializer):
     class Meta:
         model=admin_models.artist
+        fields=('__all__')
+
+class Album_list(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.album
         fields=('__all__')

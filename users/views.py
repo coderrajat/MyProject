@@ -1,6 +1,7 @@
 from ast import Param
 from itertools import count
 from logging import exception
+from operator import is_
 from urllib import response
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -747,20 +748,33 @@ class User_Playlist(APIView):
 
 
 #to like a song by user
-class Like_Song_By_User(APIView):
+class Like_dislike_Song_By_User(APIView):
     @is_authenticate()
     def get(self,request,song_id):
         try:
             data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
             requstuser=tools.get_user(*data)
             song=admin_models.songs.objects.get(pk=song_id)
-            song.likes.add(requstuser.id)
-            song.save()
-            return Response({'success':'true',
-                            'error_msg':'',
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_200_OK) 
+            f=list(admin_models.songs.objects.filter(likes=requstuser.id,id=song_id))
+            print(f)
+            if f==[]:
+                song.likes.add(requstuser.id)
+                song.save()
+                return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK) 
+
+            else:
+                song.likes.remove(requstuser.id)
+                song.save()
+                return Response({'success':'false',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK) 
+        
         except Exception as e:
             return  Response({'success':'false',
                             'error_msg':'invalid id',
@@ -771,49 +785,43 @@ class Like_Song_By_User(APIView):
 
 
 #to dislike a song by user
-class Dislike_Song_By_User(APIView):
-    @is_authenticate()
-    def get(self,request,song_id):
-        try:
-            data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
-            requstuser=tools.get_user(*data)
-            song=admin_models.songs.objects.get(pk=song_id)
-            song.likes.remove(requstuser.id)
-            song.save()
-            return Response({'success':'true',
-                            'error_msg':'',
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({'success':'false',
-                            'error_msg':'invalid id',
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_400_BAD_REQUEST)
 
 
 #to like a album by user
-class  Like_Album_By_User(APIView):
+class  Like_dislike_Album_By_User(APIView):
     @is_authenticate()
     def get(self,request,album_id):
         try:
             data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
             requstuser=tools.get_user(*data)
             album=admin_models.album.objects.get(pk=album_id)
-            album.likes.add(requstuser.id)
-            album.save()
-            return Response({'success':'true',
-                            'error_msg':'',
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_200_OK) 
+            print(album,'yes')
+            f=list(admin_models.album.objects.filter(likes=requstuser.id,id=album_id))
+            print(f,'yes')
+            if f==[]:
+                album.likes.add(requstuser.id)
+                album.save()
+                return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK) 
+
+            else:
+                album.likes.remove(requstuser.id)
+                album.save()
+                return Response({'success':'false',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK) 
         except Exception as e:
             return  Response({'success':'false',
-                            'error_msg':'invalid id',
+                            'error_msg':'invalid id'+str(e),
                             'errors':{},
                             'response':{},
                             },status=status.HTTP_400_BAD_REQUEST)
+    
 
 #remove songs from the specific playlist
 class Remove_Song_Playlist(APIView):
@@ -971,28 +979,6 @@ class User_Feedback(APIView):
     def get(self, request): 
         f1=serializers.User_feed_back()
         return Response(f1.data,status=status.HTTP_200_OK)
-#to dislike a album by user
-class Dislike_Album_By_User(APIView):
-    def get(self,request,album_id):
-        try:
-            data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
-            requstuser=tools.get_user(*data)
-            album=admin_models.album.objects.get(pk=album_id)
-            album.likes.remove(requstuser.id)
-            album.save()
-            return Response({'success':'true',
-                            'error_msg':'',
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_400_BAD_REQUEST)
-        
-        except Exception as e:
-            return  Response({'success':'false',
-                            'error_msg':str(e),
-                            'errors':{},
-                            'response':{},
-                            },status=status.HTTP_400_BAD_REQUEST)
-                                
 
 # user can follow a artist
 class Artist_Follow_By_User(APIView):
@@ -1922,7 +1908,7 @@ class Artist_list(APIView):
                         'response':{
                                 'artist_latest_song':serializers.artist_playlist(artist,many=True).data[:20],
                                 'album':serializers.artist_album(artist_album,many=True).data,
-                                'playlist':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data[:10],
+                                'playlist':admin_serializers.playlist_admin_data(result,many=True).data[:10],
                                 'recommended_artist':serializers.artist_songs(recomended,many=True).data[:10],
                                 },
                         },status=status.HTTP_202_ACCEPTED)
@@ -1940,3 +1926,13 @@ class All_artist_list(APIView):
             return Response({'success':'true',
                                 'error_msg':'Please give the valid input',
                                 'errors':{},},status=status.HTTP_202_ACCEPTED)
+
+
+class album_list(APIView):
+    def get(self,request):
+        album=admin_models.album.objects.all()
+        return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{'playlist':serializers.Album_list(album,many=True).data},
+                                },status=status.HTTP_202_ACCEPTED)     

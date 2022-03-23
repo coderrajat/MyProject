@@ -41,14 +41,9 @@ urlpatterns=[
     #to get all the created palylist of a user 
     path("user_playlist",views.User_Playlist.as_view(),name="user_playlist"),
     #by this user user can like a song
-    path("like_song_by_user/<song_id>",views.Like_Song_By_User.as_view(),name="user_like_song"),
+    path("like_dislike_song_by_user/<song_id>",views.Like_dislike_Song_By_User.as_view(),name="user_like_song"),
     #by this user user can dislike a song
-    path("dislike_song_by_user/<song_id>",views.Dislike_Song_By_User.as_view(),name="dislike_song_by_user"),
-     #by this user user can like a song
-    path("like_album_by_user/<album_id>",views.Like_Album_By_User.as_view(),name="like_album_by_user"),
-     #by this user user can dislike a song
-    path("dislike_album_by_user/<album_id>",views.Dislike_Album_By_User.as_view(),name="dislike_album_by_user"),
-    
+    path("like_dislike_album_by_user/<album_id>",views.Like_dislike_Album_By_User.as_view(),name="like_album_by_user"),
     path("download_song_user/<song_id>",views.Download_Song_By_User.as_view(),name="downnload_song_by_user"),
     #user can folow an artist
     path("artist_follow_by_user/<artist_id>",views.Artist_Follow_By_User.as_view(),name="artist_follow_by_user"),
@@ -80,5 +75,6 @@ urlpatterns=[
     path("Myplaylist",views.Myplalist.as_view(),name='myplaylist'),
     path("artist_list/<int:artist_id>",views.Artist_list.as_view(),name='artist_data'),
     path("all_artist_list",views.All_artist_list.as_view(),name='all_artist_data'),
+    path("album_list",views.album_list.as_view(),name='artist_data'),
 
     ]
