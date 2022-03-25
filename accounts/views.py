@@ -332,7 +332,7 @@ class signup_user(APIView):
               uzr.delete()
         uzr=accounts_models.Users()
         history=admin_models.Points_History()
-        notify=admin_models.Notification_admin()
+        
         notify_user=user_models.Notification_user()
         if request.POST['referral_code']!='':
             val=int(request.POST['referral_code'],16)
@@ -417,7 +417,8 @@ class signup_user(APIView):
         notify_user.user=obj
         notify_user.type_of_notification='You recieved +'+str(var1)+' SignUp points'
         notify_user.save()
-        notify.user_sender=result
+        notify=admin_models.Notification_admin()
+        notify.user_sender=obj
         notify.type_of_notification=str(uzr.full_name)+' join Mayani music family'
         notify.save()
         plan=admin_models.SubscriptionPlan.objects.filter(plan_type='Free')

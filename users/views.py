@@ -1282,7 +1282,7 @@ class Preferred_Album_By_User(APIView):
 class Preferred_Playlist_By_User(APIView):
     @is_authenticate()
     def get(self, request):
-        platlist=admin_models.playlist_admin.objects.all()
+        platlist=admin_models.playlist_admin.objects.filter(user=None)
         f=admin_serializers.playlist_admin_data(platlist,many=True)
         return Response({'success':'true',
                         'error_msg':'',
