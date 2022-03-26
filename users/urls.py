@@ -76,5 +76,6 @@ urlpatterns=[
     path("artist_list/<int:artist_id>",views.Artist_list.as_view(),name='artist_data'),
     path("all_artist_list",views.All_artist_list.as_view(),name='all_artist_data'),
     path("album_list",views.album_list.as_view(),name='artist_data'),
+    path("User_profile",views.User_Profile.as_view(),name='profile'),
 
     ]

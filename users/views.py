@@ -1948,3 +1948,16 @@ class album_list(APIView):
                                 'errors':{},
                                 'response':{'album':serializers.all_album(album,many=True).data},
                                 },status=status.HTTP_202_ACCEPTED)     
+            
+class User_Profile(APIView):
+    @is_authenticate()
+    def get(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        profile=account_models.Users.objects.filter(id=requstuser.id)
+        f1=serializers.Edit_User_Profile(profile,many=True)
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{'profile':f1.data},
+                        },status=status.HTTP_200_OK)

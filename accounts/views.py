@@ -419,7 +419,7 @@ class signup_user(APIView):
         notify_user.save()
         notify=admin_models.Notification_admin()
         notify.user_sender=obj
-        notify.type_of_notification=str(uzr.full_name)+' join Mayani music family'
+        notify.type_of_notification=str(uzr.phone_number)+' join Mayani music family'
         notify.save()
         plan=admin_models.SubscriptionPlan.objects.filter(plan_type='Free')
         sub_history=admin_models.Subscription_History()
