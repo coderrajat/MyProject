@@ -177,7 +177,7 @@ class User_Profile(serializers.ModelSerializer):
 class Edit_User_Profile(serializers.ModelSerializer):
     class Meta:
         model=account_models.Users
-        fields=["full_name","email","phone_number","bio","gender","profile_pic","country_code"]
+        fields=("full_name","email","phone_number","bio","gender","profile_pic","country_code")
 #to create palylist
 class Create_Playlist(serializers.ModelSerializer):
     

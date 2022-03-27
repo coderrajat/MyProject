@@ -240,7 +240,7 @@ class Edit_User_Profile(APIView):
                             'response':{},
                             },status=status.HTTP_400_BAD_REQUEST)
         user=requstuser
-        profile=serializers.User_Profile(user)
+        profile=serializers.Edit_User_Profile(user)
         f1=serializers.Edit_User_Profile(user,data=request.data)     
         if not(f1.is_valid()):
             return Response({'success':'false',
@@ -252,7 +252,7 @@ class Edit_User_Profile(APIView):
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'profile':profile.data},
+                        'response':profile.data,
                         },status=status.HTTP_200_OK)
 
 
@@ -1836,7 +1836,7 @@ class point_history(APIView):
         return Response({'success':'false',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'history':serializers.points_history(histo,many=True).data},
+                        'response':serializers.points_history(histo,many=True).data,
                         },status=status.HTTP_202_ACCEPTED)
 
 class user_notification_api(APIView):
@@ -1851,7 +1851,7 @@ class user_notification_api(APIView):
             return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{"notification_data":f1.data}
+                        'response':f1.data
                         },status=status.HTTP_200_OK)
         except ValueError as ex:
             return Response({'success':'false',
@@ -1932,7 +1932,7 @@ class All_artist_list(APIView):
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'playlist':serializers.artist_list(result,many=True).data},
+                                'response':serializers.artist_list(result,many=True).data,
                                 },status=status.HTTP_202_ACCEPTED)
         except:
             return Response({'success':'true',
@@ -1954,10 +1954,8 @@ class User_Profile(APIView):
     def get(self,request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
-        profile=account_models.Users.objects.filter(id=requstuser.id)
-        f1=serializers.Edit_User_Profile(profile,many=True)
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'profile':f1.data},
+                        'response':serializers.Edit_User_Profile(requstuser).data,
                         },status=status.HTTP_200_OK)
