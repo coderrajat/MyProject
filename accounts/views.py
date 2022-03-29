@@ -541,7 +541,6 @@ class signin_user(APIView):
                                 'response':{},
                                 },status=status.HTTP_200_OK)
         uzr=list(accounts_models.Users.objects.filter(Q(country_code=request.POST['country_code'])&Q(phone_number=request.POST['phone_number'])))
-        print("user",uzr)
         if uzr==[]:
             return Response({'success':'false',
                                 'error_msg':'invalid credentials',
@@ -564,7 +563,7 @@ class signin_user(APIView):
                 return Response({'success':'true',
                                     'error_msg':'',
                                     'errors':{},
-                                    'response':{'user':[serializers.user_data(uzr).data],},
+                                    'response':serializers.user_data(uzr).data,
                                     'token':re,
                                 },status=status.HTTP_200_OK)
             return Response({'success':'false',
