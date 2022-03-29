@@ -26,8 +26,8 @@ def login_not_required(*ag,**kg):
                 if args[1].META['HTTP_AUTHORIZATION']=='':
                     return func(*args,**kwargs)
                 else:
-                    return Response({'success':'false','error_msg':'USER IS LOGGEDIN','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
-                return Response({'success':'false','error_msg':'USER IS LOGGEDIN','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
+                    return Response({'success':'false','error_msg':'USER IS LOGGEDIN','errors':{},'response':{}},status=status.HTTP_200_OK)
+                return Response({'success':'false','error_msg':'USER IS LOGGEDIN','errors':{},'response':{}},status=status.HTTP_200_OK) #HTTP_401_UNAUTHORIZED
 
         return wrapper
     return inner
@@ -42,19 +42,19 @@ def login_required(*ag,**kg):
                     print(data)
                     time=datetime.datetime.strptime(data[2].split('.')[0],'%Y-%m-%d %H:%M:%S')
                 except:
-                    return Response({'success':'false','error_msg':'invalid token','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
+                    return Response({'success':'false','error_msg':'invalid token','errors':{},'response':{}},status=status.HTTP_200_OK) 
                 if len(data)==4 and time>datetime.datetime.now():
                     uzr= tools.get_user(*data)
                     if uzr!=[]:
                         print('#########',uzr.token)
                         if uzr.token=='':
-                            return Response({'success':'false','error_msg':'USER NOT LOGGEDIN','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
+                            return Response({'success':'false','error_msg':'USER NOT LOGGEDIN','errors':{},'response':{}},status=status.HTTP_200_OK)
                         return func(*args,**kwargs)
                     else:
-                        return Response({'success':'false','error_msg':'USER NOT LOGGEDIN','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
-                return Response({'success':'false','error_msg':'token expire','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
+                        return Response({'success':'false','error_msg':'USER NOT LOGGEDIN','errors':{},'response':{}},status=status.HTTP_200_OK)
+                return Response({'success':'false','error_msg':'token expire','errors':{},'response':{}},status=status.HTTP_200_OK)
             else:
-                return Response({'success':'false','error_msg':'no HTTP_AUTHORIZATION ','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'success':'false','error_msg':'no HTTP_AUTHORIZATION ','errors':{},'response':{}},status=status.HTTP_200_OK)
             return func(*args,**kwargs)
         return wrapper
     return inner
