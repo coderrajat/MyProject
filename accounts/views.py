@@ -425,7 +425,7 @@ class signup_user(APIView):
         sub_history=admin_models.Subscription_History()
         sub_history.user=obj
         sub_history.subscription=plan[0]
-        expire=datetime.datetime.now()+datetime.timedelta(days=7)
+        expire=datetime.datetime.now()+datetime.timedelta(days=6)
         sub_history.expire=expire
         sub_history.save()
         history=admin_models.Points_History()
@@ -541,6 +541,7 @@ class signin_user(APIView):
                                 'response':{},
                                 },status=status.HTTP_200_OK)
         uzr=list(accounts_models.Users.objects.filter(Q(country_code=request.POST['country_code'])&Q(phone_number=request.POST['phone_number'])))
+        print("user",uzr)
         if uzr==[]:
             return Response({'success':'false',
                                 'error_msg':'invalid credentials',
@@ -563,7 +564,7 @@ class signin_user(APIView):
                 return Response({'success':'true',
                                     'error_msg':'',
                                     'errors':{},
-                                    'response':serializers.user_data(uzr).data,
+                                    'response':{'user':[serializers.user_data(uzr).data],},
                                     'token':re,
                                 },status=status.HTTP_200_OK)
             return Response({'success':'false',
