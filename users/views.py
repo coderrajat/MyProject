@@ -1932,7 +1932,7 @@ class All_artist_list(APIView):
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':serializers.artist_list(result,many=True).data,
+                                'response':{'artist':serializers.artist_list(result,many=True).data},
                                 },status=status.HTTP_202_ACCEPTED)
         except:
             return Response({'success':'true',
