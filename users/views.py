@@ -44,13 +44,13 @@ def is_authenticate(*Dargs,**Dkwargs):
                     time=datetime.datetime.strptime(data[2].split('.')[0],'%Y-%m-%d %H:%M:%S')
                 except Exception as e:
                     # print(e)
-                    return Response({'success':'false','error_msg':'invalid token','errors':{},'response':{}},status=status.HTTP_200_OK)  #HTTP_401_UNAUTHORIZED)
+                    return Response({'success':'false','error_msg':'invalid token','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
 
                 if len(data)==4 and time>datetime.datetime.now():
                     uzr= tools.get_user(*data)
                     if uzr!=[]:
                         if uzr.is_user_blocked :
-                            return Response({'success':'false','error_msg':'USER BLOCKED','errors':{},'response':{}},status=status.HTTP_200_OK)#HTTP_401_UNAUTHORIZED)
+                            return Response({'success':'false','error_msg':'USER BLOCKED','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
                         # try:#do user has authorization
                         #     kwg=uzr.authorize.__dict__
                         #
@@ -65,10 +65,10 @@ def is_authenticate(*Dargs,**Dkwargs):
                         #         print('match ',i,kwg[i],Dkwargs[i])
                         return func(*args,**kwargs)
                     else:
-                        return Response({'success':'false','error_msg':'USER NOT LOGGEDIN','errors':{},'response':{}},status=status.HTTP_200_OK)#HTTP_401_UNAUTHORIZED)
-                return Response({'success':'false','error_msg':'token expire','errors':{},'response':{}},status=status.HTTP_200_OK)#HTTP_401_UNAUTHORIZED)
+                        return Response({'success':'false','error_msg':'USER NOT LOGGEDIN','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'success':'false','error_msg':'token expire','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
             else:
-                return Response({'success':'false','error_msg':'no HTTP_AUTHORIZATION ','errors':{},'response':{}},status=status.HTTP_200_OK)#HTTP_401_UNAUTHORIZED)
+                return Response({'success':'false','error_msg':'no HTTP_AUTHORIZATION ','errors':{},'response':{}},status=status.HTTP_401_UNAUTHORIZED)
         return wrapper
     return inner
 
@@ -912,7 +912,7 @@ class recomended_artist(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{"Artist_data":f1.data},
+                            'response':f1.data,
                             },status=status.HTTP_200_OK)
 #show CMS content
 class Cms(APIView):
@@ -1124,7 +1124,7 @@ class Artist_Latest_Songs(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':{'result':f1.data},
+                            'response':f1.data,
                             'pagination':{'count':len(list(p_r)),
                                         'previous':'true' if p_r.has_previous() else 'false',
                                         'next':'true' if p_r.has_next() else 'false',
@@ -1946,7 +1946,7 @@ class album_list(APIView):
         return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'album':serializers.all_album(album,many=True).data},
+                                'response':serializers.all_album(album,many=True).data,
                                 },status=status.HTTP_202_ACCEPTED)     
             
 class User_Profile(APIView):
