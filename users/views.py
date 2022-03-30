@@ -912,7 +912,7 @@ class recomended_artist(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':f1.data,
+                            'response':{"Artist_data":f1.data},
                             },status=status.HTTP_200_OK)
 #show CMS content
 class Cms(APIView):
@@ -1124,7 +1124,7 @@ class Artist_Latest_Songs(APIView):
         return Response({'success':'true',
                             'error_msg':'',
                             'errors':{},
-                            'response':f1.data,
+                            'response':{'result':f1.data},
                             'pagination':{'count':len(list(p_r)),
                                         'previous':'true' if p_r.has_previous() else 'false',
                                         'next':'true' if p_r.has_next() else 'false',
@@ -1946,7 +1946,7 @@ class album_list(APIView):
         return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':serializers.all_album(album,many=True).data,
+                                'response':{'album':serializers.all_album(album,many=True).data},
                                 },status=status.HTTP_202_ACCEPTED)     
             
 class User_Profile(APIView):
