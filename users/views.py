@@ -1933,11 +1933,11 @@ class All_artist_list(APIView):
                                 'error_msg':'',
                                 'errors':{},
                                 'response':{'artist':serializers.artist_list(result,many=True).data},
-                                },status=status.HTTP_202_ACCEPTED)
+                                },status=status.HTTP_200_OK)
         except:
             return Response({'success':'true',
                                 'error_msg':'Please give the valid input',
-                                'errors':{},},status=status.HTTP_202_ACCEPTED)
+                                'errors':{},},status=status.HTTP_400_BAD_REQUEST)
 
 
 class album_list(APIView):
@@ -1947,7 +1947,7 @@ class album_list(APIView):
                                 'error_msg':'',
                                 'errors':{},
                                 'response':{'album':serializers.all_album(album,many=True).data},
-                                },status=status.HTTP_202_ACCEPTED)     
+                                },status=status.HTTP_200_OK)     
             
 class User_Profile(APIView):
     @is_authenticate()
