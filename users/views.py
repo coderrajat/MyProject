@@ -1930,7 +1930,7 @@ class All_artist_list(APIView):
         try:
             result=admin_models.artist.objects.all()
             return Response({'success':'true',
-                                'error_msg':'',
+                                'error_msg':'null',
                                 'errors':{},
                                 'response':{'artist':serializers.artist_list(result,many=True).data},
                                 },status=status.HTTP_200_OK)
@@ -1944,7 +1944,7 @@ class album_list(APIView):
     def get(self,request):
         album=admin_models.album.objects.all()
         return Response({'success':'true',
-                                'error_msg':'',
+                                'error_msg':'null',
                                 'errors':{},
                                 'response':{'album':serializers.all_album(album,many=True).data},
                                 },status=status.HTTP_200_OK)     
