@@ -295,3 +295,9 @@ class playlistsong(serializers.ModelSerializer):
         model=admin_models.playlist_admin
         fields=['songs']
         depth=1
+
+class artistsong(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.songs
+        fields=("__all__")
+        depth=1

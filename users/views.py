@@ -321,23 +321,30 @@ class Create_Playlist(APIView):
     def post(self, request):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
+        data=list(admin_models.playlist_admin.objects.filter(user=requstuser.id,name=request.POST['name']))
+        print(data)
         f1=serializers.Create_Playlist(data=request.POST)
-        if f1.is_valid():
-            p=f1.save()
-            p.user=requstuser
-            p.save()
-            return Response({'success':'true',
+        if data==[]:
+            if f1.is_valid():
+                p=f1.save()
+                p.user=requstuser
+                p.save()
+                return Response({'success':'true',
+                                'error_msg':'',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK)
+            
+            return Response({'success':'false',
                             'error_msg':'',
-                            'errors':{},
+                            'errors':{**dict(f1.errors)},
                             'response':{},
-                            },status=status.HTTP_200_OK)
-        
+                            },status=status.HTTP_400_BAD_REQUEST)
         return Response({'success':'false',
-                        'error_msg':'',
-                        'errors':{**dict(f1.errors)},
-                        'response':{},
-                        },status=status.HTTP_400_BAD_REQUEST)
-
+                                'error_msg':'Playlist name already exist',
+                                'errors':{},
+                                'response':{},
+                                },status=status.HTTP_200_OK)
 
 #to add a song in a playlist of an artist
 class Add_Song_Playlist(APIView):
@@ -1964,6 +1971,16 @@ class Myplaylist_songs(APIView):
     def get(self,request,playlist_id):
         data=admin_models.playlist_admin.objects.filter(id=playlist_id)
         song=serializers.playlistsong(data,many=True)
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{'playlist_songs':song.data},
+                        },status=status.HTTP_200_OK)
+    
+class Artist_songs(APIView):
+    def get(self,request,artist_id):
+        data=admin_models.songs.objects.filter(artist=artist_id)
+        song=serializers.artistsong(data,many=True)
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
