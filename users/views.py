@@ -204,7 +204,7 @@ class Albums_songs(APIView):
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{"album_name": album.name, 'result':admin_serializers.song_data(p_r,many=True).data,'user_id':requstuser.id},
+                                'response':{"album_name": album.name, 'result':admin_serializers.song_data(p_r,many=True).data},
                                 'pagination':{'count':len(list(p_r)),
                                             'previous':'true' if p_r.has_previous() else 'false',
                                             'next':'true' if p_r.has_next() else 'false',
@@ -1895,11 +1895,11 @@ class Myplalist(APIView):
             return Response({'success':'true',
                                 'error_msg':'',
                                 'errors':{},
-                                'response':{'playlist':admin_serializers.User_Liked_Songs_By_Admin(result,many=True).data,'user_id':requstuser.id},
+                                'response':{'playlist':serializers.user_playlist(result,many=True).data,'user_id':requstuser.id},
                                 },status=status.HTTP_202_ACCEPTED)
-        except:
-            return Response({'success':'true',
-                                'error_msg':'Please give the valid input',
+        except Exception as e:
+            return Response({'success':'false',
+                                'error_msg':str(e),
                                 'errors':{},},status=status.HTTP_202_ACCEPTED)
 
 
