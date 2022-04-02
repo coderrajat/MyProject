@@ -1959,3 +1959,13 @@ class User_Profile(APIView):
                         'errors':{},
                         'response':serializers.Edit_User_Profile(requstuser).data,
                         },status=status.HTTP_200_OK)
+                    
+class Myplaylist_songs(APIView):
+    def get(self,request,playlist_id):
+        data=admin_models.playlist_admin.objects.filter(id=playlist_id)
+        song=serializers.playlistsong(data,many=True)
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':song.data,
+                        },status=status.HTTP_200_OK)

@@ -288,5 +288,10 @@ class all_album(serializers.ModelSerializer):
 class user_playlist(serializers.ModelSerializer):
     class Meta:
         model = admin_models.playlist_admin
-        fields=['id','name','cover','songs']
+        fields=['id','name','cover']
+        depth=1
+class playlistsong(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.playlist_admin
+        fields=['songs']
         depth=1
