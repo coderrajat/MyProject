@@ -1411,11 +1411,11 @@ class Remove_Preferred(APIView):
 
 class User_Current_Subscription_Plan(APIView):
     @is_authenticate()
-    def get(self,request,pk):
+    def get(self,request):
         try:
             data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
             requstuser=tools.get_user(*data)
-            data=admin_models.Subscription_History.objects.filter(user=pk).latest("expire")
+            data=admin_models.Subscription_History.objects.filter(user=requstuser.id).latest("expire")
             f1=admin_serializers.Admin_User_Subscription_Plan(data)
             if data.user==requstuser:
                 if data.expire>timezone.now():
@@ -1428,19 +1428,19 @@ class User_Current_Subscription_Plan(APIView):
                             'error_msg':'no active plan',
                             'errors':{},
                             'response':{}
-                            },status=status.HTTP_400_BAD_REQUEST) 
+                            },status=status.HTTP_200_OK) 
             return Response({'success':'false',
                             'error_msg':'USER does not exist',
                             'errors':{},
                             'response':{}
-                            },status=status.HTTP_400_BAD_REQUEST) 
+                            },status=status.HTTP_200_OK) 
         except Exception as ex:
             msg=str(ex)
             return Response({'success':'false',
                     'error_msg':msg,
                     'errors':{},
                     'response':{},
-                    },status=status.HTTP_400_BAD_REQUEST)
+                    },status=status.HTTP_202_ACCEPTED)
 
 
 
@@ -1815,7 +1815,7 @@ class subscription(APIView):
             return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'you have to pay '+str(amt)},
+                        'response':{'msg':'you have to pay '+str(amt)},
                         },status=status.HTTP_202_ACCEPTED)
 
         else:
@@ -2008,4 +2008,14 @@ class songs_by_id(APIView):
                         'error_msg':'',
                         'errors':{},
                         'response':{'song':song.data[0]},
+                        },status=status.HTTP_200_OK)
+                    
+class album_songs(APIView):
+    def get(self,request,album_id):
+        data=admin_models.songs.objects.filter(album=album_id)
+        song=serializers.new_song(data,many=True)
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':{'album_song':song.data[0]},
                         },status=status.HTTP_200_OK)

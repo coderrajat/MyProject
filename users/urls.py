@@ -5,7 +5,7 @@ urlpatterns=[
     path("Faq",views.Faq_section.as_view(),name="faq_section"),
     path("Faq<pk>",views.Faq_section.as_view(),name="faq_section"),
     path("feedback",views.User_Feedback.as_view(),name="feedback"),
-    path("User_Current_Subscription_Plan<pk>",views.User_Current_Subscription_Plan.as_view(),name="User_Current_Subscription_Plan"),
+    path("User_Current_Subscription_Plan",views.User_Current_Subscription_Plan.as_view(),name="User_Current_Subscription_Plan"),
     path("recomended_playlist",views.recomended_playlist.as_view(),name='recomended_playlist'),
     path("recomended_artist<id>",views.recomended_artist.as_view(),name="recomended_artist"),
     path("Song_search",views.Songs_search.as_view(),name='Song_search'),
@@ -81,4 +81,5 @@ urlpatterns=[
     path("Myplaylist_songs/<int:playlist_id>",views.Myplaylist_songs.as_view(),name='playlistsong'),
     path("artist_songs/<int:artist_id>",views.Artist_songs.as_view(),name='artist_songs'),
     path("song_by_id/<int:id>",views.songs_by_id.as_view(),name='song_by_id'),
+    path("album_songs/<int:album_id>",views.album_songs.as_view(),name='album_song'),
     ]
