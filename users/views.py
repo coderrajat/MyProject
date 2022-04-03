@@ -238,7 +238,7 @@ class Edit_User_Profile(APIView):
                             'error_msg':'mobile number already exists',
                             'errors':{},
                             'response':{},
-                            },status=status.HTTP_400_BAD_REQUEST)
+                            },status=status.HTTP_200_OK)
         user=requstuser
         profile=serializers.Edit_User_Profile(user)
         f1=serializers.Edit_User_Profile(user,data=request.data)     
@@ -247,7 +247,7 @@ class Edit_User_Profile(APIView):
                             'error_msg':'',
                             'errors':{},
                             'response':{**dict(f1.errors)},
-                            },status=status.HTTP_400_BAD_REQUEST)
+                            },status=status.HTTP_200_OK)
         f1.save()
         return Response({'success':'true',
                         'error_msg':'',
@@ -1500,7 +1500,7 @@ class user_points(APIView):
         return Response({'success':'true',
                         'error_msg':'null',
                         'errors':{},
-                        'response':serializers.show_points(point,many=True).data,
+                        'response':{'Collect_Points':serializers.show_points(point,many=True).data[0],},
                         },status=status.HTTP_202_ACCEPTED)
     
     @is_authenticate()
@@ -1559,7 +1559,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=1
+            history.receive_track='Stream a track +1 Points'
+            history.receive_track_name='1st song'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +1 stream points'
@@ -1569,7 +1570,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=2
+            history.receive_track='Stream a track +2 Points'
+            history.receive_track_name='5th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +2 stream points'
@@ -1580,7 +1582,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=5
+            history.receive_track='Stream a track +5 Points'
+            history.receive_track_name='20th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +5 stream points'
@@ -1592,6 +1595,7 @@ class Stream(APIView):
             point.save()
             history.user=point
             history.receive_track='Stream a track +10 Points'
+            history.receive_track_name='50th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +10 stream points'
@@ -1602,7 +1606,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=20
+            history.receive_track='Stream a track +20 Points'
+            history.receive_track_name='100th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +20 stream points'
@@ -1613,7 +1618,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=50
+            history.receive_track='Stream a track +50 Points'
+            history.receive_track_name='500th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +50 stream points'
@@ -1624,7 +1630,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=100
+            history.receive_track='Stream a track +100 Points'
+            history.receive_track_name='1000th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +100 stream points'
@@ -1635,7 +1642,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=200
+            history.receive_track='Stream a track +200 Points'
+            history.receive_track_name='2000th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +200 stream points'
@@ -1646,7 +1654,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=500
+            history.receive_track='Stream a track +500 Points'
+            history.receive_track_name='5000th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +500 stream points'
@@ -1657,7 +1666,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=1000
+            history.receive_track='Stream a track +1000 Points'
+            history.receive_track_name='10000th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +1000 stream points'
@@ -1668,7 +1678,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=2000
+            history.receive_track='Stream a track +2000 Points'
+            history.receive_track_name='50000th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +2000 stream points'
@@ -1679,7 +1690,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=10000
+            history.receive_track='Stream a track +10000 Points'
+            history.receive_track_name='100000th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +10000 stream points'
@@ -1690,7 +1702,8 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=20000
+            history.receive_track='Stream a track +20000 Points'
+            history.receive_track_name='200000th songs'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +20000 stream points'
@@ -1821,11 +1834,7 @@ class point_history(APIView):
         l=[]
         for i in histo:
             print(i.used_track)
-            if i.sigin_track!=None:
-                l.append(i)
-            elif i.invite_point!=None:
-                l.append(i)
-            elif i.invite_point!=None:
+            if i.receive_track!=None:
                 l.append(i)
         return Response({'success':'false',
                         'error_msg':'',
@@ -1990,3 +1999,13 @@ class point_history_used(APIView):
                         'errors':{},
                         'response':serializers.points_history_used(l,many=True).data,
                         },status=status.HTTP_202_ACCEPTED)
+
+class songs_by_id(APIView):
+    def get(self,request,id):
+        data=admin_models.songs.objects.filter(id=id)
+        song=serializers.new_song(data,many=True)
+        return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':song.data[0],
+                        },status=status.HTTP_200_OK)

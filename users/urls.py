@@ -80,4 +80,5 @@ urlpatterns=[
     path("User_profile",views.User_Profile.as_view(),name='profile'),
     path("Myplaylist_songs/<int:playlist_id>",views.Myplaylist_songs.as_view(),name='playlistsong'),
     path("artist_songs/<int:artist_id>",views.Artist_songs.as_view(),name='artist_songs'),
+    path("song_by_id/<int:id>",views.songs_by_id.as_view(),name='song_by_id'),
     ]

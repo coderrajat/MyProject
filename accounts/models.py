@@ -47,6 +47,7 @@ class Users(models.Model):
     subscription_plan=models.CharField(max_length=100,default='free')
     
     referral_code=models.TextField(null=True)
+    referral_count=models.IntegerField(default=0)
     signup_points=models.IntegerField(default=0)
     invitation_points=models.IntegerField(default=0)
     stream_points=models.IntegerField(default=0)

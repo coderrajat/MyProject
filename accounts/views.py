@@ -346,12 +346,14 @@ class signup_user(APIView):
                                     },status=status.HTTP_200_OK)
             if result.subscription_plan.lower()=='weekly':
                 result.invitation_points+=30
+                result.referral_count+=1
                 result.save()
                 uzr.signup_points=25
                 uzr.save()
                 var1=25
                 history.user=result
-                history.invite_point=30
+                history.receive_track='Invite a friend +30 Points'
+                history.receive_track_name=str(result.referral_count)+' invite'
                 history.save()
                 notify_user.user=result
                 notify_user.type_of_notification='You recieved +30 Invitation points'
@@ -359,35 +361,41 @@ class signup_user(APIView):
                 
             elif result.subscription_plan.lower()=='monthly':
                 result.invitation_points+=125
+                result.referral_count+=1
                 result.save()
                 uzr.signup_points=50
                 var1=50
                 history.user=result
-                history.invite_point=125
+                history.receive_track='Invite a friend +125 Points'
+                history.receive_track_name=str(result.referral_count)+' invite'
                 history.save()
                 notify_user.user=result
                 notify_user.type_of_notification='You recieved +125 Invitation points'
                 notify_user.save()
             elif result.subscription_plan.lower()=='yearly':
                 result.invitation_points+=1500
+                result.referral_count+=1
                 result.save()
                 uzr.signup_points=125
                 uzr.save()
                 var1=125
                 history.user=result
-                history.invite_point=1500
+                history.receive_track='Invite a friend +1500 Points'
+                history.receive_track_name=str(result.referral_count)+' invite'
                 history.save()
                 notify_user.user=result
                 notify_user.type_of_notification='You recieved +1500 Invitation points'
                 notify_user.save()
             else:
                 result.invitation_points+=10
+                result.referral_count+=1
                 result.save()
                 uzr.signup_points=7
                 uzr.save()
                 var1=7
                 history.user=result
-                history.invite_point=10
+                history.receive_track='Invite a friend +10 Points'
+                history.receive_track_name=str(result.referral_count)+' invite'
                 history.save()
                 notify_user.user=result
                 notify_user.type_of_notification='You recieved +10 Invitation points'
@@ -430,7 +438,8 @@ class signup_user(APIView):
         sub_history.save()
         history=admin_models.Points_History()
         history.user=obj
-        history.sigin_track=var1
+        history.receive_track='Signup '+str(var1)+' Points'
+        history.receive_track_name='App signup'
         history.save()
         #tools.send_sms('+'+request.POST['country_code']+request.POST['phone_number'],str(uzr.full_name)+' \n your OTP for Mayani \n'+str(uzr.otp)
         #  )

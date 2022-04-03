@@ -243,7 +243,7 @@ class new_song(serializers.ModelSerializer):
 class points_history(serializers.ModelSerializer):
     class Meta:
         model=admin_models.Points_History
-        fields=("sigin_track","invite_point","stream_track")
+        fields=('receive_track','receive_track_name','daytime')
         
 class Notification_data(serializers.ModelSerializer):
     class Meta:
@@ -309,4 +309,4 @@ class total_points(serializers.ModelSerializer):
 class points_history_used(serializers.ModelSerializer):
     class Meta:
         model=admin_models.Points_History
-        fields=("used_track",)
+        fields=("used_track",'daytime')
