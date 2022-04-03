@@ -1514,18 +1514,18 @@ class user_points(APIView):
             point.signup_points=0
             point.save()
             return Response({'success':'true',
-                        'error_msg':'',
+                        'error_msg':'point collected',
                         'errors':{},
-                        'response':'point collected',
+                        'response':'',
                         },status=status.HTTP_200_OK)
         if request.POST['collect']=='stream' and point.stream_points!=0:
             point.total_point+=point.stream_points
             point.stream_points=0
             point.save()
             return Response({'success':'true',
-                        'error_msg':'',
+                        'error_msg':'point collected',
                         'errors':{},
-                        'response':'point collected',
+                        'response':'',
                         },status=status.HTTP_200_OK)
         
         if request.POST['collect']=='invite' and point.invitation_points!=0:
@@ -1533,9 +1533,9 @@ class user_points(APIView):
             point.invitation_points=0
             point.save()
             return Response({'success':'true',
-                        'error_msg':'',
+                        'error_msg':'point collected',
                         'errors':{},
-                        'response':'point collected',
+                        'response':'',
                         },status=status.HTTP_200_OK)
         return Response({'success':'false',
                         'error_msg':'You cannot collect point',
