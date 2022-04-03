@@ -1498,10 +1498,50 @@ class user_points(APIView):
         requstuser=tools.get_user(*data)
         point=account_models.Users.objects.filter(id=requstuser.id)
         return Response({'success':'true',
+                        'error_msg':'null',
+                        'errors':{},
+                        'response':serializers.show_points(point,many=True).data,
+                        },status=status.HTTP_202_ACCEPTED)
+    
+    @is_authenticate()
+    def post(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        point=account_models.Users.objects.get(id=requstuser.id)
+        point1=account_models.Users.objects.filter(id=requstuser.id)
+        if request.POST['collect']=='signup' and point.signup_points!=0:
+            point.total_point+=point.signup_points
+            point.signup_points=0
+            point.save()
+            return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{"Collect_Points":serializers.show_points(point, many=True).data},
-                        },status=status.HTTP_202_ACCEPTED)
+                        'response':'point collected',
+                        },status=status.HTTP_200_OK)
+        if request.POST['collect']=='stream' and point.stream_points!=0:
+            point.total_point+=point.stream_points
+            point.stream_points=0
+            point.save()
+            return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':'point collected',
+                        },status=status.HTTP_200_OK)
+        
+        if request.POST['collect']=='invite' and point.invitation_points!=0:
+            point.total_point+=point.invitation_points
+            point.invitation_points=0
+            point.save()
+            return Response({'success':'true',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':'point collected',
+                        },status=status.HTTP_200_OK)
+        return Response({'success':'false',
+                        'error_msg':'You cannot collect point',
+                        'errors':{},
+                        'response':'',
+                        },status=status.HTTP_200_OK)
 
 class Stream(APIView):
     @is_authenticate()
@@ -1551,7 +1591,7 @@ class Stream(APIView):
             point.stream_count+=1
             point.save()
             history.user=point
-            history.stream_track=10
+            history.receive_track='Stream a track +10 Points'
             history.save()
             notify.user=point
             notify.type_of_notification='You recieved +10 stream points'
@@ -1688,7 +1728,7 @@ class subscription(APIView):
         plan2=admin_models.SubscriptionPlan.objects.filter(plan_type='Monthlyplan')
         plan3=admin_models.SubscriptionPlan.objects.filter(plan_type='Yearlyplan')
         #print(plan3)
-        total=subscriber.stream_points+subscriber.invitation_points+subscriber.signup_points
+        total=subscriber.total_point
         history=admin_models.Points_History()
         sub_history=admin_models.Subscription_History()
         #print(total)
@@ -1706,84 +1746,45 @@ class subscription(APIView):
             bal=total
         if total>=30 and plan1[0].plan_type.lower()==request.POST['plan'].lower():
             subscriber.subscription_plan=plan1[0].plan_type
+            subscriber.total_point-=30
             subscriber.save()
             history.user=subscriber
-            history.used_track='30'
+            history.used_track='Purchase a weekly subscriptions 30 Points'
             history.save()
             sub_history.user=subscriber
             sub_history.subscription=plan1[0]
             expire=datetime.datetime.now()+datetime.timedelta(days=7)
             sub_history.expire=expire
             sub_history.save()
-            if subscriber.stream_points<=(total-30):
-                subscriber.stream_points=total-30
-                subscriber.invitation_points=0
-                subscriber.signup_points=0
-                subscriber.save()
-            elif subscriber.invitation_points<=(total-30):
-                subscriber.invitation_points=total-30
-                subscriber.stream_points=0
-                subscriber.signup_points=0
-                subscriber.save()
-            elif subscriber.signup_points<=(total-30):
-                subscriber.signup_points=total-30
-                subscriber.stream_points=0
-                subscriber.invitation_points=0
-                subscriber.save()
-            else:
-                subscriber.stream_points=0
-                subscriber.invitation_points=0
-                subscriber.signup_points=0
-            return Response({'success':'True',
-                        'error_msg':'success',
+            return Response({'success':'true',
+                        'error_msg':'',
                         'errors':{},
                         'response':{},
                         },status=status.HTTP_202_ACCEPTED)
         elif total>=125 and plan2[0].plan_type.lower()==request.POST['plan'].lower():
             subscriber.subscription_plan=plan2[0].plan_type
+            subscriber.total_point-=125
             subscriber.save()
             history.used_track='125'
             history.save()
             history.user=subscriber
-            history.used_track='125'
+            history.used_track='Purchase a monthly subscriptions 125 Points'
             history.save()
             sub_history.user=subscriber
             sub_history.subscription=plan2[0]
             expire=datetime.datetime.now()+datetime.timedelta(days=30)
             sub_history.expire=expire
             sub_history.save()
-            if subscriber.stream_points<=(total-125):
-                #print(total-125)
-                subscriber.stream_points=total-125
-                subscriber.invitation_points=0
-                subscriber.signup_points=0
-                total=0
-                subscriber.save()
-            elif subscriber.invitation_points<=(total-125):
-                subscriber.invitation_points=total-125
-                subscriber.stream_points=0
-                subscriber.signup_points=0
-                total=0
-                subscriber.save()
-            elif subscriber.signup_points<=(total-125):
-                subscriber.signup_points=total-125
-                subscriber.stream_points=0
-                subscriber.invitation_points=0
-                total=0
-                subscriber.save()
-            else:
-                subscriber.stream_points=0
-                subscriber.invitation_points=0
-                subscriber.signup_points=0
-            return Response({'success':'True',
-                        'error_msg':'success',
+            return Response({'success':'true',
+                        'error_msg':'',
                         'errors':{},
                         'response':{},
                         },status=status.HTTP_202_ACCEPTED)
         elif total>=1500 and plan3[0].plan_type.lower()==request.POST['plan'].lower():
             subscriber.subscription_plan=plan3[0].plan_type
+            subscriber.total_point-=1500
             subscriber.save()
-            history.used_track='1500'
+            history.used_track='Purchase a monthly subscriptions 1500 Points'
             history.user=subscriber
             history.save()
             sub_history.user=subscriber
@@ -1791,30 +1792,7 @@ class subscription(APIView):
             expire=datetime.datetime.now()+datetime.timedelta(days=360)
             sub_history.expire=expire
             sub_history.save()
-            if subscriber.stream_points<=(total-1500):
-                subscriber.stream_points=total-1500
-                subscriber.invitation_points=0
-                subscriber.signup_points=0
-                total=0
-                subscriber.save()
-            elif subscriber.invitation_points<=(total-1500):
-                subscriber.invitation_points=total-1500
-                subscriber.stream_points=0
-                subscriber.signup_points=0
-                total=0
-                subscriber.save()
-            elif subscriber.signup_points<=(total-1500):
-                subscriber.signup_points=total-1500
-                subscriber.stream_points=0
-                subscriber.invitation_points=0
-                total=0
-                subscriber.save()
-            else:
-                subscriber.stream_points=0
-                subscriber.invitation_points=0
-                subscriber.signup_points=0
-                subscriber.save()
-            return Response({'success':'True',
+            return Response({'success':'true',
                         'error_msg':'success',
                         'errors':{},
                         'response':{},
@@ -1840,10 +1818,19 @@ class point_history(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         histo=admin_models.Points_History.objects.filter(user=requstuser.id)
+        l=[]
+        for i in histo:
+            print(i.used_track)
+            if i.sigin_track!=None:
+                l.append(i)
+            elif i.invite_point!=None:
+                l.append(i)
+            elif i.invite_point!=None:
+                l.append(i)
         return Response({'success':'false',
                         'error_msg':'',
                         'errors':{},
-                        'response':serializers.points_history(histo,many=True).data,
+                        'response':serializers.points_history(l,many=True).data,
                         },status=status.HTTP_202_ACCEPTED)
 
 class user_notification_api(APIView):
@@ -1974,7 +1961,7 @@ class Myplaylist_songs(APIView):
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':{'playlist_songs':song.data},
+                        'response':song.data[0],
                         },status=status.HTTP_200_OK)
     
 class Artist_songs(APIView):
@@ -1986,3 +1973,20 @@ class Artist_songs(APIView):
                         'errors':{},
                         'response':song.data,
                         },status=status.HTTP_200_OK)
+
+class point_history_used(APIView):
+    @is_authenticate()
+    def get(self,request):
+        data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
+        requstuser=tools.get_user(*data)
+        histo=admin_models.Points_History.objects.filter(user=requstuser.id)
+        l=[]
+        for i in histo:
+            print(i.used_track)
+            if i.used_track!=None:
+                l.append(i)
+        return Response({'success':'false',
+                        'error_msg':'',
+                        'errors':{},
+                        'response':serializers.points_history_used(l,many=True).data,
+                        },status=status.HTTP_202_ACCEPTED)

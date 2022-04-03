@@ -51,6 +51,7 @@ class Users(models.Model):
     invitation_points=models.IntegerField(default=0)
     stream_points=models.IntegerField(default=0)
     stream_count=models.IntegerField(default=0)
+    total_point=models.IntegerField(default=0)
 
     #USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ["country_code","phone_number"]

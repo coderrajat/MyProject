@@ -225,7 +225,7 @@ class Genre_Chart_Serializer(serializers.Serializer):
 class show_points(serializers.ModelSerializer):
     class Meta:
         model=account_models.Users
-        fields=('invitation_points','signup_points','stream_points',)
+        fields=('invitation_points','signup_points','stream_points','total_point')
         
 
 
@@ -243,7 +243,7 @@ class new_song(serializers.ModelSerializer):
 class points_history(serializers.ModelSerializer):
     class Meta:
         model=admin_models.Points_History
-        fields=('__all__')
+        fields=("sigin_track","invite_point","stream_track")
         
 class Notification_data(serializers.ModelSerializer):
     class Meta:
@@ -293,7 +293,7 @@ class user_playlist(serializers.ModelSerializer):
 class playlistsong(serializers.ModelSerializer):
     class Meta:
         model=admin_models.playlist_admin
-        fields=['songs']
+        fields=('songs',)
         depth=1
 
 class artistsong(serializers.ModelSerializer):
@@ -301,3 +301,12 @@ class artistsong(serializers.ModelSerializer):
         model=admin_models.songs
         fields=("__all__")
         depth=1
+class total_points(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.Users
+        fields=("total_point",)
+
+class points_history_used(serializers.ModelSerializer):
+    class Meta:
+        model=admin_models.Points_History
+        fields=("used_track",)

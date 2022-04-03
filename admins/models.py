@@ -192,9 +192,8 @@ class Feedback(models.Model):
 
 class Points_History(models.Model):
     user=models.ForeignKey(Users,on_delete=models.CASCADE,null=True,blank=True,related_name="users_points")
-    sigin_track=models.CharField(max_length=264,null=True,blank=True)
-    invite_point=models.CharField(max_length=264,null=True,blank=True)
-    stream_track=models.CharField(max_length=264,null=True,blank=True)
+    receive_track=models.CharField(max_length=264,null=True,blank=True)
+    receive_track_name=models.CharField(max_length=264,null=True,blank=True)
     used_track=models.CharField(max_length=264,null=True,blank=True)
     daytime=models.DateTimeField(default=datetime.now())
 
