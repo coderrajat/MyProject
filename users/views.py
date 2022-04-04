@@ -244,13 +244,13 @@ class Edit_User_Profile(APIView):
         f1=serializers.Edit_User_Profile(user,data=request.data)     
         if not(f1.is_valid()):
             return Response({'success':'false',
-                            'error_msg':'',
+                            'error_msg':'null',
                             'errors':{},
                             'response':{**dict(f1.errors)},
                             },status=status.HTTP_200_OK)
         f1.save()
         return Response({'success':'true',
-                        'error_msg':'',
+                        'error_msg':'null',
                         'errors':{},
                         'response':profile.data,
                         },status=status.HTTP_200_OK)
@@ -1773,7 +1773,7 @@ class subscription(APIView):
                         'error_msg':'',
                         'errors':{},
                         'response':{},
-                        },status=status.HTTP_202_ACCEPTED)
+                        },status=status.HTTP_200_OK)
         elif total>=125 and plan2[0].plan_type.lower()==request.POST['plan'].lower():
             subscriber.subscription_plan=plan2[0].plan_type
             subscriber.total_point-=125
@@ -1792,7 +1792,7 @@ class subscription(APIView):
                         'error_msg':'',
                         'errors':{},
                         'response':{},
-                        },status=status.HTTP_202_ACCEPTED)
+                        },status=status.HTTP_200_OK)
         elif total>=1500 and plan3[0].plan_type.lower()==request.POST['plan'].lower():
             subscriber.subscription_plan=plan3[0].plan_type
             subscriber.total_point-=1500
@@ -1809,21 +1809,21 @@ class subscription(APIView):
                         'error_msg':'success',
                         'errors':{},
                         'response':{},
-                        },status=status.HTTP_202_ACCEPTED)
+                        },status=status.HTTP_200_OK)
         elif request.POST['pay']=='pay':
             amt=((price/coin)*bal-price)*(-1)
             return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
                         'response':{'msg':'you have to pay '+str(amt)},
-                        },status=status.HTTP_202_ACCEPTED)
+                        },status=status.HTTP_200_OK)
 
         else:
             return Response({'success':'false',
                         'error_msg':'You have insufficient coins still you want to purchase the plan?',
                         'errors':{},
                         'response':{},
-                        },status=status.HTTP_202_ACCEPTED)
+                        },status=status.HTTP_200_OK)
 
 class point_history(APIView):
     @is_authenticate()
