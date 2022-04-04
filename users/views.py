@@ -240,7 +240,7 @@ class Edit_User_Profile(APIView):
                             'response':{},
                             },status=status.HTTP_200_OK)
         user=requstuser
-        profile=serializers.Edit_User_Profile(user)
+        profile=serializers.User_Profile(user)
         f1=serializers.Edit_User_Profile(user,data=request.data)     
         if not(f1.is_valid()):
             return Response({'success':'false',
@@ -1960,7 +1960,7 @@ class User_Profile(APIView):
         return Response({'success':'true',
                         'error_msg':'',
                         'errors':{},
-                        'response':serializers.Edit_User_Profile(requstuser).data,
+                        'response':serializers.User_Profile(requstuser).data,
                         },status=status.HTTP_200_OK)
                     
 class Myplaylist_songs(APIView):
