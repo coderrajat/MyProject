@@ -417,7 +417,7 @@ class Song_data(serializers.ModelSerializer):
    
     class Meta:
         model=admin_models.songs
-        fields=["id","name","song_mp3","album","artist","downloads","cover","year","genres","charts","lyrics","number_of_likes","likes"]
+        fields=["id","name","song_mp3","album","artist","downloads","cover","year","genres","charts","lyrics","number_of_likes","likes",'mixing','producer','writer','mastering','artwork','photographer']
         depth=1
 
 # to create a new song      
@@ -440,7 +440,7 @@ class Add_song_serializer(serializers.ModelSerializer):
     #admin_playlist = serializers.CharField(required=False)
     class Meta:
         model=admin_models.songs
-        fields=('name', 'cover', 'album', 'year', 'genres', 'charts', 'lyrics' )
+        fields=('name', 'cover', 'album', 'year', 'genres', 'charts', 'lyrics','mixing','producer','writer','mastering','artwork','photographer' )
 
 
 class Album_data(serializers.ModelSerializer):
