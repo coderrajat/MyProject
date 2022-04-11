@@ -291,7 +291,7 @@ class song_data(serializers.ModelSerializer):
 
     class Meta:
         model=admin_models.songs
-        fields=('id', 'cover', 'name', 'song_mp3', 'artist', 'album', 'genres')
+        fields=('id', 'cover', 'name', 'song_mp3', 'artist', 'album', 'genres','mixing','producer','writer','mastering','artwork','photographer')
         depth=1
 
 class search(serializers.Serializer):
