@@ -1848,7 +1848,7 @@ class user_notification_api(APIView):
         data=tools.decodetoken(request.META['HTTP_AUTHORIZATION'])
         requstuser=tools.get_user(*data)
         try:
-            notification=list(models.Notification_user.objects.filter((Q(user=requstuser.id)) or (Q(user=user_id)))) 
+            notification=list(models.Notification_user.objects.filter((Q(user=requstuser.id)) or (Q(user=user_id))).order_by('-id')) 
             print(notification)
             f1=serializers.Notification_data(notification, many=True)
             return Response({'success':'true',
